@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import {
     CheckCircle,
     Percent,
@@ -61,7 +60,6 @@ const topicStrengths = [
     { name: "Binary Search", percentage: 78 },
 ]
 
-// 28-day contribution data (7 cols × 4 rows)
 const contributionGrid = [
     0, 2, 1, 5, 3, 0, 1,
     4, 0, 2, 6, 1, 3, 0,
@@ -90,12 +88,7 @@ export default function DashboardPage() {
     return (
         <div className="max-w-[1200px] mx-auto space-y-8">
             {/* Header */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.15 }}
-                className="flex flex-col md:flex-row md:items-end justify-between gap-4"
-            >
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-[24px] font-display text-[var(--foreground)]">Dashboard</h1>
                     <p className="text-[var(--text-secondary)] text-sm mt-1">
@@ -114,15 +107,10 @@ export default function DashboardPage() {
                         </span>
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
-            {/* Stats Grid — cards with left-border accents */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.15, delay: 0.05 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-            >
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Total Solved */}
                 <div className="border border-[var(--border)] rounded-[12px] p-5 bg-[var(--surface)]" style={{ borderLeft: "3px solid var(--primary)" }}>
                     <div className="flex justify-between items-start mb-4">
@@ -131,7 +119,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-[32px] font-semibold text-[var(--foreground)] font-mono leading-none mb-3">482</div>
                     <div className="w-full bg-[var(--background)] h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-[var(--primary)] h-full rounded-full" style={{ width: '65%' }} />
+                        <div className="bg-[var(--primary)] h-full rounded-full" style={{ width: "65%" }} />
                     </div>
                     <p className="text-[12px] text-[var(--text-tertiary)] mt-2 font-mono">Top 15% global</p>
                 </div>
@@ -158,12 +146,11 @@ export default function DashboardPage() {
                         <Clock className="w-[18px] h-[18px] text-[var(--text-tertiary)]" strokeWidth={1.5} />
                     </div>
                     <div className="text-[32px] font-semibold text-[var(--foreground)] font-mono leading-none mb-3">24.5h</div>
-                    {/* Mini bar chart */}
                     <div className="flex items-end gap-1 mt-1">
                         {[30, 50, 40, 80, 60, 30, 20].map((h, i) => (
                             <div
                                 key={i}
-                                className="w-1 rounded-sm transition-all"
+                                className="w-1 rounded-sm"
                                 style={{
                                     height: `${h * 0.12}rem`,
                                     background: h >= 70 ? "var(--primary)" : "var(--elevated)",
@@ -173,7 +160,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Next Contest — countdown */}
+                {/* Next Contest */}
                 <div className="border border-[var(--border)] rounded-[12px] p-5 bg-[var(--surface)]" style={{ borderLeft: "3px solid var(--error)" }}>
                     <div className="flex justify-between items-start mb-4">
                         <h3 className="text-sm font-medium text-[var(--text-secondary)]">Next Contest</h3>
@@ -183,19 +170,14 @@ export default function DashboardPage() {
                     <div className="text-[20px] font-mono text-[var(--foreground)] font-semibold mb-3 tabular-nums">
                         04<span className="colon-pulse">:</span>22<span className="colon-pulse">:</span>10
                     </div>
-                    <button className="w-full py-1.5 text-xs font-semibold border border-[var(--border)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] transition-colors rounded-[6px]">
+                    <button className="w-full py-1.5 text-xs font-semibold border border-[var(--border)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] transition-colors duration-150 rounded-[6px]">
                         Register Now
                     </button>
                 </div>
-            </motion.div>
+            </div>
 
             {/* Streak & Contribution Grid */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.15, delay: 0.1 }}
-                className="border border-[var(--border)] rounded-[12px] p-6 bg-[var(--surface)]"
-            >
+            <div className="border border-[var(--border)] rounded-[12px] p-6 bg-[var(--surface)]">
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-baseline gap-3">
                         <div className="flex items-center gap-2">
@@ -206,12 +188,11 @@ export default function DashboardPage() {
                     </div>
                     <span className="text-xs font-mono text-[var(--text-tertiary)]">Last 28 days</span>
                 </div>
-                {/* Grid: 7 columns × 4 rows */}
                 <div className="grid grid-cols-7 gap-1">
                     {contributionGrid.map((count, i) => (
                         <div
                             key={i}
-                            className={`aspect-square rounded-sm ${getContributionColor(count)} transition-colors cursor-default`}
+                            className={`aspect-square rounded-sm ${getContributionColor(count)} cursor-default`}
                             title={`${count} problem${count !== 1 ? "s" : ""}`}
                         />
                     ))}
@@ -225,20 +206,15 @@ export default function DashboardPage() {
                     </div>
                     <span>More</span>
                 </div>
-            </motion.div>
+            </div>
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column — Submissions Table */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.15, delay: 0.15 }}
-                    className="lg:col-span-2 space-y-4"
-                >
+                <div className="lg:col-span-2 space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="text-base font-semibold text-[var(--foreground)]">Recent Submissions</h3>
-                        <button className="text-xs text-[var(--primary)] hover:brightness-125 font-mono transition-all flex items-center gap-1">
+                        <button className="text-xs text-[var(--primary)] hover:brightness-125 font-mono transition-all duration-150 flex items-center gap-1">
                             View All <ExternalLink className="w-3 h-3" />
                         </button>
                     </div>
@@ -256,16 +232,16 @@ export default function DashboardPage() {
                             </thead>
                             <tbody className="text-sm text-[var(--text-secondary)]">
                                 {submissions.map((sub, index) => (
-                                    <tr key={index} className="border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--elevated)]/30 transition-colors group cursor-pointer">
+                                    <tr key={index} className="border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--elevated)]/30 transition-colors duration-150 group cursor-pointer">
                                         <td className="p-4">
-                                            <span className={`inline-block w-2 h-2 rounded-full ${sub.status === 'accepted' ? 'bg-[var(--success)]' :
-                                                sub.status === 'failed' ? 'bg-[var(--error)]' : 'bg-[var(--warning)]'
+                                            <span className={`inline-block w-2 h-2 rounded-full ${sub.status === "accepted" ? "bg-[var(--success)]" :
+                                                sub.status === "failed" ? "bg-[var(--error)]" : "bg-[var(--warning)]"
                                                 }`} />
                                         </td>
-                                        <td className="p-4 font-medium text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">{sub.problem}</td>
+                                        <td className="p-4 font-medium text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors duration-150">{sub.problem}</td>
                                         <td className="p-4">
                                             <span className="flex items-center gap-2">
-                                                {sub.platform === 'LeetCode' ? (
+                                                {sub.platform === "LeetCode" ? (
                                                     <Code className="w-4 h-4 text-[var(--text-tertiary)]" strokeWidth={1.5} />
                                                 ) : (
                                                     <BarChart3 className="w-4 h-4 text-[var(--text-tertiary)]" strokeWidth={1.5} />
@@ -274,11 +250,11 @@ export default function DashboardPage() {
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            <span className={`badge ${sub.difficulty === 'Easy'
-                                                ? 'badge-easy'
-                                                : sub.difficulty === 'Medium'
-                                                    ? 'badge-medium'
-                                                    : 'badge-hard'
+                                            <span className={`badge ${sub.difficulty === "Easy"
+                                                ? "badge-easy"
+                                                : sub.difficulty === "Medium"
+                                                    ? "badge-medium"
+                                                    : "badge-hard"
                                                 }`}>
                                                 {sub.difficulty}
                                             </span>
@@ -289,15 +265,10 @@ export default function DashboardPage() {
                             </tbody>
                         </table>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Right Column — Topic Strength & Daily Goal */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.15, delay: 0.2 }}
-                    className="space-y-6"
-                >
+                <div className="space-y-6">
                     {/* Topic Strength */}
                     <div>
                         <h3 className="text-base font-semibold text-[var(--foreground)] mb-4">Topic Strength</h3>
@@ -321,7 +292,7 @@ export default function DashboardPage() {
                                     </div>
                                 ))}
                             </div>
-                            <button className="w-full mt-6 py-2 border border-[var(--border)] text-xs text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--elevated)] rounded-[6px] transition-all font-mono">
+                            <button className="w-full mt-6 py-2 border border-[var(--border)] text-xs text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--elevated)] rounded-[6px] transition-all duration-150 font-mono">
                                 View Full Analysis
                             </button>
                         </div>
@@ -332,7 +303,6 @@ export default function DashboardPage() {
                         <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1">Daily Goal</h3>
                         <p className="text-xs text-[var(--text-secondary)] mb-4">Solve 2 Hard problems today.</p>
                         <div className="flex items-center gap-4">
-                            {/* Circular progress */}
                             <div className="relative w-12 h-12">
                                 <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
                                     <circle cx="24" cy="24" r="20" className="fill-none stroke-[var(--background)]" strokeWidth="3" />
@@ -345,16 +315,15 @@ export default function DashboardPage() {
                             <div className="flex-1">
                                 <div className="text-xs text-[var(--text-secondary)] mb-1">Progress</div>
                                 <div className="w-full bg-[var(--background)] h-1.5 rounded-full">
-                                    <div className="bg-[var(--primary)] h-full rounded-full transition-all" style={{ width: '0%' }} />
+                                    <div className="bg-[var(--primary)] h-full rounded-full transition-all" style={{ width: "0%" }} />
                                 </div>
                                 <p className="text-[10px] text-[var(--text-tertiary)] mt-1 font-mono">
-                                    {/* Empty state with code comment */}
                                     {"// keep grinding, you got this"}
                                 </p>
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             </div>
 
             {/* Footer */}

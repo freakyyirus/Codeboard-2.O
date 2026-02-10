@@ -1,5 +1,3 @@
-"use client"
-
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function DashboardSkeleton() {
@@ -31,7 +29,7 @@ export function DashboardSkeleton() {
                 ))}
             </div>
 
-            {/* Streak / Contribution Grid */}
+            {/* Contribution Grid */}
             <div className="border border-[var(--border)] rounded-[12px] p-6 bg-[var(--surface)]">
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-baseline gap-3">
@@ -49,7 +47,6 @@ export function DashboardSkeleton() {
 
             {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Table */}
                 <div className="lg:col-span-2 space-y-4">
                     <div className="flex items-center justify-between">
                         <Skeleton className="h-5 w-40" />
@@ -67,8 +64,6 @@ export function DashboardSkeleton() {
                         ))}
                     </div>
                 </div>
-
-                {/* Right column */}
                 <div className="space-y-6">
                     <div>
                         <Skeleton className="h-5 w-28 mb-4" />

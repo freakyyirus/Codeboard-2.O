@@ -1,15 +1,7 @@
-import { cn } from "@/lib/utils"
-
-function Skeleton({
-    className,
-    ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function Skeleton({ className = "" }: { className?: string }) {
     return (
         <div
-            className={cn("skeleton rounded-md", className)}
-            {...props}
+            className={`skeleton rounded-[var(--radius)] bg-[var(--elevated)] ${className}`}
         />
     )
 }
-
-export { Skeleton }

@@ -1,6 +1,3 @@
-"use client"
-
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -9,67 +6,42 @@ export function LandingHero() {
         <section className="relative min-h-screen flex items-center justify-center pt-32 pb-12">
             <div className="max-w-4xl mx-auto px-6 text-center">
                 {/* Badge */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[6px] border border-[var(--border)] bg-[var(--surface)]/50 mb-8 cursor-default"
-                >
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[6px] border border-[var(--border)] bg-[var(--surface)]/50 mb-8 cursor-default">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
                     <span className="text-xs font-mono text-[var(--text-secondary)]">
                         v2.0 shipped
                     </span>
-                </motion.div>
+                </div>
 
-                {/* Main headline — no gradient, clean hierarchy */}
-                <motion.h1
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                    className="text-[32px] md:text-5xl lg:text-6xl font-display mb-6 text-[var(--foreground)]"
-                >
+                {/* Headline */}
+                <h1 className="text-[32px] md:text-5xl lg:text-6xl font-display mb-6 text-[var(--foreground)]">
                     One dashboard for
                     <br className="hidden md:block" />
                     every problem you solve.
-                </motion.h1>
+                </h1>
 
                 {/* Subheadline */}
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.2 }}
-                    className="text-base md:text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-10 leading-relaxed"
-                >
+                <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-[560px] mx-auto mb-10 leading-relaxed">
                     Aggregate LeetCode, Codeforces, and GitHub stats. Track streaks,
                     analyze weaknesses, and solve problems — all without switching tabs.
-                </motion.p>
+                </p>
 
                 {/* CTAs */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-3"
-                >
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                     <Link href="/login">
-                        <Button className="h-10 px-6 bg-[var(--primary)] text-[var(--primary-foreground)] hover:brightness-110 min-w-[140px] font-semibold">
+                        <Button variant="primary" className="min-w-[140px] font-semibold">
                             Get Started
                         </Button>
                     </Link>
                     <Link href="#features">
-                        <Button variant="outline" className="h-10 px-6 min-w-[140px]">
+                        <Button variant="outline" className="min-w-[140px]">
                             See Features
                         </Button>
                     </Link>
-                </motion.div>
+                </div>
 
-                {/* Dashboard Preview — realistic code snippet mockup */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    className="mt-20 relative"
-                >
+                {/* Dashboard Preview — static HTML mockup, no animations */}
+                <div className="mt-20 relative">
                     <div className="relative mx-auto border border-[var(--border)] bg-[var(--surface)] rounded-[12px] shadow-2xl overflow-hidden max-w-4xl">
                         {/* Window chrome */}
                         <div className="h-9 bg-[var(--background)] border-b border-[var(--border)] flex items-center px-4 gap-2">
@@ -128,7 +100,7 @@ export function LandingHero() {
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             </div>
         </section>
     )
