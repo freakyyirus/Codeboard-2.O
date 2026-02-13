@@ -1,4 +1,5 @@
 import { StudioClient } from "@/components/studio/StudioClient"
+import { AIChat } from "@/components/studio/AIChat"
 
 
 // Mock for visual dev first
@@ -22,10 +23,10 @@ export default async function ProblemPage({ params }: { params: { id: string } }
     const problem = MOCK_PROBLEM
 
     return (
-        <div className="h-[calc(100vh-4rem)] flex gap-4 p-4 overflow-hidden">
-            {/* Left: Problem Description */}
-            <div className="w-1/2 flex flex-col gap-4 overflow-y-auto pr-2">
-                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6">
+        <div className="h-[calc(100vh-4rem)] flex overflow-hidden">
+            {/* Left: Problem Description (40%) */}
+            <div className="w-[40%] flex flex-col gap-4 overflow-y-auto p-4 pr-0 border-r border-[var(--border)]">
+                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 min-h-full">
                     <div className="flex items-center justify-between mb-4">
                         <h1 className="text-2xl font-bold tracking-tight">{problem.title}</h1>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium 
@@ -55,13 +56,14 @@ export default async function ProblemPage({ params }: { params: { id: string } }
                 </div>
             </div>
 
-            {/* Right: Code Editor */}
-            <div className="w-1/2 flex flex-col gap-4">
-                <div className="flex-1 bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden flex flex-col">
-                    <div className="flex-1 relative overflow-hidden bg-[#1e1e1e]">
-                        <StudioClient problem={problem} />
-                    </div>
-                </div>
+            {/* Middle: Code Editor (Flex Grow) */}
+            <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
+                <StudioClient problem={problem} />
+            </div>
+
+            {/* Right: AI Assistant (Fixed Width) */}
+            <div className="w-80 border-l border-[var(--border)] bg-[var(--surface)] hidden xl:block">
+                <AIChat />
             </div>
         </div>
     )

@@ -2,6 +2,8 @@ import { getTrendingRepos } from "@/lib/github"
 import { Star, GitFork, User, ExternalLink } from "lucide-react"
 import Link from "next/link"
 
+export const dynamic = 'force-dynamic'
+
 // Mock if API fails
 const MOCK_REPOS = [
     { id: 1, full_name: "donnemartin/system-design-primer", description: "Learn how to design large-scale systems.", stars: 245000, language: "Python", url: "https://github.com/donnemartin/system-design-primer", owner_avatar: "" },

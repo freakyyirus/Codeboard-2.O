@@ -1,6 +1,9 @@
 import { getProblemList } from "@/lib/leetcode"
 import { ProblemTable } from "@/components/problems/ProblemTable"
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 3600
+
 // Mock if API fails (e.g. Rate Limit / No Redis)
 const MOCK_PROBLEMS = [
     { id: "1", title: "Two Sum", slug: "two-sum", difficulty: "Easy", acceptance: "52.4", tags: ["Array", "Hash Table"], paid: false, url: "https://leetcode.com/problems/two-sum" },
