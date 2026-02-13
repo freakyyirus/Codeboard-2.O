@@ -1,122 +1,40 @@
-import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import { Toaster } from "react-hot-toast";
-import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
+import type { Metadata } from 'next'
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
+import './globals.css'
+import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  title: "CodeBoard - DSA + Projects + Contests + AI in ONE Dashboard",
-  description:
-    "Stop tab-switching. Aggregate LeetCode, Codeforces, GitHub, Devfolio instantly. AI-powered IDE included. Built for competitive programmers.",
-  keywords: [
-    "competitive programming",
-    "DSA",
-    "LeetCode",
-    "Codeforces",
-    "GitHub",
-    "coding dashboard",
-    "AI IDE",
-    "hackathons",
-  ],
-  authors: [{ name: "CodeBoard Team" }],
-  creator: "CodeBoard",
+  title: "CodeBoard 2.0 | The Premium Coding Platform",
+  description: "Master algorithms, track your streak, and complete daily challenges on the world's most beautiful coding platform. Built for serious developers.",
   openGraph: {
-    type: "website",
-    locale: "en_US",
+    title: "CodeBoard 2.0",
+    description: "The premium destination for competitive programming.",
     url: "https://codeboard.dev",
     siteName: "CodeBoard",
-    title: "CodeBoard - DSA + Projects + Contests + AI in ONE Dashboard",
-    description:
-      "Stop tab-switching. Aggregate LeetCode, Codeforces, GitHub, Devfolio instantly. AI-powered IDE included.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CodeBoard - Developer Dashboard",
-      },
-    ],
+    locale: "en_US",
+    type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "CodeBoard - DSA + Projects + Contests + AI in ONE Dashboard",
-    description:
-      "Stop tab-switching. Aggregate LeetCode, Codeforces, GitHub, Devfolio instantly.",
-    images: ["/og-image.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  manifest: "/manifest.json",
-};
-
-export const viewport: Viewport = {
-  themeColor: "#020617",
-  width: "device-width",
-  initialScale: 1,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-      </head>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
-      >
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="font-sans antialiased text-white bg-black selection:bg-cyan-500/30">
         {children}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: "#0F172A",
-              color: "#F1F5F9",
-              border: "1px solid #1E293B",
-              borderRadius: "6px",
-              fontSize: "14px",
-              fontFamily: "var(--font-inter), system-ui, sans-serif",
-            },
-            success: {
-              style: {
-                borderLeft: "3px solid #10B981",
-              },
-              iconTheme: {
-                primary: "#10B981",
-                secondary: "#020617",
-              },
-            },
-            error: {
-              style: {
-                borderLeft: "3px solid #F43F5E",
-              },
-              iconTheme: {
-                primary: "#F43F5E",
-                secondary: "#020617",
-              },
-            },
-          }}
-        />
+        <Toaster position="bottom-right" toastOptions={{
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '6px',
+            fontSize: '14px'
+          }
+        }} />
       </body>
     </html>
-  );
+  )
 }
