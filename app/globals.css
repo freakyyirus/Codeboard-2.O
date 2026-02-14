@@ -1,17 +1,25 @@
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────────────────
-   Dark Modern Theme — Black + Off-White
+   Dark Modern Theme — Glassmorphism
    ─────────────────────────────────────────────────────── */
 
-* {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
-/* Custom scrollbar */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -20,116 +28,32 @@
 
 ::-webkit-scrollbar-thumb {
   background: #333;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
-/* ─── Card Styles ───────────────────────────────────── */
-.stat-card {
-  background: #111111;
-  border: 1px solid #1f1f1f;
-  border-radius: 1rem;
+/* ─── Glass Effect ───────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Card Interactions ──────────────────────────────── */
+.card-hover {
   transition: all 0.3s ease;
 }
 
-.stat-card:hover {
+.card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 40px -10px rgba(255, 255, 255, 0.05);
-  border-color: #2a2a2a;
-}
-
-/* ─── Heatmap ───────────────────────────────────────── */
-.heatmap-cell {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  transition: all 0.2s;
-}
-
-.heatmap-cell:hover {
-  transform: scale(1.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.heatmap-level-0 {
-  background-color: #1f1f1f;
-}
-
-.heatmap-level-1 {
-  background-color: #065f46;
-}
-
-.heatmap-level-2 {
-  background-color: #059669;
-}
-
-.heatmap-level-3 {
-  background-color: #10b981;
-}
-
-.heatmap-level-4 {
-  background-color: #34d399;
-}
-
-/* ─── Toggle Switch ─────────────────────────────────── */
-.toggle {
-  width: 44px;
-  height: 24px;
-  background: #22c55e;
-  border-radius: 12px;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.toggle::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: white;
-  border-radius: 50%;
-  top: 2px;
-  right: 2px;
-  transition: transform 0.3s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-/* ─── Circular Chart ────────────────────────────────── */
-.circular-chart {
-  display: block;
-  margin: 0 auto;
-  max-width: 80%;
-  max-height: 250px;
-}
-
-.circle-bg {
-  fill: none;
-  stroke: #1f1f1f;
-  stroke-width: 3.8;
-}
-
-.circle {
-  fill: none;
-  stroke-width: 2.8;
-  stroke-linecap: round;
-  animation: progress 1s ease-out forwards;
-}
-
-@keyframes progress {
-  0% {
-    stroke-dasharray: 0 100;
-  }
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
 /* ─── Animations ────────────────────────────────────── */
-.fade-in {
-  animation: fadeIn 0.5s ease-out;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -142,42 +66,110 @@
   }
 }
 
-.graph-line {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: drawLine 2s ease-out forwards;
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
-@keyframes drawLine {
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+
   to {
-    stroke-dashoffset: 0;
+    transform: translateX(0);
   }
 }
 
-/* ─── Medal Shine ───────────────────────────────────── */
-.medal {
-  position: relative;
-  overflow: hidden;
+.slide-in {
+  animation: slideIn 0.3s ease-out;
 }
 
-.medal::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transform: rotate(45deg);
-  animation: shine 3s infinite;
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+  }
 }
 
-@keyframes shine {
+.ai-active {
+  animation: pulse-glow 2s infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #1f1f1f 25%, #2a2a2a 50%, #1f1f1f 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
   0% {
-    transform: translateX(-100%) rotate(45deg);
+    background-position: 200% 0;
   }
 
   100% {
-    transform: translateX(100%) rotate(45deg);
+    background-position: -200% 0;
   }
+}
+
+/* ─── Editor & Terminal ─────────────────────────────── */
+.editor-container {
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.terminal {
+  background: #0c0c0c;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ─── Utilities ─────────────────────────────────────── */
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(to right, #60a5fa, #a855f7);
+}
+
+/* Difficulty Badges */
+.diff-easy {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.diff-medium {
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+}
+
+.diff-hard {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Chat Bubbles */
+.chat-message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.chat-user {
+  background: #3b82f6;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+  color: white;
+}
+
+.chat-ai {
+  background: #1f1f1f;
+  border: 1px solid #333;
+  border-bottom-left-radius: 4px;
+  color: #e5e7eb;
 }
