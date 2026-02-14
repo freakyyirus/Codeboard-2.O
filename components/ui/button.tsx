@@ -2,38 +2,37 @@ import { ReactNode, ButtonHTMLAttributes } from "react"
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     children: ReactNode
-    variant?: "primary" | "secondary" | "ghost" | "outline"
-    size?: "sm" | "md" | "lg" | "icon"
+    variant?: "brutal-primary" | "brutal-secondary" | "brutal-pill" | "outline"
+    size?: "sm" | "md" | "lg"
 }
 
 const variants = {
-    primary:
-        "bg-[var(--primary)] text-[var(--primary-foreground)] hover:brightness-110",
-    secondary:
-        "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--elevated)]",
-    ghost:
-        "hover:bg-[var(--secondary)] text-[var(--foreground)]",
+    "brutal-primary":
+        "bg-[var(--color-bg)] text-[var(--color-text)] border-brutal shadow-brutal-md active-brutal uppercase font-bold tracking-wide",
+    "brutal-secondary":
+        "bg-[var(--color-surface)] text-[var(--color-text-inverse)] border-brutal shadow-brutal-md active-brutal uppercase font-bold tracking-wide",
+    "brutal-pill":
+        "bg-[var(--color-bg)] text-[var(--color-text)] border-brutal shadow-brutal-sm active-brutal rounded-[50px] uppercase font-bold tracking-wide text-sm",
     outline:
-        "border border-[var(--border)] bg-transparent hover:bg-[var(--elevated)] text-[var(--foreground)]",
+        "bg-transparent text-[var(--color-text-inverse)] border-brutal shadow-brutal-md active-brutal uppercase font-bold tracking-wide",
 }
 
 const sizes = {
-    sm: "h-8 px-3 text-sm",
-    md: "h-10 px-4 text-sm",
-    lg: "h-12 px-6 text-base",
-    icon: "h-10 w-10",
+    sm: "h-10 px-4 text-sm",
+    md: "h-12 px-6 text-base",
+    lg: "h-14 px-8 text-lg",
 }
 
 export function Button({
     children,
-    variant = "primary",
+    variant = "brutal-primary",
     size = "md",
     className = "",
     ...props
 }: ButtonProps) {
     return (
         <button
-            className={`inline-flex items-center justify-center font-medium rounded-[var(--radius)] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:translate-y-px active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
+            className={`inline-flex items-center justify-center font-bold transition-all duration-100 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
             {...props}
         >
             {children}

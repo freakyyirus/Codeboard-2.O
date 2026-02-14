@@ -1,76 +1,67 @@
 "use client"
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ChevronsRight } from "lucide-react"
 
-interface DayActivity {
-    date: string
-    count: number
-}
+const months = ["Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb"]
+const heatmapData = [
+    [0, 0, 0, 1],
+    [2, 1, 0, 0],
+    [0, 0, 0, 0],
+    [1, 2, 0, 0],
+    [3, 1, 2, 0],
+    [4, 3, 2, 1],
+    [0, 0, 0, 0],
+]
 
 interface ActivityHeatmapProps {
-    data: DayActivity[]
+    submissions?: number
+    maxStreak?: number
+    currentStreak?: number
 }
 
-export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
-    // Generate 52 weeks of mock data if not provided
-    const weeks = Array.from({ length: 52 }).map((_, weekIndex) => {
-        return Array.from({ length: 7 }).map((_, dayIndex) => {
-            const date = new Date()
-            date.setDate(date.getDate() - (52 * 7) + (weekIndex * 7) + dayIndex)
-            return {
-                date: date.toISOString().split('T')[0],
-                count: Math.random() > 0.7 ? Math.floor(Math.random() * 5) : 0,
-            }
-        })
-    })
-
-    const getColor = (count: number) => {
-        if (count === 0) return "bg-[#1a1a1a]"
-        if (count <= 2) return "bg-[#0e4429]"
-        if (count <= 4) return "bg-[#006d32]"
-        if (count <= 6) return "bg-[#26a641]"
-        return "bg-[#39d353]"
-    }
-
+export function ActivityHeatmap({
+    submissions = 29,
+    maxStreak = 6,
+    currentStreak = 0,
+}: ActivityHeatmapProps) {
     return (
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[8px] p-5 h-full flex flex-col">
+        <div className="stat-card p-6">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[14px] font-medium text-[var(--foreground)]">Activity</h3>
-                <span className="text-[12px] text-[var(--text-tertiary)]">Last year</span>
-            </div>
-
-            <div className="flex-1 flex items-center overflow-x-auto pb-2 scrollbar-hide">
-                <div className="grid grid-flow-col gap-[3px] auto-cols-[10px]">
-                    {weeks.map((week, i) => (
-                        <div key={i} className="grid grid-rows-7 gap-[3px]">
-                            {week.map((day, j) => (
-                                <TooltipProvider key={`${i}-${j}`}>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div
-                                                className={`w-[10px] h-[10px] rounded-[2px] ${getColor(day.count)} transition-colors duration-75 hover:ring-1 hover:ring-[var(--text-secondary)]`}
-                                            />
-                                        </TooltipTrigger>
-                                        <TooltipContent className="bg-[var(--background)] border border-[var(--border)] text-[11px] px-2 py-1">
-                                            <p>{day.date}: {day.count} problems</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            ))}
-                        </div>
-                    ))}
+                <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <span>
+                        Submissions <strong className="text-white">{submissions}</strong>
+                    </span>
+                    <span>
+                        Max.Streak <strong className="text-white">{maxStreak}</strong>
+                    </span>
+                    <span>
+                        Current.Streak{" "}
+                        <strong className={currentStreak === 0 ? "text-red-400" : "text-green-400"}>
+                            {currentStreak}
+                        </strong>
+                    </span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <select className="text-sm border border-[#1f1f1f] rounded-lg px-2 py-1 bg-[#1a1a1a] text-gray-300">
+                        <option>Current</option>
+                    </select>
+                    <button className="text-gray-500 hover:text-gray-300">
+                        <ChevronsRight className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
 
-            {/* Legend */}
-            <div className="flex items-center gap-2 mt-4 text-[10px] text-[var(--text-tertiary)] ml-auto">
-                <span>Less</span>
-                <div className="w-[10px] h-[10px] rounded-[2px] bg-[#1a1a1a]" />
-                <div className="w-[10px] h-[10px] rounded-[2px] bg-[#0e4429]" />
-                <div className="w-[10px] h-[10px] rounded-[2px] bg-[#006d32]" />
-                <div className="w-[10px] h-[10px] rounded-[2px] bg-[#26a641]" />
-                <div className="w-[10px] h-[10px] rounded-[2px] bg-[#39d353]" />
-                <span>More</span>
+            <div className="flex gap-3">
+                {months.map((month, mi) => (
+                    <div key={month} className="flex flex-col gap-1">
+                        <span className="text-xs text-gray-500 mb-1">{month}</span>
+                        <div className="grid grid-cols-4 gap-1">
+                            {heatmapData[mi].map((level, ci) => (
+                                <div key={ci} className={`heatmap-cell heatmap-level-${level}`} />
+                            ))}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     )

@@ -1,255 +1,183 @@
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════════════════
-   CODEBOARD 2.0 DESIGN SYSTEM — Vercel Dark (PRD Spec)
-   Palette: Black (#000000) base, Surface (#111111), Blue (#0070f3)
-   Typography: Geist Sans + Geist Mono
-   Spacing: 4px grid
-   ═══════════════════════════════════════════════════════════ */
-
-:root {
-  /* Background Hierarchy */
-  --background: #000000;
-  /* Pure black - Vercel style */
-  --surface: #111111;
-  /* Elevated cards */
-  --secondary: #1a1a1a;
-  /* Inputs, hover states */
-  --elevated: #111111;
-  /* Alias for surface */
-
-  /* Text hierarchy */
-  --foreground: #ffffff;
-  /* Primary text */
-  --foreground-secondary: #888888;
-  /* Muted text */
-  --foreground-tertiary: #666666;
-  /* Disabled */
-
-  --text-secondary: #888888;
-  /* Standard alias */
-  --text-tertiary: #666666;
-  /* Standard alias */
-
-  /* Accents */
-  --primary: #0070f3;
-  /* Vercel Blue (Action/Success) */
-  --primary-foreground: #ffffff;
-
-  --success: #0070f3;
-  /* Success = Blue in Vercel Design */
-  --warning: #f5a623;
-  /* Amber */
-  --error: #ff0000;
-  /* Red */
-
-  /* Surfaces */
-  --card: #111111;
-  --card-foreground: #ffffff;
-  --popover: #111111;
-  --popover-foreground: #ffffff;
-  --muted: #1a1a1a;
-  --muted-foreground: #888888;
-  --accent: #111111;
-  --accent-foreground: #ffffff;
-  --destructive: #ff0000;
-  --destructive-foreground: #ffffff;
-
-  /* Borders & Interactive */
-  --border: #333333;
-  --border-hover: #444444;
-  --input: #333333;
-  --ring: #0070f3;
-  --radius: 6px;
-
-  /* Platform Colors (Desaturated) */
-  --platform-leetcode: #ffa116;
-  --platform-codeforces: #bfbfbf;
-  --platform-codechef: #5b4638;
-  --platform-github: #f0f0f0;
-  --platform-hackerrank: #10B981;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  --color-secondary: var(--secondary);
-  --color-elevated: var(--elevated);
-
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-error: var(--error);
-
-  --color-text-secondary: var(--text-secondary);
-  --color-text-tertiary: var(--text-tertiary);
-
-  --color-border: var(--border);
-  --color-border-hover: var(--border-hover);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: calc(var(--radius));
-  --radius-lg: calc(var(--radius) + 2px);
-
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-}
+/* ───────────────────────────────────────────────────────
+   Dark Modern Theme — Black + Off-White
+   ─────────────────────────────────────────────────────── */
 
 * {
-  border-color: var(--border);
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body {
-  background: var(--background);
-  color: var(--text-secondary);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ─── Typography utilities ──────────────────────────────── */
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--foreground);
-  letter-spacing: -0.02em;
-  font-weight: 600;
-}
-
-code,
-pre {
-  font-family: var(--font-mono);
-}
-
-.font-display {
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-/* ─── Layout Utilities ──────────────────────────────────── */
-
-.layout-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  column-gap: 24px;
-  max-width: 1536px;
-  /* 2xl breakpoint */
-  margin: 0 auto;
-}
-
-/* ─── Animation: Pulse & Flicker ───────────────────────── */
-
-@keyframes colon-pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.3;
-  }
-}
-
-.colon-pulse {
-  animation: colon-pulse 1s ease-in-out infinite;
-}
-
-@keyframes flame-flicker {
-
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-
-  25% {
-    transform: scale(1.05) rotate(-2deg);
-    opacity: 0.9;
-  }
-
-  50% {
-    transform: scale(0.98) rotate(1deg);
-    opacity: 1;
-  }
-
-  75% {
-    transform: scale(1.02) rotate(-1deg);
-    opacity: 0.85;
-  }
-}
-
-.flame-flicker {
-  animation: flame-flicker 2s ease-in-out infinite;
-}
-
-/* ─── Skeleton Loading (Diagonal Shimmer) ──────────────── */
-
-.skeleton {
-  background: linear-gradient(135deg,
-      var(--secondary) 25%,
-      #262626 50%,
-      var(--secondary) 75%);
-  background-size: 200% 200%;
-  animation: skeleton-loading 1.5s ease-in-out infinite;
-}
-
-@keyframes skeleton-loading {
-  0% {
-    background-position: 200% 200%;
-  }
-
-  100% {
-    background-position: -200% -200%;
-  }
-}
-
-/* ─── Custom Scrollbar ─────────────────────────────────── */
-
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary);
+  background: #333;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: #555;
 }
 
-/* ─── Component: Problem Card ─────────────────────────── */
-
-.problem-card:hover {
-  border-color: var(--border-hover);
+/* ─── Card Styles ───────────────────────────────────── */
+.stat-card {
+  background: #111111;
+  border: 1px solid #1f1f1f;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
 }
 
-/* ─── Reduced Motion ──────────────────────────────────── */
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px -10px rgba(255, 255, 255, 0.05);
+  border-color: #2a2a2a;
+}
 
-@media (prefers-reduced-motion: reduce) {
+/* ─── Heatmap ───────────────────────────────────────── */
+.heatmap-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+.heatmap-cell:hover {
+  transform: scale(1.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.heatmap-level-0 {
+  background-color: #1f1f1f;
+}
+
+.heatmap-level-1 {
+  background-color: #065f46;
+}
+
+.heatmap-level-2 {
+  background-color: #059669;
+}
+
+.heatmap-level-3 {
+  background-color: #10b981;
+}
+
+.heatmap-level-4 {
+  background-color: #34d399;
+}
+
+/* ─── Toggle Switch ─────────────────────────────────── */
+.toggle {
+  width: 44px;
+  height: 24px;
+  background: #22c55e;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  right: 2px;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Circular Chart ────────────────────────────────── */
+.circular-chart {
+  display: block;
+  margin: 0 auto;
+  max-width: 80%;
+  max-height: 250px;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #1f1f1f;
+  stroke-width: 3.8;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  animation: progress 1s ease-out forwards;
+}
+
+@keyframes progress {
+  0% {
+    stroke-dasharray: 0 100;
+  }
+}
+
+/* ─── Animations ────────────────────────────────────── */
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.graph-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawLine 2s ease-out forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ─── Medal Shine ───────────────────────────────────── */
+.medal {
+  position: relative;
+  overflow: hidden;
+}
+
+.medal::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: rotate(45deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+
+  100% {
+    transform: translateX(100%) rotate(45deg);
   }
 }

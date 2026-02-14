@@ -1,105 +1,56 @@
 "use client"
 
-import {
-    Brain,
-    Terminal,
-    Users,
-    CalendarDays,
-    LayoutDashboard,
-    Zap,
-} from "lucide-react"
+import { LayoutDashboard, Network, Users, Terminal, Calendar, Zap } from "lucide-react"
 
 const features = [
-    {
-        icon: LayoutDashboard,
-        title: "Dev Dashboard",
-        description: "Your unified command center. Stats, streaks, submissions — everything at a glance.",
-        accent: "var(--primary)",
-        span: "md:col-span-2",
-    },
-    {
-        icon: Brain,
-        title: "Problem Logic — DSA",
-        description: "Filter by topic, company tag, and difficulty. Track which patterns you've mastered.",
-        accent: "var(--warning)",
-        span: "",
-    },
-    {
-        icon: Users,
-        title: "Social Feed",
-        description: "See what friends are solving. Compete on leaderboards. Follow top performers.",
-        accent: "var(--success)",
-        span: "",
-    },
-    {
-        icon: Terminal,
-        title: "CodeBoard Studio",
-        description: "A built-in IDE with AI assistance. Write, run, and submit code without leaving the platform.",
-        accent: "#8B5CF6",
-        span: "md:col-span-2",
-    },
-    {
-        icon: CalendarDays,
-        title: "Event Calendar",
-        description: "Never miss a contest. LeetCode, Codeforces, HackerRank — all schedules, one calendar.",
-        accent: "var(--error)",
-        span: "",
-    },
-    {
-        icon: Zap,
-        title: "AI-Powered Insights",
-        description: "Smart recommendations for what to practice next based on your performance patterns.",
-        accent: "var(--primary)",
-        span: "",
-    },
+    { icon: LayoutDashboard, num: "01", title: "DEV DASHBOARD", desc: "Your unified command center. Stats, streaks, submissions — everything at a glance.", wide: true, inverted: true },
+    { icon: Network, num: "02", title: "DSA TRACKER", desc: "Filter by topic, company tag, and difficulty.", wide: false, inverted: false },
+    { icon: Users, num: "03", title: "SOCIAL FEED", desc: "See what friends are solving. Compete on leaderboards.", wide: false, inverted: false },
+    { icon: Terminal, num: "04", title: "CODEBOARD STUDIO", desc: "A built-in IDE with AI assistance. Write, run, and submit code without leaving.", wide: true, inverted: true },
+    { icon: Calendar, num: "05", title: "CONTEST CALENDAR", desc: "Never miss a contest. All schedules, one calendar.", wide: false, inverted: false },
+    { icon: Zap, num: "06", title: "AI RECOMMENDATIONS", desc: "Smart recommendations based on your patterns.", wide: false, inverted: false },
 ]
 
 export function FeaturesGrid() {
     return (
-        <section className="py-24 relative">
-            <div className="max-w-6xl mx-auto px-6">
-                {/* Section header */}
+        <section id="features" className="py-24 px-6 bg-white text-black">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
                 <div className="text-center mb-16">
-                    <p className="text-xs font-mono text-[var(--primary)] uppercase tracking-widest mb-4">
+                    <span className="inline-block px-4 py-2 rounded-full border border-black/20 text-xs font-bold uppercase tracking-wider mb-4">
                         Features
-                    </p>
-                    <h2 className="text-[28px] md:text-[40px] font-display text-[var(--foreground)] mb-4">
-                        Everything you need,<br className="hidden md:block" /> nothing you don&apos;t.
+                    </span>
+                    <h2 className="text-5xl md:text-7xl font-black mb-4 tracking-tight text-black">
+                        EVERYTHING<br />YOU NEED.
                     </h2>
-                    <p className="text-base text-[var(--text-secondary)] max-w-lg mx-auto">
+                    <p className="text-gray-600 max-w-xl mx-auto">
                         Six powerful modules designed to replace six browser tabs. Focus on solving, not searching.
                     </p>
                 </div>
 
                 {/* Bento Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {features.map((feature, index) => (
+                <div className="grid md:grid-cols-3 gap-4" style={{ gridAutoRows: "200px" }}>
+                    {features.map((f) => (
                         <div
-                            key={feature.title}
-                            className={`bento-card group ${feature.span}`}
+                            key={f.num}
+                            className={`bento-card ${f.wide ? "md:col-span-2" : ""} ${f.inverted ? "bg-black text-white" : "bg-gray-100"
+                                } rounded-3xl p-8 flex flex-col justify-between group cursor-pointer`}
                         >
-                            {/* Subtle gradient accent on hover */}
-                            <div
-                                className="absolute top-0 left-0 right-0 h-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                                style={{ background: `linear-gradient(90deg, transparent, ${feature.accent}, transparent)` }}
-                            />
-
-                            <div
-                                className="w-10 h-10 rounded-[10px] border border-[var(--border)] flex items-center justify-center mb-5 icon-glow"
-                                style={{ background: `${feature.accent}10` }}
-                            >
-                                <feature.icon
-                                    className="w-5 h-5"
-                                    style={{ color: feature.accent }}
-                                    strokeWidth={1.5}
-                                />
+                            <div>
+                                <div className={`w-12 h-12 ${f.inverted ? "bg-white/10 group-hover:bg-white/20" : "bg-black group-hover:scale-110"
+                                    } rounded-2xl flex items-center justify-center mb-4 transition-all`}>
+                                    <f.icon className={`w-6 h-6 ${f.inverted ? "text-white" : "text-white"}`} />
+                                </div>
+                                <div className={`text-xs font-mono ${f.inverted ? "text-gray-500" : "text-gray-400"} mb-2`}>
+                                    {f.num}
+                                </div>
+                                <h3 className={`${f.wide ? "text-2xl" : "text-xl"} font-bold mb-2`}>
+                                    {f.title}
+                                </h3>
+                                <p className={`${f.inverted ? "text-gray-400" : "text-gray-600"} text-sm ${f.wide ? "max-w-sm" : ""}`}>
+                                    {f.desc}
+                                </p>
                             </div>
-                            <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">
-                                {feature.title}
-                            </h3>
-                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                                {feature.description}
-                            </p>
                         </div>
                     ))}
                 </div>

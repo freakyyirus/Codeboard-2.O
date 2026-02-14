@@ -1,36 +1,33 @@
 "use client"
 
+import { Info } from "lucide-react"
+
 const topics = [
-    { name: "Arrays", count: 42 },
-    { name: "HashMap & Set", count: 35 },
-    { name: "Dynamic Programming", count: 28 },
-    { name: "Math", count: 22 },
-    { name: "Graphs", count: 18 },
-    { name: "Trees", count: 15 },
+    { name: "HashMap and Set", count: 1 },
+    { name: "Arrays", count: 1 },
+    { name: "Math", count: 1 },
 ]
 
 export function TopicAnalysis() {
-    const maxCount = Math.max(...topics.map(t => t.count))
+    const max = Math.max(...topics.map((t) => t.count), 1)
 
     return (
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[8px] p-5 h-full">
-            <h3 className="text-[14px] font-medium text-[var(--foreground)] mb-4">DSA Topic Analysis</h3>
+        <div className="stat-card p-6">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-gray-400 font-medium">DSA Topic Analysis</h3>
+                <button className="text-gray-500 hover:text-gray-300">
+                    <Info className="w-4 h-4" />
+                </button>
+            </div>
             <div className="space-y-4">
                 {topics.map((topic) => (
-                    <div key={topic.name} className="group cursor-default">
-                        <div className="flex justify-between text-[12px] mb-1.5">
-                            <span className="text-[var(--text-secondary)] font-medium group-hover:text-[var(--foreground)] transition-colors">
-                                {topic.name}
-                            </span>
-                            <span className="text-[var(--foreground)] font-mono">
-                                {topic.count}
-                            </span>
-                        </div>
-                        <div className="h-1.5 bg-[var(--secondary)] rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-[var(--primary)] rounded-full transition-all duration-500 group-hover:bg-[var(--primary)]/80"
-                                style={{ width: `${(topic.count / maxCount) * 100}%` }}
-                            />
+                    <div key={topic.name} className="flex items-center gap-4">
+                        <span className="text-sm text-gray-400 w-32 text-right shrink-0">{topic.name}</span>
+                        <div
+                            className="h-6 bg-blue-600 rounded flex items-center justify-end px-2 transition-all"
+                            style={{ width: `${(topic.count / max) * 100}%`, minWidth: "40px" }}
+                        >
+                            <span className="text-white text-sm font-medium">{topic.count}</span>
                         </div>
                     </div>
                 ))}

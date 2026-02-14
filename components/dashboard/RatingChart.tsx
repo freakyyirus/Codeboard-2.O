@@ -1,99 +1,62 @@
 "use client"
 
-import { Info } from "lucide-react"
+interface RatingChartProps {
+    rating?: number
+    date?: string
+    contest?: string
+    rank?: number
+}
 
-export function RatingChart() {
-    // Mock Data: 10 Contests
-    // Values: 1000, 1050, 1030, 1100, 1150, 1120, 1180, 1190, 1160, 1205
-    const data = [1000, 1050, 1030, 1100, 1150, 1120, 1180, 1190, 1160, 1205]
-    const min = 1000
-    const max = 1250
-    const range = max - min
-
-    // Generate Path
-    const points = data.map((val, i) => {
-        const x = (i / (data.length - 1)) * 100
-        const y = 100 - ((val - min) / range) * 100
-        return `${x},${y}`
-    }).join(" ")
-
-    // Smooth curve would need logic, for now stick to polyline for simplicity
-    // Or generate a cubic bezier if possible, but let's stick to simple line for mock
-
+export function RatingChart({
+    rating = 1205,
+    date = "21 Jan 2026",
+    contest = "Starters 222 (Rated)",
+    rank = 8214,
+}: RatingChartProps) {
     return (
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[8px] p-6 h-full flex flex-col relative overflow-hidden group">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-8 relative z-10">
+        <div className="stat-card p-6">
+            <div className="flex items-start justify-between mb-6">
                 <div>
-                    <h3 className="text-[18px] font-medium text-[var(--foreground)]">Rating Progress</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="w-2 h-2 rounded-full bg-[var(--platform-codechef)]" />
-                        <p className="text-[14px] text-[var(--text-secondary)]">CodeChef • Last 10 contests</p>
-                    </div>
+                    <h3 className="text-gray-400 font-medium mb-1">Rating</h3>
+                    <p className="text-4xl font-bold text-white">{rating}</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-[24px] font-mono font-semibold text-[var(--foreground)] leading-none">1205</p>
-                    <p className="text-[12px] text-[var(--success)] font-mono mt-1">+45 last contest</p>
+                    <p className="text-sm text-gray-500">{date}</p>
+                    <p className="font-medium text-white">{contest}</p>
+                    <p className="text-sm text-gray-500">Rank: {rank.toLocaleString()}</p>
                 </div>
             </div>
+            <div className="h-48 w-full">
+                <svg viewBox="0 0 400 150" className="w-full h-full">
+                    {/* Grid lines */}
+                    <line x1="0" y1="120" x2="400" y2="120" stroke="#1f1f1f" strokeWidth="1" />
+                    <line x1="0" y1="90" x2="400" y2="90" stroke="#1f1f1f" strokeWidth="1" />
+                    <line x1="0" y1="60" x2="400" y2="60" stroke="#1f1f1f" strokeWidth="1" />
+                    <line x1="0" y1="30" x2="400" y2="30" stroke="#1f1f1f" strokeWidth="1" />
 
-            {/* Chart Area */}
-            <div className="flex-1 w-full h-full relative min-h-[200px]">
-                {/* Grid Lines */}
-                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                    <div className="border-t border-[var(--border)] border-dashed opacity-30 w-full" />
-                    <div className="border-t border-[var(--border)] border-dashed opacity-30 w-full" />
-                    <div className="border-t border-[var(--border)] border-dashed opacity-30 w-full" />
-                    <div className="border-t border-[var(--border)] border-dashed opacity-30 w-full" />
-                </div>
-
-                {/* SVG Chart */}
-                <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                    <defs>
-                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
-                            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
-                        </linearGradient>
-                    </defs>
-
-                    {/* Fill Area */}
+                    {/* Area fill */}
                     <path
-                        d={`M0,100 L0,${100 - ((data[0] - min) / range) * 100} ${points.split(" ").map(p => "L" + p).join(" ")} L100,100 Z`}
-                        fill="url(#chartGradient)"
+                        d="M 0 120 Q 50 100, 100 80 T 200 60 T 300 40 T 400 20 L 400 120 Z"
+                        fill="#f97316"
+                        opacity="0.1"
                     />
 
                     {/* Line */}
-                    <polyline
-                        points={points}
+                    <path
+                        className="graph-line"
+                        d="M 0 120 Q 50 100, 100 80 T 200 60 T 300 40 T 400 20"
                         fill="none"
-                        stroke="var(--primary)"
-                        strokeWidth="2"
-                        vectorEffect="non-scaling-stroke"
-                        className="drop-shadow-lg"
+                        stroke="#f97316"
+                        strokeWidth="3"
                     />
 
-                    {/* Data Points (optional) */}
-                    {data.map((val, i) => {
-                        const x = (i / (data.length - 1)) * 100
-                        const y = 100 - ((val - min) / range) * 100
-                        return (
-                            <circle
-                                key={i}
-                                cx={x}
-                                cy={y}
-                                r="4"
-                                className="fill-[var(--surface)] stroke-[var(--primary)] stroke-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                                vectorEffect="non-scaling-stroke"
-                            />
-                        )
-                    })}
+                    {/* Y-axis labels */}
+                    <text x="5" y="125" fontSize="10" fill="#555">900</text>
+                    <text x="5" y="95" fontSize="10" fill="#555">950</text>
+                    <text x="5" y="65" fontSize="10" fill="#555">1000</text>
+                    <text x="5" y="35" fontSize="10" fill="#555">1050</text>
+                    <text x="5" y="15" fontSize="10" fill="#555">1100</text>
                 </svg>
-
-                {/* Tooltip Overlay (Mock Interactive) */}
-                <div className="absolute top-0 right-0 p-2 bg-[var(--background)] border border-[var(--border)] rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <p className="font-mono text-white">Latest: 1205</p>
-                    <p className="text-[var(--text-tertiary)]">Rank: 245</p>
-                </div>
             </div>
         </div>
     )

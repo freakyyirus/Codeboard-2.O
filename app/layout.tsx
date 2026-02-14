@@ -5,11 +5,11 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  title: "CodeBoard 2.0 | The Premium Coding Platform",
-  description: "Master algorithms, track your streak, and complete daily challenges on the world's most beautiful coding platform. Built for serious developers.",
+  title: "CodeBoard — Developer Dashboard",
+  description: "Aggregate LeetCode, Codeforces, and GitHub stats. Track streaks, analyze weaknesses, and level up — all without switching tabs.",
   openGraph: {
-    title: "CodeBoard 2.0",
-    description: "The premium destination for competitive programming.",
+    title: "CodeBoard — Developer Dashboard",
+    description: "One dashboard for all your competitive programming platforms.",
     url: "https://codeboard.dev",
     siteName: "CodeBoard",
     locale: "en_US",
@@ -24,14 +24,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="font-sans antialiased text-white bg-black selection:bg-cyan-500/30">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+      </head>
+      <body className="bg-black text-white overflow-x-hidden antialiased">
         {children}
         <Toaster position="bottom-right" toastOptions={{
           style: {
-            background: '#333',
+            background: '#1a1a1a',
             color: '#fff',
-            borderRadius: '6px',
-            fontSize: '14px'
+            borderRadius: '12px',
+            fontSize: '14px',
+            border: '1px solid rgba(255,255,255,0.1)'
           }
         }} />
       </body>
