@@ -1,26 +1,23 @@
-# 🚀 CodeBoard 2.0
-
 <div align="center">
 
-  <h1>The Ultimate Developer Intelligence Platform</h1>
-  
-  <p>
-    <strong>Track. Analyze. Grow.</strong>
-    <br />
-    A next-generation dashboard for developers to master data structures, algorithms, and project management.
-  </p>
+<img src="./public/codeboard-logo.jpg" alt="CodeBoard Logo" width="120" />
 
-  <p>
-    <a href="#features">Features</a> •
-    <a href="#tech-stack">Tech Stack</a> •
-    <a href="#getting-started">Getting Started</a>
-  </p>
+# CodeBoard
 
-  <!-- 
-    🖼️ PLACEHOLDER: Add a hero screenshot of your dashboard here!
-    Example: ![Dashboard Hero](/public/dashboard-hero.png) 
-  -->
-  <img src="https://via.placeholder.com/1200x600/0f0f0f/444444?text=CodeBoard+Dashboard+Preview" alt="CodeBoard Dashboard" width="100%" />
+### The Complete Developer Productivity & Analytics Platform 🚀
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth_&_DB-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D?style=for-the-badge&logo=redis)](https://upstash.com/)
+
+[Features](#-core-features) •
+[Architecture](#-system-architecture) •
+[Quick Start](#-quick-start) •
+[API](#-api-structure) •
+[Contributing](#-contributing)
 
 </div>
 
@@ -28,135 +25,293 @@
 
 ## ⚡ Overview
 
-**CodeBoard 2.0** is not just another dashboard; it's your personal command center for coding excellence. Seamlessly blending the utility of GitHub, the competitive edge of LeetCode, and the engagement of social platforms, CodeBoard provides actionable insights into your development journey.
+**CodeBoard** is the ultimate dashboard for competitive programmers and developers. It aggregates your coding journey from platforms like **LeetCode, Codeforces, and GitHub** into a single, beautiful interface.
 
-Whether you're preparing for technical interviews, tracking open-source contributions, or managing personal projects, CodeBoard gives you the data you need in a stunning, distraction-free environment.
+Designed for students, job seekers, and serious developers, CodeBoard helps you **track progress, analyze performance, and stay consistent** with streaks, leaderboards, and AI-driven insights. It transforms scattered coding stats into a unified professional portfolio.
 
-## ✨ Key Features
-
-### 📊 Interactive Analytics Dashboard
-Visualize your growth with precision. CodeBoard aggregates data from multiple sources to give you a complete picture of your skills.
-- **Growth Trends**: Interactive area charts showing your problem-solving velocity over time. 
-- **Skill Radar**: A hexagonal radar chart pinpoints your strengths (e.g., DP, Graphs) and weaknesses.
-- **Activity Heatmap**: GitHub-style contribution tracking for consistency.
-- **Platform Stats**: Real-time integration with LeetCode & Codeforces ratings.
-
-<!-- 
-  🖼️ PLACEHOLDER: Add a screenshot of the Analytics page here.
-  <img src="/public/analytics-preview.png" alt="Analytics" width="100%" />
--->
-
-### 🏆 Global Leaderboard
-Compete with the best. Our real-time leaderboard gamifies your progress.
-- **Animated Podium**: A premium, 3D-style podium showcasing the top 3 developers.
-- **Rankings**: Filterable list of top performers by problems solved or rating.
-- **Badges & Ranks**: Earn visual distinctions as you climb the ladder.
-
-<!-- 
-  🖼️ PLACEHOLDER: Add a screenshot of the Leaderboard page here. 
--->
-
-### 💻 CodeBoard Studio
-A powerful, built-in IDE for quick experiments and snippet management.
-- **Monaco Editor**: The same engine that powers VS Code, right in your browser.
-- **Multi-language Support**: Syntax highlighting for TypeScript, Python, C++, and more.
-- **Dark Mode Optimized**: Designed to reduce eye strain during late-night coding sessions.
-
-### 😺 Desktop Companion (Umaru)
-A touch of personality for your workspace.
-- **Interactive Pet**: A virtual companion that reacts to your typing speed and mouse movements.
-- **Input Mirror**: Visualizes your keystrokes in real-time, adding life to your dashboard.
+| Problem | Solution |
+| :--- | :--- |
+| **Fragmented Data** — Stats scattered across 5+ sites (LC, CF, GitHub). | **Unified Profile** — One dashboard syncing all your coding metrics in real-time. |
+| **Lack of Consistency** — Hard to maintain streaks without visualization. | **Activity Heatmaps** — GitHub-style contribution graphs for all your coding platforms. |
+| **No Social Proof** — Resumes don't show "daily effort". | **Public Leaderboards** — Compete with friends and showcase your global rank. |
+| **Unorganized Prep** — DSA sheets and notes are everywhere. | **Structured Roadmaps** — Built-in DSA sheets (Striver, Love Babbar) with progress tracking. |
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Core Features
 
-Built with cutting-edge technologies for performance and scale.
+### 📊 Comprehensive Dashboard
+The command center of your coding life. View real-time stats, solve streaks, and daily activity graphs.
+- **Unified Stats**: Total problems solved across platforms.
+- **Activity Graph**: GitHub-style heatmap combining manual and platform activity.
+- **Skill Radar**: Visual breakdown of your strengths (DP, Graphs, Arrays).
 
-| Category | Technology |
-|----------|------------|
-| **Framework** | [Next.js 14](https://nextjs.org/) (App Router) |
-| **Language** | [TypeScript](https://www.typescriptlang.org/) |
-| **Styling** | [Tailwind CSS](https://tailwindcss.com/) |
-| **Animations** | [Framer Motion](https://www.framer.com/motion/) |
-| **Database** | [Supabase](https://supabase.com/) (PostgreSQL) |
-| **Auth** | [Supabase Auth](https://supabase.com/auth) |
-| **Charts** | [Recharts](https://recharts.org/) |
-| **Editor** | [Monaco Editor](https://microsoft.github.io/monaco-editor/) |
+![Dashboard Screenshot](/public/screenshots/dashboard.png)
+
+### 🤖 AI & Analytics
+Deep dive into your performance with our custom analytics engine.
+- **Growth Trends**: Visualize your problem-solving velocity over time.
+- **Weakness Spotlight**: AI identifies topics you're neglecting (e.g., "You haven't solved DP in 2 weeks").
+- **Productivity Insights**: "You code best on Tuesday evenings."
+
+![Analytics Screenshot](/public/screenshots/analytics.png)
+
+### 🏆 Gamification & Leaderboards
+Compete with the community.
+- **Global Leaderboard**: Live rankings based on problem count and consistency.
+- **Podium View**: Top 3 performers highlighted with specialized UI.
+- **Streak System**: Don't break the chain.
+
+![Leaderboard Screenshot](/public/screenshots/leaderboard.png)
+
+### 📚 DSA Studio & Sheets
+Structured learning paths integrated directly into the platform.
+- **Curated Sheets**: Access popular problem lists (Blind 75, NeetCode 150).
+- **Notes & Solutions**: Attach markdown notes to every problem you solve.
+- **Space Repetition**: Mark problems for review later.
+
+![Sheets Screenshot](/public/screenshots/sheets.png)
+
+### 💻 Developer Hub
+Stay updated with the tech world.
+- **Dev News**: Curated tech news feed tailored to your interests.
+- **Hackathon Tracker**: Upcoming contests and hackathons.
+- **Job Board**: Aggregated internships and full-time roles.
+
+![Dev Hub Screenshot](/public/screenshots/dev.png)
 
 ---
 
-## 🚀 Getting Started
+## 🖼 Screens & Modules
 
-Follow these steps to set up CodeBoard locally.
+> Replace these image paths with real screenshots captured from the live app.
 
-### Prerequisites
-- Node.js 18+  
-- npm or pnpm
+### Logo & Branding
 
-### Installation
+![Logo & Sidebar Branding](./public/codeboard-logo.jpg)
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/codeboard.git
-   cd codeboard
-   ```
+- Primary CodeBoard logo used across marketing and navigation.
+- Sidebar logo variant with code glyph + cursor on a dark background.
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Landing Page
 
-3. **Configure Environment Variables**
-   Create a `.env.local` file in the root directory:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+![Landing Page](./public/screenshots/landing-hero.png)
 
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+- Hero section with “ONE DASHBOARD FOR ALL” messaging.
+- Metrics chips (developers, problems tracked, uptime).
+- “Build. Track. Ship. Faster.” section and live dev activity card.
 
-5. **Open in Browser**
-   Navigate to [http://localhost:3000](http://localhost:3000) to see the app in action.
+### Auth (Login / Onboarding)
+
+![Auth Screen](./public/screenshots/auth-login.png)
+
+- Centered login card with Supabase‑backed auth.
+- Side panel describing key benefits (profile, sheets, contests, studio).
+
+### Dashboard Overview
+
+![Dashboard Overview](./public/screenshots/dashboard.png)
+
+- Welcome header with user name.
+- Key metrics: problems solved, streak, weekly hours, global rank.
+- Contest stats, activity chart, contribution graph, platform/skill panels.
+
+### Dev Hub
+
+![Dev Hub](./public/screenshots/dev.png)
+
+- Gradient header with “ONE DASHBOARD FOR ALL”.
+- GitHub‑centric stats: repos, commits, languages, deployments.
+- Pinned projects and activity summary.
+
+### Leaderboard
+
+![Leaderboard](./public/screenshots/leaderboard.png)
+
+- Podium view for top performers.
+- Global ranking table with avatars, handles, and scores.
+- Metric filters (total questions, score, rating).
+
+### DSA Sheets (Explore & My Sheets)
+
+![Sheets Explore](./public/screenshots/sheets-explore.png)
+![My Sheets](./public/screenshots/sheets-my.png)
+
+- Explore curated/public DSA sheets and topic tracks.
+- My Sheets view for personal/followed sheets with progress.
+
+### Contests & Event Calendar
+
+![Contests](./public/screenshots/contests.png)
+
+- Contest list or calendar with platforms, dates, and statuses.
+- Designed to plan Codeforces/other contests alongside streaks.
+
+### Community / Social
+
+![Community](./public/screenshots/social.png)
+
+- Social feed layout for sharing progress and contest results.
+- Space for community discussions and updates.
+
+### Analytics & Profile
+
+![Analytics](./public/screenshots/analytics.png)
+![Profile Analytics](./public/screenshots/profile-analytics.png)
+
+- Charts for problem distribution, trends, and platform breakdowns.
+- Per‑user profile summary (solved counts, ratings, contributions).
+
+### Settings
+
+![Settings](./public/screenshots/settings.png)
+
+- Settings sidebar with sections such as Profile, Platforms, Notifications, Appearance.
+- Main content panel for updating preferences and connections.
+
+### Studio / IDE (If Enabled)
+
+![Studio](./public/screenshots/studio.png)
+
+- Minimal IDE layout within the dashboard.
+- Area for solving problems and, in future, AI‑assisted coding.
+
+---
+
+## ⚙️ Tech Stack
+
+Built with a modern, type-safe stack for performance and scalability.
+
+| Layer | Technology | Key Features |
+| :--- | :--- | :--- |
+| **Frontend** | **Next.js 15 (App Router)** | Server Components, Streaming, SEO optimization. |
+| **Styling** | **Tailwind CSS 4** | Zero-runtime styles, dark mode native. |
+| **UI Components** | **Radix UI / Lucide** | Accessible primitives, beautiful icons. |
+| **Animations** | **Framer Motion** | Smooth layout transitions and micro-interactions. |
+| **Backend** | **Next.js API Routes** | Edge-ready serverless functions. |
+| **Database** | **Supabase (PostgreSQL)** | Row Level Security (RLS), Realtime subscriptions. |
+| **Auth** | **Supabase Auth** | OAuth (GitHub, Google) + Magic Links. |
+| **Caching** | **Upstash Redis** | Rate limiting, leaderboard caching, session store. |
+| **Validation** | **Zod** | Runtime schema validation for diverse APIs. |
+
+---
+
+## 🏗 System Architecture
+
+CodeBoard follows a modern **Serverless** architecture leveraging the T3 Stack principles.
+
+```mermaid
+graph TD
+    User[Clients (Web/Mobile)] -->|HTTPS| Edge[Next.js Edge Middleware]
+    Edge -->|Auth Guard| App[Next.js App Router]
+    
+    subgraph Data Layer
+        App -->|ORM| DB[(Supabase Postgres)]
+        App -->|Cache/Rate Limit| Redis[(Upstash Redis)]
+        App -->|Asset Storage| Storage[Supabase Storage]
+    end
+    
+    subgraph External Integrations
+        App -->|Fetch Stats| LC[LeetCode GraphQL]
+        App -->|Fetch Stats| CF[Codeforces API]
+        App -->|Fetch Repos| GH[GitHub API]
+    end
+    
+    subgraph AI Engine
+        App -->|Analysis| Insight[Analytics Service]
+    end
+```
+
+**Data Flow:**
+1.  **Auth**: Middleware validates JWTs via Supabase Auth before rendering protected routes (`/dashboard/*`).
+2.  **Verification**: Next.js Server Actions fetch and aggregate user data from 3rd party APIs (LeetCode/GitHub).
+3.  **Caching**: High-traffic data (Leaderboards) is cached in Redis (60s TTL) to prevent API rate limits.
+4.  **Realtime**: Postgres triggers update user stats instantly when they complete a goal.
+
+---
+
+## 🛠 Quick Start
+
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/yourusername/codeboard.git
+    cd codeboard
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Configure Environment**
+    Create a `.env.local` file in the root:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+    UPSTASH_REDIS_REST_URL=your_redis_url
+    UPSTASH_REDIS_REST_TOKEN=your_redis_token
+    ```
+
+4.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
+    Visit `http://localhost:3000` to see the app live.
 
 ---
 
 ## 📂 Project Structure
 
-A quick look at the top-level directory structure.
-
-```
+```bash
 codeboard/
-├── app/                  # Next.js App Router (Pages & Layouts)
-│   ├── auth/             # Authentication logic
-│   ├── dashboard/        # Main app views (Analytics, Leaderboard)
-│   └── login/            # Auth UI
-├── components/           # Reusable UI Components
-│   ├── analytics/        # Chart widgets & data visualizations
-│   ├── dashboard/        # Dashboard-specific cards
-│   ├── studio/           # IDE Editor components
-│   └── ui/               # Shared primitives (Buttons, Inputs)
-├── lib/                  # Utilities, Hooks, & API clients
-└── public/               # Static assets & images
+├── app/                  # Next.js App Router
+│   ├── (auth)/login/     # Auth Pages
+│   ├── dashboard/        # Protected Application Routes
+│   │   ├── analytics/    # Growth & Insights
+│   │   ├── leaderboard/  # Global Rankings
+│   │   └── settings/     # User Preferences
+│   └── api/              # Serverless API Endpoints
+├── components/           # React Components
+│   ├── ui/               # Reusable UI Atoms (Button, Input)
+│   ├── dashboard/        # Dashboard-specific Code
+│   └── icons/            # Custom SVGs
+├── lib/                  # Utilities
+│   ├── supabase/         # DB Clients
+│   └── actions.ts        # Server Actions
+└── public/               # Static Assets
 ```
+
+---
+
+## 🚀 Deployment
+
+CodeBoard is optimized for deployment on **Vercel**.
+
+1.  Push your code to GitHub.
+2.  Import the project in Vercel.
+3.  Add the Environment Variables from your `.env.local`.
+4.  Deploy! Vercel handles the build, edge caching, and asset optimization automatically.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
 <div align="center">
-  <p>Made with ❤️ by the CodeBoard Team</p>
+  <p>Built with ❤️ by Developers, for Developers.</p>
 </div>

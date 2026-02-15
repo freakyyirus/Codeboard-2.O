@@ -6,8 +6,8 @@ import { Code2, Mail, Lock, Eye, EyeOff, Github, Chrome, BarChart3, FileText, Tr
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { CursorEffect, FadeIn, PremiumBackground, scaleOnHover } from "@/components/ui/PremiumEffects"
-import { CodeBoardLogo } from "@/components/CodeBoardLogo"
+import { FadeIn, PremiumBackground, scaleOnHover } from "@/components/ui/PremiumEffects"
+import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
 
 function LoginForm() {
     const router = useRouter()
@@ -281,14 +281,14 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-black flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden scrollbar-hide relative selection:bg-white/20">
             <PremiumBackground />
-            <CursorEffect />
+            <PremiumBackground />
 
             {/* Left Column - Form */}
             <div className="w-full lg:w-[45%] flex items-center justify-center p-5 lg:p-8 relative z-10">
                 <div className="w-full max-w-sm">
                     <FadeIn delay={0.1}>
                         <Link href="/" className="flex items-center gap-2 mb-8 group w-fit">
-                            <CodeBoardLogo />
+                            <CodeBoardLogoSimple />
                         </Link>
                     </FadeIn>
 
