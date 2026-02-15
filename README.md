@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./public/codeboard-logo.jpg" alt="CodeBoard Logo" width="120" />
+<img src="./public/codeboard-logo.jpg" alt="CodeBoard Logo" width="250" />
 
 # CodeBoard
 
@@ -46,7 +46,7 @@ The command center of your coding life. View real-time stats, solve streaks, and
 - **Activity Graph**: GitHub-style heatmap combining manual and platform activity.
 - **Skill Radar**: Visual breakdown of your strengths (DP, Graphs, Arrays).
 
-![Dashboard Screenshot](/public/screenshots/dashboard.png)
+
 
 ### 🤖 AI & Analytics
 Deep dive into your performance with our custom analytics engine.
@@ -54,7 +54,7 @@ Deep dive into your performance with our custom analytics engine.
 - **Weakness Spotlight**: AI identifies topics you're neglecting (e.g., "You haven't solved DP in 2 weeks").
 - **Productivity Insights**: "You code best on Tuesday evenings."
 
-![Analytics Screenshot](/public/screenshots/analytics.png)
+
 
 ### 🏆 Gamification & Leaderboards
 Compete with the community.
@@ -62,7 +62,7 @@ Compete with the community.
 - **Podium View**: Top 3 performers highlighted with specialized UI.
 - **Streak System**: Don't break the chain.
 
-![Leaderboard Screenshot](/public/screenshots/leaderboard.png)
+
 
 ### 📚 DSA Studio & Sheets
 Structured learning paths integrated directly into the platform.
@@ -70,7 +70,7 @@ Structured learning paths integrated directly into the platform.
 - **Notes & Solutions**: Attach markdown notes to every problem you solve.
 - **Space Repetition**: Mark problems for review later.
 
-![Sheets Screenshot](/public/screenshots/sheets.png)
+
 
 ### 💻 Developer Hub
 Stay updated with the tech world.
@@ -78,101 +78,57 @@ Stay updated with the tech world.
 - **Hackathon Tracker**: Upcoming contests and hackathons.
 - **Job Board**: Aggregated internships and full-time roles.
 
-![Dev Hub Screenshot](/public/screenshots/dev.png)
+
 
 ---
 
-## 🖼 Screens & Modules
-
-> Replace these image paths with real screenshots captured from the live app.
-
-### Logo & Branding
-
-![Logo & Sidebar Branding](./public/codeboard-logo.jpg)
-
-- Primary CodeBoard logo used across marketing and navigation.
-- Sidebar logo variant with code glyph + cursor on a dark background.
+## ✨ Feature Highlights
 
 ### Landing Page
-
-![Landing Page](./public/screenshots/landing-hero.png)
-
 - Hero section with “ONE DASHBOARD FOR ALL” messaging.
 - Metrics chips (developers, problems tracked, uptime).
 - “Build. Track. Ship. Faster.” section and live dev activity card.
 
 ### Auth (Login / Onboarding)
-
-![Auth Screen](./public/screenshots/auth-login.png)
-
 - Centered login card with Supabase‑backed auth.
 - Side panel describing key benefits (profile, sheets, contests, studio).
 
 ### Dashboard Overview
-
-![Dashboard Overview](./public/screenshots/dashboard.png)
-
 - Welcome header with user name.
 - Key metrics: problems solved, streak, weekly hours, global rank.
 - Contest stats, activity chart, contribution graph, platform/skill panels.
 
 ### Dev Hub
-
-![Dev Hub](./public/screenshots/dev.png)
-
 - Gradient header with “ONE DASHBOARD FOR ALL”.
 - GitHub‑centric stats: repos, commits, languages, deployments.
 - Pinned projects and activity summary.
 
 ### Leaderboard
-
-![Leaderboard](./public/screenshots/leaderboard.png)
-
 - Podium view for top performers.
 - Global ranking table with avatars, handles, and scores.
 - Metric filters (total questions, score, rating).
 
 ### DSA Sheets (Explore & My Sheets)
-
-![Sheets Explore](./public/screenshots/sheets-explore.png)
-![My Sheets](./public/screenshots/sheets-my.png)
-
 - Explore curated/public DSA sheets and topic tracks.
 - My Sheets view for personal/followed sheets with progress.
 
 ### Contests & Event Calendar
-
-![Contests](./public/screenshots/contests.png)
-
 - Contest list or calendar with platforms, dates, and statuses.
 - Designed to plan Codeforces/other contests alongside streaks.
 
 ### Community / Social
-
-![Community](./public/screenshots/social.png)
-
 - Social feed layout for sharing progress and contest results.
 - Space for community discussions and updates.
 
 ### Analytics & Profile
-
-![Analytics](./public/screenshots/analytics.png)
-![Profile Analytics](./public/screenshots/profile-analytics.png)
-
 - Charts for problem distribution, trends, and platform breakdowns.
 - Per‑user profile summary (solved counts, ratings, contributions).
 
 ### Settings
-
-![Settings](./public/screenshots/settings.png)
-
 - Settings sidebar with sections such as Profile, Platforms, Notifications, Appearance.
 - Main content panel for updating preferences and connections.
 
-### Studio / IDE (If Enabled)
-
-![Studio](./public/screenshots/studio.png)
-
+### Studio / IDE
 - Minimal IDE layout within the dashboard.
 - Area for solving problems and, in future, AI‑assisted coding.
 
