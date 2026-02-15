@@ -1,62 +1,97 @@
-# CodeBoard 2.0 🚀
+# 🚀 CodeBoard 2.0
 
-**The Ultimate Developer Growth Platform**
+<div align="center">
 
-CodeBoard is a comprehensive dashboard designed for developers to track their progress, manage projects, practice DSA, and compete in contests—all in one place. It combines the utility of GitHub, the analytics of LeetCode, and the community of social platforms into a single, beautiful interface.
+  <h1>The Ultimate Developer Intelligence Platform</h1>
+  
+  <p>
+    <strong>Track. Analyze. Grow.</strong>
+    <br />
+    A next-generation dashboard for developers to master data structures, algorithms, and project management.
+  </p>
 
-![Dashboard Preview](public/screenshot-desktop.png)
+  <p>
+    <a href="#features">Features</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#getting-started">Getting Started</a>
+  </p>
+
+  <!-- 
+    🖼️ PLACEHOLDER: Add a hero screenshot of your dashboard here!
+    Example: ![Dashboard Hero](/public/dashboard-hero.png) 
+  -->
+  <img src="https://via.placeholder.com/1200x600/0f0f0f/444444?text=CodeBoard+Dashboard+Preview" alt="CodeBoard Dashboard" width="100%" />
+
+</div>
+
+---
+
+## ⚡ Overview
+
+**CodeBoard 2.0** is not just another dashboard; it's your personal command center for coding excellence. Seamlessly blending the utility of GitHub, the competitive edge of LeetCode, and the engagement of social platforms, CodeBoard provides actionable insights into your development journey.
+
+Whether you're preparing for technical interviews, tracking open-source contributions, or managing personal projects, CodeBoard gives you the data you need in a stunning, distraction-free environment.
 
 ## ✨ Key Features
 
-### 1. **Interactive Dashboard**
-- **Activity Tracking**: GitHub-style contribution graph and daily activity heatmaps.
-- **Skill Distribution**: Visual breakdown of DSA topics (Arrays, DP, Graphs, etc.).
-- **Platform Stats**: Real-time integration with LeetCode, Codeforces, and GitHub ratings.
-- **Metric Cards**: Quick view of total problems solved, coding hours, and current streak.
+### 📊 Interactive Analytics Dashboard
+Visualize your growth with precision. CodeBoard aggregates data from multiple sources to give you a complete picture of your skills.
+- **Growth Trends**: Interactive area charts showing your problem-solving velocity over time. 
+- **Skill Radar**: A hexagonal radar chart pinpoints your strengths (e.g., DP, Graphs) and weaknesses.
+- **Activity Heatmap**: GitHub-style contribution tracking for consistency.
+- **Platform Stats**: Real-time integration with LeetCode & Codeforces ratings.
 
-### 2. **Advanced Analytics** 📈
-- **Growth Timeline**: Track your rating and problem-solving velocity over time.
-- **Topic Radar**: Identify your strong and weak areas with a radar chart.
-- **Productivity Insights**: AI-driven insights on your peak coding hours and consistency.
-- **Weakness Spotlight**: Smart recommendations on topics you need to improve.
+<!-- 
+  🖼️ PLACEHOLDER: Add a screenshot of the Analytics page here.
+  <img src="/public/analytics-preview.png" alt="Analytics" width="100%" />
+-->
 
-### 3. **Leaderboard & Community** 🏆
-- **Global Rankings**: Compete with developers worldwide based on total problems solved.
-- **Podium View**: Premium animated podium for top 3 performers.
-- **Social Integration**: View profiles, follow others, and track peer progress.
+### 🏆 Global Leaderboard
+Compete with the best. Our real-time leaderboard gamifies your progress.
+- **Animated Podium**: A premium, 3D-style podium showcasing the top 3 developers.
+- **Rankings**: Filterable list of top performers by problems solved or rating.
+- **Badges & Ranks**: Earn visual distinctions as you climb the ladder.
 
-### 4. **CodeBoard Studio** 💻
-- **Built-in IDE**: Fully functional Monaco Editor with syntax highlighting for multiple languages.
-- **Dark Mode Optimized**: A distraction-free coding environment.
-- **Snippets & Notes**: Save your best solutions and algorithms for quick reference.
+<!-- 
+  🖼️ PLACEHOLDER: Add a screenshot of the Leaderboard page here. 
+-->
 
-### 5. **Contest Central** 🗓️
-- **Unified Calendar**: Track upcoming contests from LeetCode, Codeforces, AtCoder, and more.
-- **Reminders**: Set alerts for contests you don't want to miss.
+### 💻 CodeBoard Studio
+A powerful, built-in IDE for quick experiments and snippet management.
+- **Monaco Editor**: The same engine that powers VS Code, right in your browser.
+- **Multi-language Support**: Syntax highlighting for TypeScript, Python, C++, and more.
+- **Dark Mode Optimized**: Designed to reduce eye strain during late-night coding sessions.
 
-### 6. **Desktop Pet (Umaru) Integration** 😺
-- **Interactive Companion**: A cute desktop pet that reacts to your typing and mouse movements.
-- **Input Mirror**: Visualizes your keystrokes and clicks in real-time.
+### 😺 Desktop Companion (Umaru)
+A touch of personality for your workspace.
+- **Interactive Pet**: A virtual companion that reacts to your typing speed and mouse movements.
+- **Input Mirror**: Visualizes your keystrokes in real-time, adding life to your dashboard.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router, Server Components)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Database & Auth**: [Supabase](https://supabase.com/)
-- **Charts**: [Recharts](https://recharts.org/)
-- **Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
-- **Icons**: [Lucide React](https://lucide.dev/)
+Built with cutting-edge technologies for performance and scale.
+
+| Category | Technology |
+|----------|------------|
+| **Framework** | [Next.js 14](https://nextjs.org/) (App Router) |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) |
+| **Animations** | [Framer Motion](https://www.framer.com/motion/) |
+| **Database** | [Supabase](https://supabase.com/) (PostgreSQL) |
+| **Auth** | [Supabase Auth](https://supabase.com/auth) |
+| **Charts** | [Recharts](https://recharts.org/) |
+| **Editor** | [Monaco Editor](https://microsoft.github.io/monaco-editor/) |
 
 ---
 
 ## 🚀 Getting Started
 
+Follow these steps to set up CodeBoard locally.
+
 ### Prerequisites
-- Node.js 18+
+- Node.js 18+  
 - npm or pnpm
 
 ### Installation
@@ -72,7 +107,7 @@ CodeBoard is a comprehensive dashboard designed for developers to track their pr
    npm install
    ```
 
-3. **Set up Environment Variables**
+3. **Configure Environment Variables**
    Create a `.env.local` file in the root directory:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -84,36 +119,44 @@ CodeBoard is a comprehensive dashboard designed for developers to track their pr
    npm run dev
    ```
 
-5. **Open locally**
-   Visit [http://localhost:3000](http://localhost:3000).
+5. **Open in Browser**
+   Navigate to [http://localhost:3000](http://localhost:3000) to see the app in action.
 
 ---
 
 ## 📂 Project Structure
 
+A quick look at the top-level directory structure.
+
 ```
 codeboard/
-├── app/                  # Next.js App Router pages
-│   ├── auth/             # Authentication & Callbacks
-│   ├── dashboard/        # Main Dashboard routes (analytics, leaderboard, etc.)
-│   ├── login/            # Login page
-│   └── page.tsx          # Landing page
-├── components/           # Reusable UI components
-│   ├── analytics/        # Analytics-specific charts & widgets
-│   ├── dashboard/        # Dashboard widgets (ActivityChart, ContributionGraph)
-│   ├── leaderboard/      # Leaderboard podium & tables
-│   ├── studio/           # CodeEditor & IDE components
-│   └── ui/               # Shared UI elements (PremiumEffects, Buttons)
-├── lib/                  # Utilities & Supabase clients
-└── public/               # Static assets
+├── app/                  # Next.js App Router (Pages & Layouts)
+│   ├── auth/             # Authentication logic
+│   ├── dashboard/        # Main app views (Analytics, Leaderboard)
+│   └── login/            # Auth UI
+├── components/           # Reusable UI Components
+│   ├── analytics/        # Chart widgets & data visualizations
+│   ├── dashboard/        # Dashboard-specific cards
+│   ├── studio/           # IDE Editor components
+│   └── ui/               # Shared primitives (Buttons, Inputs)
+├── lib/                  # Utilities, Hooks, & API clients
+└── public/               # Static assets & images
 ```
-
-## 🎨 Design Philosophy
-CodeBoard follows a **"Dark Premium"** aesthetic.
-- **Colors**: Deep blacks (`#0B0B0B`), subtle grays (`#1f1f1f`), and vibrant accents (Blue/Purple/Green).
-- **Motion**: Smooth, non-intrusive micro-interactions using Framer Motion (`stiffness: 400`).
-- **Typography**: Clean, readable sans-serif fonts optimized for code and data.
 
 ---
 
-Made with ❤️ by CodeBoard Team.
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+<div align="center">
+  <p>Made with ❤️ by the CodeBoard Team</p>
+</div>
