@@ -16,6 +16,48 @@ body {
   overflow-x: hidden;
 }
 
+/* Prevent horizontal scroll on all sections */
+* {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide all overflow scrollbars globally */
+.overflow-hidden {
+  overflow: hidden !important;
+}
+
+/* Responsive typography */
+html {
+  font-size: clamp(14px, 1vw, 18px);
+}
+
+/* Touch-friendly buttons */
+button, .btn, a[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Reduce glassmorphism for mobile performance */
+@media (max-width: 768px) {
+  .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .shadow-2xl {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -88,11 +130,11 @@ body {
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
   }
 
   50% {
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -133,10 +175,12 @@ body {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right, #60a5fa, #a855f7);
+  background-image: linear-gradient(to right, #ffffff, #a3a3a3);
 }
 
-/* Difficulty Badges */
+/* Difficulty Badges - Keeping semantic but desaturated if requested, 
+   but user said "no extra color if required then else no need".
+   I will keep them simple for now as they are functional. */
 .diff-easy {
   color: #22c55e;
   background: rgba(34, 197, 94, 0.1);
@@ -161,10 +205,10 @@ body {
 }
 
 .chat-user {
-  background: #3b82f6;
+  background: #ffffff;
   margin-left: auto;
   border-bottom-right-radius: 4px;
-  color: white;
+  color: #000000;
 }
 
 .chat-ai {
@@ -172,4 +216,158 @@ body {
   border: 1px solid #333;
   border-bottom-left-radius: 4px;
   color: #e5e7eb;
+}
+
+/* ─── Responsive Foundation ─────────────────────────────── */
+/* Base font size */
+html {
+  font-size: 16px;
+}
+
+/* Responsive text using clamp */
+h1 {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+}
+
+h2 {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+}
+
+h3 {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+}
+
+p {
+  font-size: clamp(0.875rem, 2vw, 1.125rem);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Responsive grid system */
+.grid-responsive {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Large screens (TV) */
+@media (min-width: 1600px) {
+  html {
+    font-size: 18px;
+  }
+  
+  .container {
+    max-width: 1800px;
+  }
+}
+
+/* Responsive sidebar - hidden on mobile */
+@media (max-width: 900px) {
+  .sidebar-hidden-mobile {
+    display: none;
+  }
+}
+
+/* Card responsive */
+.card-responsive {
+  background: #1a1a1a;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.card-responsive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Touch-friendly buttons for mobile */
+@media (max-width: 640px) {
+  button, 
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Increase spacing on mobile */
+  .p-4 {
+    padding: 1rem;
+  }
+  
+  .p-6 {
+    padding: 1rem;
+  }
+  
+  .p-8 {
+    padding: 1rem;
+  }
+  
+  .gap-4 {
+    gap: 0.75rem;
+  }
+  
+  .gap-6 {
+    gap: 1rem;
+  }
+  
+  .gap-8 {
+    gap: 1rem;
+  }
+  
+  /* Stack flex containers on mobile */
+  .flex-col {
+    flex-direction: column;
+  }
+  
+  /* Full width on mobile */
+  .w-full {
+    width: 100%;
+  }
+}
+
+/* Prevent horizontal overflow */
+* {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Image responsive */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Critical overflow prevention */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+* {
+  box-sizing: border-box;
 }

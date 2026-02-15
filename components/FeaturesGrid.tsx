@@ -29,12 +29,12 @@ export function FeaturesGrid() {
                 </div>
 
                 {/* Bento Grid */}
-                <div className="grid md:grid-cols-3 gap-4" style={{ gridAutoRows: "200px" }}>
+                <div className="grid md:grid-cols-3 gap-4 overflow-hidden scrollbar-hide">
                     {features.map((f) => (
                         <div
                             key={f.num}
                             className={`bento-card ${f.wide ? "md:col-span-2" : ""} ${f.inverted ? "bg-black text-white" : "bg-gray-100"
-                                } rounded-3xl p-8 flex flex-col justify-between group cursor-pointer`}
+                                } rounded-3xl p-6 md:p-8 flex flex-col justify-between group cursor-pointer overflow-hidden`}
                         >
                             <div>
                                 <div className={`w-12 h-12 ${f.inverted ? "bg-white/10 group-hover:bg-white/20" : "bg-black group-hover:scale-110"
