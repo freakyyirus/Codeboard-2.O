@@ -1,8 +1,11 @@
 "use client"
 
-import { Editor } from "@monaco-editor/react"
+import { Editor, loader } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
 import { Loader2 } from "lucide-react"
+
+// Ensure Monaco loads from a reliable CDN to avoid initialization errors in Next.js
+loader.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } })
 
 interface CodeEditorProps {
     language: string

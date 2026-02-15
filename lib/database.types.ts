@@ -16,7 +16,7 @@ export interface Database {
                     username: string | null
                     full_name: string | null
                     avatar_url: string | null
-                    skill_level: 'beginner' | 'intermediate' | 'advanced'
+                    skill_level: 'beginner' | 'intermediate' | 'advanced' | 'expert'
                     daily_goal: number
                     timezone: string
                     streak_count: number
@@ -31,7 +31,7 @@ export interface Database {
                     username?: string | null
                     full_name?: string | null
                     avatar_url?: string | null
-                    skill_level?: 'beginner' | 'intermediate' | 'advanced'
+                    skill_level?: 'beginner' | 'intermediate' | 'advanced' | 'expert'
                     daily_goal?: number
                     timezone?: string
                     streak_count?: number
@@ -46,7 +46,7 @@ export interface Database {
                     username?: string | null
                     full_name?: string | null
                     avatar_url?: string | null
-                    skill_level?: 'beginner' | 'intermediate' | 'advanced'
+                    skill_level?: 'beginner' | 'intermediate' | 'advanced' | 'expert'
                     daily_goal?: number
                     timezone?: string
                     streak_count?: number
@@ -173,6 +173,55 @@ export interface Database {
                     start_time?: string | null
                     duration_minutes?: number | null
                     is_virtual?: boolean
+                    created_at?: string
+                }
+            }
+            platform_connections: {
+                Row: {
+                    id: string
+                    user_id: string
+                    platform: string
+                    username: string
+                    last_synced: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    platform: string
+                    username: string
+                    last_synced?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    platform?: string
+                    username?: string
+                    last_synced?: string | null
+                    created_at?: string
+                }
+            }
+            feedback: {
+                Row: {
+                    id: string
+                    user_id: string | null
+                    category: string
+                    message: string
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id?: string | null
+                    category: string
+                    message: string
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string | null
+                    category?: string
+                    message?: string
                     created_at?: string
                 }
             }

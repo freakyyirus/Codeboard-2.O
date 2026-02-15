@@ -27,6 +27,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -42,7 +43,9 @@ html {
 }
 
 /* Touch-friendly buttons */
-button, .btn, a[role="button"] {
+button,
+.btn,
+a[role="button"] {
   min-height: 44px;
   min-width: 44px;
 }
@@ -53,29 +56,13 @@ button, .btn, a[role="button"] {
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
+
   .shadow-2xl {
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
 
-::-webkit-scrollbar-track {
-  background: #0a0a0a;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
 
 /* ─── Glass Effect ───────────────────────────────────── */
 .glass {
@@ -279,7 +266,7 @@ p {
   html {
     font-size: 18px;
   }
-  
+
   .container {
     max-width: 1800px;
   }
@@ -307,43 +294,44 @@ p {
 
 /* Touch-friendly buttons for mobile */
 @media (max-width: 640px) {
-  button, 
+
+  button,
   .btn {
     min-height: 44px;
     min-width: 44px;
     padding: 0.75rem 1rem;
   }
-  
+
   /* Increase spacing on mobile */
   .p-4 {
     padding: 1rem;
   }
-  
+
   .p-6 {
     padding: 1rem;
   }
-  
+
   .p-8 {
     padding: 1rem;
   }
-  
+
   .gap-4 {
     gap: 0.75rem;
   }
-  
+
   .gap-6 {
     gap: 1rem;
   }
-  
+
   .gap-8 {
     gap: 1rem;
   }
-  
+
   /* Stack flex containers on mobile */
   .flex-col {
     flex-direction: column;
   }
-  
+
   /* Full width on mobile */
   .w-full {
     width: 100%;
@@ -363,11 +351,135 @@ img {
 }
 
 /* Critical overflow prevention */
-html, body {
+html,
+body {
   overflow-x: hidden;
   max-width: 100%;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* ─── Wave Animation ──────────────────────────────────── */
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+.animate-wave {
+  animation: wave 1s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ─── Typing Animation for Pet ─────────────────────────── */
+@keyframes typing-bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.typing-active {
+  animation: typing-bounce 0.1s ease-in-out;
+}
+
+/* ─── Floating Animation for Pet ───────────────────────── */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.pet-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ─── Hide ALL Scrollbars ─────────────────────────────────── */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html,
+body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow-x: hidden;
+}
+
+/* ─── Professional Card Hover Effects ──────────────────────── */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── Glass Morphism ─────────────────────────────────────── */
+.glass {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ─── Gradient Text ───────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Custom Selection Color ─────────────────────────────── */
+::selection {
+  background: rgba(249, 115, 22, 0.3);
+  color: white;
+}
+
+/* ─── Focus Visible Styles ────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid #f97316;
+  outline-offset: 2px;
+}
+
+/* ─── Prevent Horizontal Overflow ─────────────────────────── */
+.overflow-x-clip {
+  overflow-x: clip;
 }

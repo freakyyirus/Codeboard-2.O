@@ -1,163 +1,124 @@
-import { Code, BookOpen, Trophy, TrendingUp, Clock, Target } from "lucide-react";
+import { getDailyProblem } from "@/lib/leetcode"
+import { Code, BookOpen, Trophy, TrendingUp, Clock, Target, ExternalLink, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
-export default function DSAPage() {
+export const dynamic = 'force-dynamic'
+
+/* ─── Server Component ─────────────────────────── */
+
+export default async function DSAPage() {
+  let dailyProblem: any = null
+
+  try {
+    dailyProblem = await getDailyProblem()
+  } catch (e) {
+    console.warn("Failed to fetch daily problem:", e)
+  }
+
   const practiceAreas = [
-    {
-      title: "Data Structures",
-      icon: <Code className="w-6 h-6" />,
-      description: "Arrays, Linked Lists, Trees, Graphs, Hash Tables",
-      progress: 65,
-      color: "bg-blue-500"
-    },
-    {
-      title: "Algorithms",
-      icon: <TrendingUp className="w-6 h-6" />,
-      description: "Sorting, Searching, Dynamic Programming, Greedy",
-      progress: 42,
-      color: "bg-green-500"
-    },
-    {
-      title: "Problem Solving",
-      icon: <Target className="w-6 h-6" />,
-      description: "LeetCode, Codeforces, HackerRank problems",
-      progress: 78,
-      color: "bg-purple-500"
-    }
-  ];
+    { title: "Data Structures", icon: <Code className="w-6 h-6" />, description: "Arrays, Linked Lists, Trees, Graphs, Hash Tables", progress: 0, color: "bg-blue-500", topics: 12 },
+    { title: "Algorithms", icon: <TrendingUp className="w-6 h-6" />, description: "Sorting, Searching, DP, Greedy, Backtracking", progress: 0, color: "bg-green-500", topics: 15 },
+    { title: "Problem Solving", icon: <Target className="w-6 h-6" />, description: "LeetCode, Codeforces, HackerRank, GFG problems", progress: 0, color: "bg-purple-500", topics: 8 },
+  ]
 
-  const quickStats = [
-    {
-      label: "Problems Solved",
-      value: "127",
-      change: "+12 this week",
-      icon: <Trophy className="w-5 h-5 text-yellow-500" />
-    },
-    {
-      label: "Current Streak",
-      value: "15 days",
-      change: "Keep it up!",
-      icon: <Clock className="w-5 h-5 text-green-500" />
-    },
-    {
-      label: "Accuracy",
-      value: "84%",
-      change: "↑ 3% from last week",
-      icon: <TrendingUp className="w-5 h-5 text-blue-500" />
-    }
-  ];
+  const DIFFICULTY_COLORS: Record<string, string> = {
+    Easy: "text-green-400 bg-green-500/10",
+    Medium: "text-yellow-400 bg-yellow-500/10",
+    Hard: "text-red-400 bg-red-500/10",
+  }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-12">
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            <BookOpen className="w-8 h-8 text-blue-400" />
-            DSA Practice
-          </h1>
-          <p className="text-gray-400">
-            Master Data Structures and Algorithms with hands-on practice
-          </p>
-        </header>
+    <div className="max-w-6xl mx-auto p-6 md:p-8 fade-in">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-white">
+          <BookOpen className="w-7 h-7 text-blue-400" />
+          DSA Practice
+        </h1>
+        <p className="text-gray-500 text-sm">Master Data Structures and Algorithms with daily challenges and curated sheets.</p>
+      </header>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {quickStats.map((stat, index) => (
-            <div key={index} className="bg-[#0f0f0f] border border-[#1f1f1f] rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-gray-400 text-sm">{stat.label}</h3>
-                {stat.icon}
+      {/* Daily Challenge */}
+      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-2xl p-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            🔥 Today&apos;s Daily Challenge
+          </h2>
+          <span className="text-xs text-gray-500">LeetCode Daily</span>
+        </div>
+        {dailyProblem ? (
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${DIFFICULTY_COLORS[dailyProblem.difficulty] || "text-gray-400 bg-gray-500/10"}`}>
+                {dailyProblem.difficulty}
+              </span>
+              <h3 className="text-white font-semibold">{dailyProblem.title}</h3>
+            </div>
+            {dailyProblem.topicTags && (
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {dailyProblem.topicTags.slice(0, 5).map((tag: any) => (
+                  <span key={tag.name || tag} className="text-[10px] px-2 py-0.5 bg-white/5 border border-white/5 rounded-full text-gray-400">
+                    {tag.name || tag}
+                  </span>
+                ))}
               </div>
-              <p className="text-3xl font-bold text-white mb-1">{stat.value}</p>
-              <p className="text-sm text-gray-500">{stat.change}</p>
+            )}
+            <a
+              href={`https://leetcode.com${dailyProblem.link || ""}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-colors"
+            >
+              Solve Now <ExternalLink size={14} />
+            </a>
+          </div>
+        ) : (
+          <div className="text-gray-500 text-sm">
+            <p>Unable to fetch today&apos;s daily challenge. Check back soon!</p>
+          </div>
+        )}
+      </div>
+
+      {/* Practice Areas */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4 text-white">Practice Areas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {practiceAreas.map((area, index) => (
+            <div
+              key={index}
+              className="bg-white/5 border border-white/10 hover:border-white/20 rounded-2xl p-6 transition-all"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-white/5 rounded-xl">{area.icon}</div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{area.title}</h3>
+                  <p className="text-xs text-gray-500">{area.topics} topics</p>
+                </div>
+              </div>
+              <p className="text-gray-400 text-sm mb-4">{area.description}</p>
+              <div className="w-full bg-white/10 rounded-full h-1.5">
+                <div className={`h-full rounded-full ${area.color}`} style={{ width: `${area.progress}%` }} />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">{area.progress}% complete</p>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Practice Areas */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Practice Areas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {practiceAreas.map((area, index) => (
-              <div 
-                key={index} 
-                className="bg-[#0f0f0f] border border-[#1f1f1f] hover:border-[#2a2a2a] rounded-2xl p-6 transition-colors"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-[#1a1a1a] rounded-lg">
-                    {area.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold">{area.title}</h3>
-                </div>
-                
-                <p className="text-gray-400 text-sm mb-6">
-                  {area.description}
-                </p>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Progress</span>
-                    <span className="text-white font-medium">{area.progress}%</span>
-                  </div>
-                  <div className="w-full bg-[#1a1a1a] rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${area.color}`} 
-                      style={{ width: `${area.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-[#0f0f0f] border border-[#1f1f1f] rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-4">Daily Challenge</h3>
-            <div className="bg-[#1a1a1a] rounded-xl p-4 mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-green-400 font-medium">Easy</span>
-                <span className="text-gray-500">Arrays</span>
-              </div>
-              <h4 className="text-white font-semibold mb-2">Two Sum</h4>
-              <p className="text-gray-400 text-sm">
-                Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
-              </p>
-            </div>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-medium transition-colors">
-              Start Challenge
-            </button>
-          </div>
-
-          <div className="bg-[#0f0f0f] border border-[#1f1f1f] rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-4">Practice Problems</h3>
-            <div className="space-y-3">
-              {[
-                { name: "Binary Search", difficulty: "Medium", platform: "LeetCode" },
-                { name: "Merge Sort", difficulty: "Medium", platform: "Codeforces" },
-                { name: "BFS Traversal", difficulty: "Hard", platform: "HackerRank" }
-              ].map((problem, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-[#1a1a1a] rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-white">{problem.name}</h4>
-                    <p className="text-xs text-gray-500">{problem.platform}</p>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    problem.difficulty === 'Easy' ? 'bg-green-900/30 text-green-400' :
-                    problem.difficulty === 'Medium' ? 'bg-yellow-900/30 text-yellow-400' :
-                    'bg-red-900/30 text-red-400'
-                  }`}>
-                    {problem.difficulty}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <button className="w-full mt-4 bg-[#1a1a1a] hover:bg-[#2a2a2a] py-3 rounded-lg font-medium transition-colors">
-              View All Problems
-            </button>
-          </div>
-        </div>
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Link href="/dashboard/problems" className="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+          <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2 group-hover:text-blue-400 transition-colors">
+            Problem Set <ArrowRight size={16} />
+          </h3>
+          <p className="text-sm text-gray-500">Browse curated LeetCode problems with company tags and difficulty filters.</p>
+        </Link>
+        <Link href="/dashboard/sheets/explore" className="group bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+          <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2 group-hover:text-violet-400 transition-colors">
+            DSA Sheets <ArrowRight size={16} />
+          </h3>
+          <p className="text-sm text-gray-500">Follow structured sheets from Striver, Love Babbar, NeetCode, and more.</p>
+        </Link>
       </div>
     </div>
-  );
+  )
 }

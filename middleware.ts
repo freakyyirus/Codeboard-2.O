@@ -1,15 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Public routes that DON'T require authentication
-const PUBLIC_ROUTES = ['/', '/login', '/auth/callback']
+const PUBLIC_ROUTES = ['/', '/login', '/auth', '/auth/callback']
 
 export async function middleware(request: NextRequest) {
-    let response = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    })
+    let response = NextResponse.next()
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,12 +15,6 @@ export async function middleware(request: NextRequest) {
                     return request.cookies.getAll()
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value }) => {
-                        request.cookies.set(name, value)
-                    })
-                    response = NextResponse.next({
-                        request,
-                    })
                     cookiesToSet.forEach(({ name, value, options }) => {
                         response.cookies.set(name, value, options)
                     })
@@ -34,20 +23,20 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // Refresh session if expired
-    const { data: { user } } = await supabase.auth.getUser()
+    // Important: this refreshes the session correctly
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
 
     const path = request.nextUrl.pathname
-    const isPublicRoute = PUBLIC_ROUTES.some(route =>
-        path === route || path.startsWith('/auth/')
-    )
+    const isPublicRoute = PUBLIC_ROUTES.includes(path) || path.startsWith('/auth/')
 
-    // 1. Redirect authenticated users AWAY from login page
+    // If logged in → block login page
     if (user && path === '/login') {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
-    // 2. Redirect unauthenticated users TO login page (if accessing protected route)
+    // If not logged in → protect private routes
     if (!user && !isPublicRoute) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
@@ -57,13 +46,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * Feel free to modify this pattern to include more paths.
-         */
         '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 }

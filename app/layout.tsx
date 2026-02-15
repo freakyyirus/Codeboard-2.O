@@ -5,8 +5,13 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  title: "CodeBoard — Developer Dashboard",
+  title: {
+    default: "CodeBoard — Developer Dashboard",
+    template: "%s | CodeBoard",
+  },
   description: "Aggregate LeetCode, Codeforces, and GitHub stats. Track streaks, analyze weaknesses, and level up — all without switching tabs.",
+  keywords: ["developer dashboard", "competitive programming", "leetcode", "codeforces", "github", "coding stats", "codeboard"],
+  robots: { index: true, follow: true },
   openGraph: {
     title: "CodeBoard — Developer Dashboard",
     description: "One dashboard for all your competitive programming platforms.",
@@ -15,6 +20,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeBoard — Developer Dashboard",
+    description: "One dashboard for all your competitive programming platforms.",
+  },
+  icons: { icon: "/favicon.ico" },
+  other: { "theme-color": "#000000" },
 };
 
 export default function RootLayout({

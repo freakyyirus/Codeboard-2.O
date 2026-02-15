@@ -1,75 +1,230 @@
-import { StatsGrid } from "@/components/dashboard/StatsGrid"
-import { ActivityChart } from "@/components/dashboard/ActivityChart"
+"use client"
+
 import { RecentProblems } from "@/components/dashboard/RecentProblems"
 import { PlatformStats, UpcomingContests, SkillDistribution } from "@/components/dashboard/DashboardSidePanels"
+import { ContributionGraph } from "@/components/dashboard/ContributionGraph"
+import { MetricCard } from "@/components/dashboard/MetricCard"
+import { ContestStats } from "@/components/dashboard/ContestStats"
+import { ContributionSplit } from "@/components/dashboard/ContributionSplit"
+import { ActivityChart } from "@/components/dashboard/ActivityChart"
 import { getDashboardData } from "@/lib/actions"
-import { Suspense } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { BarChart2, Code, Trophy, TrendingUp, CheckCircle2, Flame, Clock, Target } from "lucide-react"
 
-/* ─── Page Component (Server) ───────────────────────────── */
-export default async function DashboardPage() {
-    let data: any = null
-    let error: string | null = null
-    
-    try {
-        data = await getDashboardData()
-    } catch (err) {
-        console.error('Dashboard data fetch failed:', err)
-        error = err instanceof Error ? err.message : 'Failed to load dashboard data'
+type Section = "overview" | "problems" | "contests" | "stats"
+
+const sections: { id: Section; label: string; icon: React.ElementType }[] = [
+  { id: "overview", label: "Overview", icon: BarChart2 },
+  { id: "problems", label: "Problems", icon: Code },
+  { id: "contests", label: "Contests", icon: Trophy },
+  { id: "stats", label: "Stats", icon: TrendingUp },
+]
+
+export default function DashboardPage() {
+  const [activeSection, setActiveSection] = useState<Section>("overview")
+  const [data, setData] = useState<any>(null)
+
+  // Use mock data for immediate visual feedback as requested
+  const mockContributionData = useMemo(() => {
+    const dates = []
+    const today = new Date()
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today)
+      d.setDate(d.getDate() - i)
+      // distinct bias towards recent days for "streak" look
+      const count = Math.random() > 0.6 ? Math.floor(Math.random() * 8) : 0
+      dates.push({ date: d.toISOString().split('T')[0], count })
     }
+    return dates
+  }, [])
 
-    // Fallback name
-    const userName = data?.profile?.display_name || "Yuvraj Singh"
-    const firstName = userName.split(" ")[0]
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const dashboardData = await getDashboardData()
+        setData(dashboardData)
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+      }
+    }
+    fetchData()
+  }, [])
 
-    return (
-        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto fade-in pb-20 overflow-hidden">
-            {error && (
-                <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
-                    Unable to load some data: {error}
-                </div>
-            )}
-            
-            <div className="mb-6 md:mb-8 relative">
-                <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center gap-2 text-white">
-                    Welcome back, <span className="text-white">{firstName}</span>!
-                    <span className="animate-wave text-2xl md:text-3xl">👋</span>
-                </h1>
-                <p className="text-gray-400 text-sm md:text-base">Here&apos;s your coding activity for today.</p>
-            </div>
+  const userName = data?.profile?.display_name || "Coder"
+  const firstName = userName.split(" ")[0]
 
-            {/* 1. Stats Grid (4 Cards) */}
-            <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {[1,2,3,4].map(i => <div key={i} className="h-24 bg-gray-800 rounded-xl animate-pulse" />)}
-            </div>}>
-                <StatsGrid />
-            </Suspense>
+  // Mock numbers if real data is low/empty to satisfy "feed some mock data" request
+  const totalSolved = data?.stats?.total_solved || 482
+  const activeDays = data?.stats?.active_days || 12
 
-            {/* 2. Main Content Grid (Chart + Recent) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
-                <div className="lg:col-span-2">
-                    <Suspense fallback={<div className="h-64 bg-gray-800 rounded-xl animate-pulse" />}>
-                        <ActivityChart />
-                    </Suspense>
-                </div>
-                <div>
-                    <Suspense fallback={<div className="h-64 bg-gray-800 rounded-xl animate-pulse" />}>
-                        <RecentProblems />
-                    </Suspense>
-                </div>
-            </div>
+  return (
+    <div className="p-6 md:p-10 max-w-7xl mx-auto fade-in space-y-8">
+      {/* Header Section */}
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Welcome back, {firstName}
+        </h1>
+        <p className="text-gray-500">
+          Track your progress and stay consistent.
+        </p>
+      </div>
 
-            {/* 3. Bottom Grid (Panels) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                <Suspense fallback={<div className="h-32 bg-gray-800 rounded-xl animate-pulse" />}>
-                    <PlatformStats />
-                </Suspense>
-                <Suspense fallback={<div className="h-32 bg-gray-800 rounded-xl animate-pulse" />}>
-                    <UpcomingContests />
-                </Suspense>
-                <Suspense fallback={<div className="h-32 bg-gray-800 rounded-xl animate-pulse" />}>
-                    <SkillDistribution />
-                </Suspense>
-            </div>
+      {/* Navigation */}
+      <div className="border-b border-white/10 mb-6">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`pb-3 text-sm font-medium transition-colors relative whitespace-nowrap flex items-center gap-2 ${activeSection === section.id
+                ? "text-white"
+                : "text-gray-500 hover:text-gray-300"
+                }`}
+            >
+              <section.icon className="w-4 h-4" />
+              {section.label}
+              {activeSection === section.id && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+            </button>
+          ))}
         </div>
-    )
+      </div>
+
+      {/* Content Area */}
+      <div className="relative min-h-[500px]">
+        <AnimatePresence mode="wait">
+          {activeSection === "overview" && (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="space-y-6"
+            >
+
+              {/* Top Row: 4 Metric Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <MetricCard
+                  title="Problems Solved"
+                  value={totalSolved}
+                  icon={CheckCircle2}
+                  color="green"
+                  badgeText="+12"
+                />
+                <MetricCard
+                  title="Day Streak"
+                  value={activeDays}
+                  icon={Flame}
+                  color="orange"
+                  badgeText="Best: 45"
+                />
+                <MetricCard
+                  title="This Week"
+                  value="24.5h"
+                  icon={Clock}
+                  color="blue"
+                  badgeText="+2.5h"
+                />
+                <MetricCard
+                  title="Global Rank"
+                  value="1,842"
+                  icon={Target}
+                  color="purple"
+                  badgeText="Top 5%"
+                />
+              </div>
+
+              {/* Second Row: Contest (Left) + Activity Overview (Right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[320px]">
+                {/* Left: Contest Thing */}
+                <div className="col-span-1 h-full">
+                  <ContestStats />
+                </div>
+
+                {/* Right: Activity Overview */}
+                <div className="col-span-1 lg:col-span-2 h-full bg-white/[0.03] border border-white/10 rounded-xl p-6">
+                  <ActivityChart />
+                </div>
+              </div>
+
+              {/* Third Row: Contribution Grid + Split */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Contribution Grid (2/3) */}
+                <div className="col-span-1 lg:col-span-2 h-full">
+                  <ContributionGraph contributions={data?.contributions?.length ? data.contributions : mockContributionData} />
+                </div>
+
+                {/* Split Chart (1/3) */}
+                <div className="col-span-1 h-full">
+                  <ContributionSplit devCounts={850} dsaCounts={482} />
+                </div>
+              </div>
+
+              {/* Bottom Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 h-full">
+                  <PlatformStats />
+                </div>
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 h-full">
+                  <SkillDistribution />
+                </div>
+              </div>
+
+            </motion.div>
+          )}
+
+          {activeSection === "problems" && (
+            <motion.div
+              key="problems"
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
+            >
+              <RecentProblems />
+            </motion.div>
+          )}
+
+          {activeSection === "contests" && (
+            <motion.div
+              key="contests"
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
+            >
+              <UpcomingContests />
+            </motion.div>
+          )}
+
+          {activeSection === "stats" && (
+            <motion.div
+              key="stats"
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            >
+              <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
+                <PlatformStats />
+              </div>
+              <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
+                <SkillDistribution />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  )
 }

@@ -51,6 +51,33 @@ export async function getDashboardData() {
     // 5. Transform for Dashboard
     const userProfile = profile as UserProfile | null
 
+    // 6. Get Platform Connections
+    const { data: connections } = await supabase
+        .from('platform_connections')
+        .select('*')
+        .eq('user_id', user.id)
+
+    const connectedPlatforms = connections?.reduce((acc: any, curr: any) => {
+        acc[curr.platform] = {
+            username: curr.username,
+            last_synced: curr.last_synced
+        }
+        return acc
+    }, {}) || {}
+
+    // 7. Get Contribution Data (Daily counts for last year)
+    // We group by date in JS since Supabase simple client doesn't support complex group by easily without RPC
+    const contributionMap = new Map<string, number>()
+    activity?.forEach((item: any) => {
+        const date = item.solved_at.split('T')[0]
+        contributionMap.set(date, (contributionMap.get(date) || 0) + 1)
+    })
+
+    const contributions = Array.from(contributionMap.entries()).map(([date, count]) => ({
+        date,
+        count
+    }))
+
     return {
         profile: userProfile || {
             id: user.id,
@@ -76,6 +103,31 @@ export async function getDashboardData() {
         },
         activity: activity || [],
         ratings: [],
-        platforms: []
+        platforms: [],
+        connectedPlatforms,
+        contributions
+    }
+}
+
+import { getRepos, getPinnedRepos, getEvents } from '@/lib/github'
+
+export async function getGitHubData(username?: string) {
+    // If username is provided, use it. Otherwise checkout env.
+    const targetUser = username || process.env.GITHUB_USERNAME
+    const hasToken = !!process.env.GITHUB_TOKEN && !!targetUser
+
+    try {
+        if (!hasToken) {
+            return { repos: [], pinned: [], events: [], hasToken: false }
+        }
+        const [repos, pinned, events] = await Promise.all([
+            getRepos(targetUser),
+            getPinnedRepos(targetUser),
+            getEvents(targetUser),
+        ])
+        return { repos, pinned, events, hasToken: true }
+    } catch (error) {
+        console.error("Failed to fetch GitHub data:", error)
+        return { repos: [], pinned: [], events: [], hasToken: false }
     }
 }
