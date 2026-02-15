@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { CursorEffect, FadeIn, PremiumBackground, scaleOnHover } from "@/components/ui/PremiumEffects"
+import { CodeBoardLogo } from "@/components/CodeBoardLogo"
 
 function LoginForm() {
     const router = useRouter()
@@ -287,10 +288,7 @@ export default function LoginPage() {
                 <div className="w-full max-w-sm">
                     <FadeIn delay={0.1}>
                         <Link href="/" className="flex items-center gap-2 mb-8 group w-fit">
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-white/10">
-                                <Code2 className="w-5 h-5 text-black" />
-                            </div>
-                            <span className="font-bold text-xl tracking-tight text-white group-hover:text-gray-200 transition-colors">CodeBoard</span>
+                            <CodeBoardLogo />
                         </Link>
                     </FadeIn>
 

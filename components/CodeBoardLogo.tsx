@@ -17,95 +17,44 @@ export function CodeBoardLogo({ size = "lg" }: LogoProps) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Left: Code Symbol with Cursor */}
-      <div className="relative w-10 h-10 flex items-center justify-center">
-        {/* Code brackets */}
-        <svg
-          viewBox="0 0 40 40"
-          className="w-full h-full"
-          fill="none"
-        >
-          {/* Opening bracket */}
-          <path
-            d="M8 8L2 20L8 32"
-            stroke="white"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* Closing bracket */}
-          <path
-            d="M32 8L38 20L32 32"
-            stroke="white"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* Slash */}
-          <path
-            d="M26 6L14 34"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-        </svg>
-        
-        {/* Green Cursor */}
-        <motion.div
-          className="absolute"
-          style={{ right: -2, top: "50%" }}
-          animate={{
-            x: [0, 3, 0],
-            y: [-50, -50, -50],
-          }}
-          transition={{
-            x: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
-          }}
-        >
-          <svg
-            width="12"
-            height="18"
-            viewBox="0 0 12 18"
-            fill="none"
-          >
-            <path
-              d="M0 0L12 9L0 18V0Z"
-              fill="#22C55E"
-              stroke="#16A34A"
-              strokeWidth="1"
-            />
-          </svg>
-        </motion.div>
-      </div>
-
-      {/* Center: Codeboard Text */}
-      <div className="flex flex-col">
+      {/* Left: Code Symbol */}
+      <div className="relative flex items-center justify-center">
         <span
-          className="text-white font-bold italic tracking-wide"
-          style={{
-            fontSize: "1.5rem",
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            letterSpacing: "0.05em",
-          }}
+          className="text-white text-3xl font-bold tracking-tighter"
+          style={{ fontFamily: '"Cascadia Code", monospace' }}
         >
-          Codeboard
+          {"[</>]"}
         </span>
       </div>
 
-      {/* Right: Orange Brick Icon (positioned above) */}
-      <div className="relative -top-3 ml-1">
-        <div className="flex flex-col gap-0.5">
-          {/* Top row - offset */}
-          <div className="flex gap-0.5">
-            <div className="w-2 h-1.5 bg-orange-500 rounded-sm" />
-            <div className="w-2 h-1.5 bg-orange-500 rounded-sm" />
-            <div className="w-2 h-1.5 bg-orange-400 rounded-sm" />
+      {/* Center: CodeBoard Text */}
+      <div className="flex flex-col ml-1">
+        <span
+          className="font-bold tracking-tight"
+          style={{
+            fontSize: "1.75rem",
+            fontFamily: '"Cascadia Code", monospace'
+          }}
+        >
+          <span className="text-green-500">C</span><span className="text-white">ode</span><span className="text-green-500">B</span><span className="text-white">oard</span>
+        </span>
+      </div>
+
+      {/* Right: Orange Brick Icon */}
+      <div className="relative -top-4 ml-1">
+        <div className="flex flex-col gap-[2px]">
+          <div className="flex gap-[2px] justify-end">
+            <div className="w-2 h-1 bg-orange-500 rounded-[1px]" />
+            <div className="w-3 h-1 bg-orange-500 rounded-[1px]" />
           </div>
-          {/* Bottom row */}
-          <div className="flex gap-0.5">
-            <div className="w-2 h-1.5 bg-orange-400 rounded-sm" />
-            <div className="w-2 h-1.5 bg-orange-500 rounded-sm" />
-            <div className="w-2 h-1.5 bg-orange-500 rounded-sm" />
+          <div className="flex gap-[2px] justify-end">
+            <div className="w-3 h-1 bg-orange-400 rounded-[1px]" />
+            <div className="w-2 h-1 bg-orange-500 rounded-[1px]" />
+            <div className="w-2 h-1 bg-orange-500 rounded-[1px]" />
+          </div>
+          <div className="flex gap-[2px] justify-end">
+            <div className="w-2 h-1 bg-orange-500 rounded-[1px]" />
+            <div className="w-3 h-1 bg-orange-400 rounded-[1px]" />
           </div>
         </div>
       </div>
@@ -113,56 +62,41 @@ export function CodeBoardLogo({ size = "lg" }: LogoProps) {
   )
 }
 
-// Simple inline version for navbar
+// Simple inline version for navbar/footer
 export function CodeBoardLogoSimple({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {/* Code brackets */}
-      <svg
-        width="28"
-        height="28"
-        viewBox="0 0 40 40"
-        className="text-white"
-        fill="none"
-      >
-        <path
-          d="M8 8L2 20L8 32"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M32 8L38 20L32 32"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M26 6L14 34"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </svg>
-      
+      <div className="relative flex items-center justify-center">
+        <span
+          className="text-white text-xl font-bold tracking-tighter"
+          style={{ fontFamily: '"Cascadia Code", monospace' }}
+        >
+          {"[</>]"}
+        </span>
+      </div>
+
       {/* Text */}
-      <span className="text-white font-bold italic text-xl tracking-wide">
-        Codeboard
+      <span
+        className="font-bold text-xl tracking-tight ml-1"
+        style={{ fontFamily: '"Cascadia Code", monospace' }}
+      >
+        <span className="text-green-500">C</span><span className="text-white">ode</span><span className="text-green-500">B</span><span className="text-white">oard</span>
       </span>
-      
+
       {/* Brick icon */}
-      <div className="flex flex-col gap-0.5 -mt-2">
-        <div className="flex gap-0.5">
-          <div className="w-1.5 h-1 bg-orange-500 rounded-sm" />
-          <div className="w-1.5 h-1 bg-orange-500 rounded-sm" />
-          <div className="w-1.5 h-1 bg-orange-400 rounded-sm" />
+      <div className="flex flex-col gap-[2px] -mt-3 ml-1">
+        <div className="flex gap-[2px] justify-end">
+          <div className="w-1.5 h-0.5 bg-orange-500 rounded-[1px]" />
+          <div className="w-2 h-0.5 bg-orange-500 rounded-[1px]" />
         </div>
-        <div className="flex gap-0.5">
-          <div className="w-1.5 h-1 bg-orange-400 rounded-sm" />
-          <div className="w-1.5 h-1 bg-orange-500 rounded-sm" />
-          <div className="w-1.5 h-1 bg-orange-500 rounded-sm" />
+        <div className="flex gap-[2px] justify-end">
+          <div className="w-2 h-0.5 bg-orange-400 rounded-[1px]" />
+          <div className="w-1.5 h-0.5 bg-orange-500 rounded-[1px]" />
+          <div className="w-1.5 h-0.5 bg-orange-500 rounded-[1px]" />
+        </div>
+        <div className="flex gap-[2px] justify-end">
+          <div className="w-1.5 h-0.5 bg-orange-500 rounded-[1px]" />
+          <div className="w-2 h-0.5 bg-orange-400 rounded-[1px]" />
         </div>
       </div>
     </div>

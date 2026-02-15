@@ -137,7 +137,7 @@ export default function CommunityPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto p-6 md:p-8 fade-in">
+        <div className="max-w-3xl p-6 md:p-8 fade-in">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-white mb-2">Community</h1>
                 <p className="text-gray-500 text-sm">Share your journey, celebrate wins, and help each other grow.</p>

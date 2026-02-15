@@ -33,7 +33,10 @@ export default function DashboardPage() {
       const d = new Date(today)
       d.setDate(d.getDate() - i)
       // distinct bias towards recent days for "streak" look
-      const count = Math.random() > 0.6 ? Math.floor(Math.random() * 8) : 0
+      // Deterministic pseudo-random generation to avoid hydration mismatch (server vs client)
+      // Math.random() causes mismatch. We use date properties to create a fixed pattern.
+      const seed = d.getDate() * (d.getMonth() + 1) + i
+      const count = seed % 4 === 0 ? Math.floor((seed % 9)) : 0
       dates.push({ date: d.toISOString().split('T')[0], count })
     }
     return dates
@@ -59,7 +62,7 @@ export default function DashboardPage() {
   const activeDays = data?.stats?.active_days || 12
 
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto fade-in space-y-8">
+    <div className="p-6 md:p-10 max-w-7xl fade-in space-y-8">
       {/* Header Section */}
       <div>
         <h1 className="text-3xl font-bold text-white mb-2">
@@ -102,10 +105,10 @@ export default function DashboardPage() {
           {activeSection === "overview" && (
             <motion.div
               key="overview"
-              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
               className="space-y-6"
             >
 
@@ -183,10 +186,10 @@ export default function DashboardPage() {
           {activeSection === "problems" && (
             <motion.div
               key="problems"
-              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
               <RecentProblems />
@@ -196,10 +199,10 @@ export default function DashboardPage() {
           {activeSection === "contests" && (
             <motion.div
               key="contests"
-              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
               <UpcomingContests />
@@ -209,10 +212,10 @@ export default function DashboardPage() {
           {activeSection === "stats" && (
             <motion.div
               key="stats"
-              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
               <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">

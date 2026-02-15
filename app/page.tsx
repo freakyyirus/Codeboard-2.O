@@ -3,6 +3,7 @@ import { FeaturesGrid } from "@/components/FeaturesGrid"
 import { Code2 } from "lucide-react"
 import Link from "next/link"
 import HeroAttraction from "@/components/HeroAttraction"
+import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
 
 export default function LandingPage() {
   return (
@@ -11,10 +12,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <Code2 className="w-5 h-5 text-black" />
-            </div>
-            <span className="font-bold text-xl tracking-tight">CodeBoard</span>
+            <CodeBoardLogoSimple />
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
             <a href="#features" className="nav-link hover:text-white transition-colors">Features</a>
@@ -121,10 +119,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                    <Code2 className="w-5 h-5 text-black" />
-                  </div>
-                  <span className="font-bold text-xl">CodeBoard</span>
+                  <CodeBoardLogoSimple />
                 </div>
                 <p className="text-gray-500 text-sm">The ultimate companion for competitive programmers and software engineers.</p>
               </div>

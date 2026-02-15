@@ -39,7 +39,7 @@ export default async function DevPage() {
   /* If no GitHub token → show setup guide */
   if (!hasToken || repos.length === 0) {
     return (
-      <div className="p-6 md:p-10 max-w-4xl mx-auto fade-in space-y-8">
+      <div className="p-6 md:p-10 max-w-4xl fade-in space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Developer Hub</h1>
           <p className="text-sm text-gray-500">Connect your GitHub to see repos, activity, and contribution insights.</p>
@@ -114,7 +114,7 @@ GITHUB_USERNAME=your_github_username`}
 
   /* Full Dev Page — GitHub connected */
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto fade-in space-y-8">
+    <div className="p-6 md:p-10 max-w-7xl fade-in space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-white mb-1">Developer Hub</h1>

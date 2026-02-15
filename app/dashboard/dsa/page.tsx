@@ -28,7 +28,7 @@ export default async function DSAPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 md:p-8 fade-in">
+    <div className="max-w-6xl p-6 md:p-8 fade-in">
       <header className="mb-8">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-white">
           <BookOpen className="w-7 h-7 text-blue-400" />

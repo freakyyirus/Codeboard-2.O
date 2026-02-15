@@ -21,14 +21,16 @@ export default function AnalyticsPage() {
         for (let i = 0; i < 365; i++) {
             const d = new Date(today)
             d.setDate(d.getDate() - i)
-            const count = Math.random() > 0.6 ? Math.floor(Math.random() * 8) : 0
+            // Deterministic pseudo-random generation to avoid hydration mismatch (server vs client)
+            const seed = d.getDate() * (d.getMonth() + 1) + i
+            const count = seed % 4 === 0 ? Math.floor((seed % 9)) : 0
             dates.push({ date: d.toISOString().split('T')[0], count })
         }
         return dates
     }, [])
 
     return (
-        <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-8 min-h-screen">
+        <div className="p-6 md:p-10 max-w-7xl space-y-8 min-h-screen">
             {/* 1. Header & Controls */}
             <FadeIn delay={0}>
                 <AnalyticsHeader timeRange={timeRange} setTimeRange={setTimeRange} />

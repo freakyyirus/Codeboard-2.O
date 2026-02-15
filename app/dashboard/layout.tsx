@@ -20,23 +20,24 @@ import {
     Menu,
     X,
     LogOut,
-    Trophy
+    Trophy,
+    MousePointer2
 } from "lucide-react"
-import UmaruInputMirror from "@/components/dashboard/UmaruInputMirror"
 import { CharacterProvider } from "@/components/DesktopPet"
 import { createBrowserSupabaseClient } from "@/lib/supabase-browser"
+import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
 
 function SidebarItem({ icon, label, href, active, onClick }: { icon: React.ReactNode, label: string, href: string, active?: boolean, onClick?: () => void }) {
     return (
         <Link
             href={href}
             onClick={onClick}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 min-h-[44px] ${active
-                ? "bg-white text-black font-medium"
-                : "text-gray-400 hover:bg-[#1a1a1a] hover:text-gray-200"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors duration-200 min-h-[44px] ${active
+                ? "bg-white/10 text-white font-semibold"
+                : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
                 }`}
         >
-            <div className={`${active ? "text-black" : "text-gray-500"}`}>
+            <div className={`${active ? "text-white" : "text-gray-500"}`}>
                 {icon}
             </div>
             <span className="text-sm">{label}</span>
@@ -86,17 +87,14 @@ export default function DashboardLayout({
 
                 {/* ─── Sidebar ─────────────────────────────── */}
                 <aside className={`
-                fixed md:relative z-50 h-screen w-64 bg-[#0B0B0B] text-white flex flex-col p-4 border-r border-[#1f1f1f] 
-                transition-transform duration-300 ease-in-out
+                fixed md:relative z-50 h-screen w-64 bg-[#0B0B0B] text-white flex flex-col p-4 border-r border-[#1f1f1f]
+                transition-transform duration-200 ease-out
                 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-                hidden md:flex shrink-0
+                shrink-0
             `}>
                     {/* Logo */}
-                    <div className="text-xl font-semibold mb-6 flex items-center gap-2 px-2">
-                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                            <Terminal className="w-5 h-5 text-black" />
-                        </div>
-                        <span>CodeBoard</span>
+                    <div className="mb-6 px-2">
+                        <CodeBoardLogoSimple />
                     </div>
 
                     {/* Close button - mobile */}
@@ -128,7 +126,7 @@ export default function DashboardLayout({
                             icon={<Code2 size={18} />}
                             label="Dev"
                             href="/dashboard/dev"
-                            active={pathname === "/dashboard/dev"}
+                            active={pathname.startsWith("/dashboard/dev")}
                             onClick={() => setSidebarOpen(false)}
                         />
                         <SidebarItem
@@ -187,7 +185,7 @@ export default function DashboardLayout({
                             icon={<Trophy size={18} />}
                             label="Leaderboard"
                             href="/dashboard/leaderboard"
-                            active={pathname.startsWith("/leaderboard")}
+                            active={pathname.startsWith("/dashboard/leaderboard")}
                             onClick={() => setSidebarOpen(false)}
                         />
                         <SidebarItem

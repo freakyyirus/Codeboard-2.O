@@ -9,6 +9,7 @@ type LeaderboardUser = {
     handle: string
     avatar: string
     score: number
+    metricValue?: number
     country?: string
 }
 
@@ -20,13 +21,13 @@ export function LeaderboardPodium({ top3 }: { top3: LeaderboardUser[] }) {
     const third = top3.find(u => u.rank === 3)
 
     return (
-        <div className="flex items-end justify-center gap-4 md:gap-8 mb-8 mt-4 pt-12">
+        <div className="flex items-end justify-center gap-4 md:gap-8 mb-6 mt-2 pt-4">
             {/* Rank 2 - Silver */}
             {second && (
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
+                    transition={{ duration: 0.18, delay: 0.04, ease: "easeOut" }}
                     className="flex flex-col items-center"
                 >
                     <div className="relative group">
@@ -41,7 +42,7 @@ export function LeaderboardPodium({ top3 }: { top3: LeaderboardUser[] }) {
                         <div className="text-white font-semibold text-sm md:text-base">{second.username}</div>
                         <div className="text-gray-500 text-xs">@{second.handle}</div>
                         <div className="mt-2 text-gray-300 font-bold bg-white/5 px-3 py-1 rounded-full text-sm inline-block">
-                            {second.score.toLocaleString()}
+                            {(second.metricValue ?? second.score).toLocaleString()}
                         </div>
                     </div>
                 </motion.div>
@@ -50,9 +51,10 @@ export function LeaderboardPodium({ top3 }: { top3: LeaderboardUser[] }) {
             {/* Rank 1 - Gold */}
             {first && (
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center -mt-8 mx-2 z-10"
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                    className="flex flex-col items-center -mt-6 mx-2 z-10"
                 >
                     <div className="relative group">
                         {/* Crown Icon */}
@@ -73,7 +75,7 @@ export function LeaderboardPodium({ top3 }: { top3: LeaderboardUser[] }) {
                         <div className="text-white font-bold text-lg md:text-xl">{first.username}</div>
                         <div className="text-gray-500 text-xs">@{first.handle}</div>
                         <div className="mt-2 text-yellow-400 font-bold bg-yellow-400/10 border border-yellow-400/20 px-4 py-1.5 rounded-full text-base inline-block">
-                            {first.score.toLocaleString()}
+                            {(first.metricValue ?? first.score).toLocaleString()}
                         </div>
                     </div>
                 </motion.div>
@@ -82,9 +84,9 @@ export function LeaderboardPodium({ top3 }: { top3: LeaderboardUser[] }) {
             {/* Rank 3 - Bronze */}
             {third && (
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
+                    transition={{ duration: 0.18, delay: 0.06, ease: "easeOut" }}
                     className="flex flex-col items-center"
                 >
                     <div className="relative group">
@@ -99,7 +101,7 @@ export function LeaderboardPodium({ top3 }: { top3: LeaderboardUser[] }) {
                         <div className="text-white font-semibold text-sm md:text-base">{third.username}</div>
                         <div className="text-gray-500 text-xs">@{third.handle}</div>
                         <div className="mt-2 text-gray-300 font-bold bg-white/5 px-3 py-1 rounded-full text-sm inline-block">
-                            {third.score.toLocaleString()}
+                            {(third.metricValue ?? third.score).toLocaleString()}
                         </div>
                     </div>
                 </motion.div>

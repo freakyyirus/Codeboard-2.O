@@ -204,7 +204,7 @@ export default function ProblemsPage() {
 
     if (loading) {
         return (
-            <div className="p-8 max-w-7xl mx-auto space-y-6">
+            <div className="p-8 max-w-7xl space-y-6">
                 <div className="skeleton h-12 w-48 rounded-xl" />
                 <div className="skeleton h-12 w-full rounded-xl" />
                 <div className="skeleton h-[500px] w-full rounded-xl" />
@@ -223,7 +223,7 @@ export default function ProblemsPage() {
     /* ─── Render ───────────────────────────────────── */
 
     return (
-        <div className="p-6 md:p-8 max-w-7xl mx-auto fade-in pb-20">
+        <div className="p-6 md:p-8 max-w-7xl fade-in pb-20">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
                 <div>

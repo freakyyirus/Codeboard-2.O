@@ -82,10 +82,13 @@ export function ContributionGraph({ contributions }: { contributions: Contributi
                 <div className="flex gap-0.5 mb-2 min-w-max">
                     {weeks.map((dateStr, i) => {
                         const date = new Date(dateStr)
-                        const month = date.toLocaleString('default', { month: 'short' })
+                        // Use static month names to avoid hydration mismatch (Sep vs Sept)
+                        const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                        const month = MONTHS[date.getMonth()]
+
                         // Only show label if it's the first occurrence of this month
                         const prevDate = i > 0 ? new Date(weeks[i - 1]) : null
-                        const prevMonth = prevDate ? prevDate.toLocaleString('default', { month: 'short' }) : ''
+                        const prevMonth = prevDate ? MONTHS[prevDate.getMonth()] : ''
                         const showLabel = month !== prevMonth
 
                         return (

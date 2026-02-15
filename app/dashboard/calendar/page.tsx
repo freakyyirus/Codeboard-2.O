@@ -94,7 +94,7 @@ export default function CalendarPage() {
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
     return (
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-[1200px] p-6 md:p-8">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-[24px] font-display text-[var(--foreground)]">Event Calendar</h1>
