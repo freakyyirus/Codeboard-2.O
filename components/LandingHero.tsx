@@ -29,7 +29,7 @@ export function LandingHero() {
 
                         {/* CTA Button */}
                         <a
-                            href="/login"
+                            href="/sign-in"
                             className="group bg-white text-black w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:scale-105 transition-all inline-flex items-center justify-center gap-2 sm:gap-3"
                         >
                             GET STARTED FREE
