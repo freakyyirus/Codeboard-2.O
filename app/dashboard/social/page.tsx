@@ -1,5 +1,3 @@
-"use client"
-
 import {
     Heart,
     MessageCircle,
@@ -12,10 +10,13 @@ import {
     Target,
     Zap,
     Star,
+    Twitter,
+    Linkedin,
+    Globe
 } from "lucide-react"
+import { getCachedSocialStats } from "@/lib/socials"
 
-/* ─── Mock Data ────────────────────────────────────────── */
-
+/* ─── Mock Data for Feed (Community Features) ────────────────── */
 const feedPosts = [
     {
         user: "Priya Sharma",
@@ -48,26 +49,6 @@ const feedPosts = [
         likes: 45,
         comments: 7,
     },
-    {
-        user: "Sarah Kim",
-        initials: "SK",
-        time: "5 hours ago",
-        type: "solved",
-        content: "Finally cracked the Traveling Salesman Problem. Took me 3 days but it was worth it.",
-        problem: "Traveling Salesman",
-        difficulty: "Hard",
-        likes: 67,
-        comments: 15,
-    },
-    {
-        user: "Dev Patel",
-        initials: "DP",
-        time: "Yesterday",
-        type: "contest",
-        content: "Finished 47th in Codeforces Round 922! Moved up from Specialist to Expert. 🎉",
-        likes: 134,
-        comments: 28,
-    },
 ]
 
 const leaderboard = [
@@ -76,11 +57,6 @@ const leaderboard = [
     { name: "Dev Patel", initials: "DP", solved: 681, streak: 22 },
     { name: "Sarah Kim", initials: "SK", solved: 634, streak: 18 },
     { name: "Jordan Blake", initials: "JB", solved: 589, streak: 15 },
-    { name: "John Doe", initials: "JD", solved: 482, streak: 12 },
-    { name: "Maria Garcia", initials: "MG", solved: 445, streak: 10 },
-    { name: "Raj Kumar", initials: "RK", solved: 398, streak: 8 },
-    { name: "Lisa Wang", initials: "LW", solved: 367, streak: 6 },
-    { name: "Tom Wilson", initials: "TW", solved: 312, streak: 4 },
 ]
 
 const suggestions = [
@@ -98,9 +74,9 @@ const badges = [
     { name: "500 Solved", icon: Award, unlocked: false },
 ]
 
-/* ─── Component ────────────────────────────────────────── */
+export default async function SocialPage() {
+    const stats = await getCachedSocialStats()
 
-export default function SocialPage() {
     return (
         <div className="max-w-[1200px] p-6 md:p-8">
             {/* Header */}
@@ -109,6 +85,51 @@ export default function SocialPage() {
                 <p className="text-[var(--text-secondary)] text-sm mt-1">
                     See what your community is solving. Compete, share, and grow together.
                 </p>
+            </div>
+
+            {/* Developer Identity Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                {/* Twitter */}
+                <div className="bg-[#1DA1F2]/10 border border-[#1DA1F2]/20 p-5 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Twitter className="w-4 h-4 text-[#1DA1F2]" />
+                            <span className="text-sm font-semibold text-[#1DA1F2]">Twitter</span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold text-white">{stats.twitter ? stats.twitter.followers.toLocaleString() : '-'}</span>
+                            <span className="text-xs text-gray-400">Followers</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* LinkedIn */}
+                <div className="bg-[#0A66C2]/10 border border-[#0A66C2]/20 p-5 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Linkedin className="w-4 h-4 text-[#0A66C2]" />
+                            <span className="text-sm font-semibold text-[#0A66C2]">LinkedIn</span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold text-white">{stats.linkedin ? stats.linkedin.connections.toLocaleString() : '-'}</span>
+                            <span className="text-xs text-gray-400">Connections</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Dev.to */}
+                <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Globe className="w-4 h-4 text-white" />
+                            <span className="text-sm font-semibold text-white">Dev.to</span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold text-white">{stats.devto ? stats.devto.posts.toLocaleString() : '-'}</span>
+                            <span className="text-xs text-gray-400">Posts</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -137,9 +158,6 @@ export default function SocialPage() {
                                 )}
                                 {post.type === "achievement" && (
                                     <Award className="w-5 h-5 text-[var(--primary)]" />
-                                )}
-                                {post.type === "contest" && (
-                                    <Trophy className="w-5 h-5 text-[var(--warning)]" />
                                 )}
                             </div>
 
@@ -241,3 +259,4 @@ export default function SocialPage() {
         </div>
     )
 }
+
