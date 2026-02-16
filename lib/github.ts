@@ -192,3 +192,71 @@ export async function getPinnedRepos(username?: string) {
     return []
   }
 }
+
+export async function getGithubContributions(username?: string) {
+  const targetUser = username || process.env.GITHUB_USERNAME
+  const CACHE_KEY = `github:contributions:${targetUser}`
+
+  if (!targetUser || !process.env.GITHUB_TOKEN) return []
+
+  const cached = await redis.get(CACHE_KEY)
+  if (cached) return cached
+
+  const query = {
+    query: `
+      query {
+        user(login: "${targetUser}") {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                  date
+                }
+              }
+            }
+          }
+        }
+      }
+    `
+  }
+
+  try {
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(query),
+      next: { revalidate: 3600 * 24 } // Cache for 24 hours
+    })
+
+    if (!res.ok) return []
+
+    const data = await res.json()
+    const calendar = data.data?.user?.contributionsCollection?.contributionCalendar
+
+    if (!calendar) return []
+
+    // Flatten the weeks into a simple array of { date, count }
+    const contributions: { date: string; count: number }[] = []
+    calendar.weeks.forEach((week: any) => {
+      week.contributionDays.forEach((day: any) => {
+        if (day.contributionCount > 0) {
+          contributions.push({
+            date: day.date,
+            count: day.contributionCount
+          })
+        }
+      })
+    })
+
+    await redis.set(CACHE_KEY, contributions, { ex: 3600 * 24 })
+    return contributions
+  } catch (error) {
+    console.error("Failed to fetch contributions:", error)
+    return []
+  }
+}
