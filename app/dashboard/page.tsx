@@ -136,11 +136,11 @@ export default function DashboardPage() {
                   badgeText="+2.5h"
                 />
                 <MetricCard
-                  title="Global Rank"
-                  value="1,842"
+                  title="Codeforces Rating"
+                  value={data?.stats?.codeforces?.rating?.toString() || "Unrated"}
                   icon={Target}
                   color="purple"
-                  badgeText="Top 5%"
+                  badgeText={data?.stats?.codeforces?.rank || "No Rank"}
                 />
               </div>
 
@@ -148,12 +148,12 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[320px]">
                 {/* Left: Contest Thing */}
                 <div className="col-span-1 h-full">
-                  <ContestStats />
+                  <ContestStats hackathons={data?.stats?.hackathons} />
                 </div>
 
                 {/* Right: Activity Overview */}
                 <div className="col-span-1 lg:col-span-2 h-full bg-white/[0.03] border border-white/10 rounded-xl p-6">
-                  <ActivityChart />
+                  <ActivityChart wakatime={data?.stats?.wakatime} />
                 </div>
               </div>
 
@@ -173,10 +173,10 @@ export default function DashboardPage() {
               {/* Bottom Row */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 h-full">
-                  <PlatformStats />
+                  <PlatformStats stats={data?.stats} />
                 </div>
                 <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 h-full">
-                  <SkillDistribution />
+                  <SkillDistribution stats={data?.stats} />
                 </div>
               </div>
 
@@ -219,10 +219,10 @@ export default function DashboardPage() {
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
               <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
-                <PlatformStats />
+                <PlatformStats stats={data?.stats} />
               </div>
               <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
-                <SkillDistribution />
+                <SkillDistribution stats={data?.stats} />
               </div>
             </motion.div>
           )}
