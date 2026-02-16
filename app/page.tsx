@@ -20,7 +20,7 @@ export default function LandingPage() {
             <a href="#testimonials" className="nav-link hover:text-white transition-colors">Testimonials</a>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Log in</Link>
+            <Link href="/sign-in" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Log in</Link>
             <div className="px-3 py-1 bg-yellow-900/30 text-yellow-400 text-xs font-medium rounded-full border border-yellow-800/30">
               Work in Progress
             </div>
@@ -104,7 +104,7 @@ export default function LandingPage() {
         <section className="py-16 sm:py-24 px-4 sm:px-6 bg-black text-center">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 sm:mb-6 tracking-tight">READY TO LEVEL UP?</h2>
           <p className="text-gray-400 mb-6 sm:mb-8 max-w-xl mx-auto text-sm sm:text-base">Join thousands of developers using CodeBoard to track, analyze, and improve their coding skills.</p>
-          <Link href="/login" className="bg-white text-black px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg hover:bg-gray-200 transition-all inline-flex items-center gap-2 sm:gap-3 mb-4">
+          <Link href="/sign-in" className="bg-white text-black px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg hover:bg-gray-200 transition-all inline-flex items-center gap-2 sm:gap-3 mb-4">
             START YOUR FREE TRIAL
           </Link>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-gray-500">
