@@ -1,141 +1,94 @@
-import { redis } from './redis'
+import { unstable_cache } from 'next/cache';
 
-const LEETCODE_API = "https://leetcode.com/graphql"
+const LEETCODE_API_ENDPOINT = 'https://leetcode.com/graphql';
 
-export async function getDailyProblem() {
-    // 1. Check Cache
-    const CACHE_KEY = "leetcode:daily"
-    const cached = await redis.get(CACHE_KEY)
-    if (cached) return cached
-
-    const query = `
-    query questionOfToday {
-        activeDailyCodingChallengeQuestion {
-            date
-            link
-            question {
-                questionId
-                title
-                titleSlug
-                difficulty
-                topicTags {
-                    name
-                }
-            }
-        }
-    }`
-
-    try {
-        const res = await fetch(LEETCODE_API, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Referer": "https://leetcode.com"
-            },
-            body: JSON.stringify({ query }),
-            next: { revalidate: 3600 }
-        })
-
-        if (!res.ok) throw new Error("LeetCode API Error")
-
-        const data = await res.json()
-        const challenge = data.data.activeDailyCodingChallengeQuestion
-
-        const problem = {
-            date: challenge.date,
-            title: challenge.question.title,
-            slug: challenge.question.titleSlug,
-            difficulty: challenge.question.difficulty,
-            tags: challenge.question.topicTags.map((t: any) => t.name),
-            url: `https://leetcode.com${challenge.link}`
-        }
-
-        // 2. Cache (24 hours)
-        await redis.set(CACHE_KEY, problem, { ex: 86400 })
-
-        return problem
-    } catch (error) {
-        console.error("Failed to fetch LeetCode daily:", error)
-        return null
-    }
+interface LeetCodeStats {
+    totalSolved: number;
+    easySolved: number;
+    mediumSolved: number;
+    hardSolved: number;
+    ranking: number;
+    acceptanceRate: number;
+    username: string;
 }
 
-export async function getProblemList(limit = 20, skip = 0) {
-    // 1. Check Cache
-    const CACHE_KEY = `leetcode:list:${limit}:${skip}`
-    const cached = await redis.get(CACHE_KEY)
-    if (cached) return cached
-
-    const query = `
-    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
-        problemsetQuestionList: questionList(
-            categorySlug: $categorySlug
-            limit: $limit
-            skip: $skip
-            filters: $filters
-        ) {
-            total: totalNum
-            questions: data {
-                acRate
-                difficulty
-                freqBar
-                frontendQuestionId: questionFrontendId
-                isFavorited
-                paidOnly: isPaidOnly
-                status
-                title
-                titleSlug
-                topicTags {
-                    name
-                    id
-                    slug
-                }
-                hasSolution
-                hasVideoSolution
-            }
+const LEETCODE_QUERY = `
+  query userProblemsSolved($username: String!) {
+    allQuestionsCount {
+      difficulty
+      count
+    }
+    matchedUser(username: $username) {
+      submitStats {
+        acSubmissionNum {
+          difficulty
+          count
+          submissions
         }
-    }`
+      }
+      profile {
+        ranking
+        reputation
+      }
+    }
+  }
+`;
+
+export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStats | null> {
+    if (!username) return null;
 
     try {
-        const res = await fetch(LEETCODE_API, {
-            method: "POST",
+        const response = await fetch(LEETCODE_API_ENDPOINT, {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "Referer": "https://leetcode.com"
+                'Content-Type': 'application/json',
+                'User-Agent': 'CodeBoard/2.0',
             },
             body: JSON.stringify({
-                query,
-                variables: {
-                    categorySlug: "",
-                    limit,
-                    skip,
-                    filters: {}
-                }
+                query: LEETCODE_QUERY,
+                variables: { username },
             }),
-            next: { revalidate: 3600 }
-        })
+            next: { revalidate: 3600 } // Cache for 1 hour
+        });
 
-        if (!res.ok) throw new Error("LeetCode API Error")
+        if (!response.ok) {
+            console.error(`LeetCode API Error: ${response.statusText}`);
+            return null;
+        }
 
-        const data = await res.json()
-        const questions = data.data.problemsetQuestionList.questions.map((q: any) => ({
-            id: q.frontendQuestionId,
-            title: q.title,
-            slug: q.titleSlug,
-            difficulty: q.difficulty,
-            acceptance: q.acRate.toFixed(1),
-            tags: q.topicTags.map((t: any) => t.name),
-            paid: q.paidOnly,
-            url: `https://leetcode.com/problems/${q.titleSlug}`
-        }))
+        const data = await response.json();
 
-        // 2. Cache (1 hour)
-        await redis.set(CACHE_KEY, questions, { ex: 3600 })
+        if (data.errors) {
+            console.error('LeetCode GraphQL Errors:', data.errors);
+            return null;
+        }
 
-        return questions
+        const matchedUser = data.data?.matchedUser;
+
+        if (!matchedUser) return null;
+
+        const stats = matchedUser.submitStats.acSubmissionNum;
+        const profile = matchedUser.profile;
+
+        return {
+            username,
+            totalSolved: stats.find((s: any) => s.difficulty === 'All')?.count || 0,
+            easySolved: stats.find((s: any) => s.difficulty === 'Easy')?.count || 0,
+            mediumSolved: stats.find((s: any) => s.difficulty === 'Medium')?.count || 0,
+            hardSolved: stats.find((s: any) => s.difficulty === 'Hard')?.count || 0,
+            ranking: profile?.ranking || 0,
+            acceptanceRate: 0, // Calculate if needed from total submissions
+        };
+
     } catch (error) {
-        console.error("Failed to fetch LeetCode list:", error)
-        return []
+        console.error('Failed to fetch LeetCode stats:', error);
+        return null;
     }
 }
 
+// Cached version for high-performance dashboard rendering
+export const getCachedLeetCodeStats = unstable_cache(
+    async (username: string) => fetchLeetCodeStats(username),
+    ['leetcode-stats'],
+    { revalidate: 3600, tags: ['leetcode'] }
+);
