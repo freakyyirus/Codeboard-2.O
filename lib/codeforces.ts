@@ -1,44 +1,53 @@
-import { redis } from './redis'
+import { unstable_cache } from "next/cache"
 
-const BASE_URL = "https://codeforces.com/api"
+export interface CodeforcesStats {
+    username: string
+    rating: number
+    rank: string
+    maxRating: number
+    maxRank: string
+    lastOnlineTimeSeconds: number
+    registrationTimeSeconds: number
+    friendOfCount: number
+    titlePhoto: string
+}
 
-export async function getUpcomingContests() {
-    // 1. Check Cache
-    const CACHE_KEY = "codeforces:contests"
-    const cached = await redis.get(CACHE_KEY)
-    if (cached) return cached
-
+export async function getCodeforcesStats(username: string): Promise<CodeforcesStats | null> {
     try {
-        // 2. Fetch from Codeforces
-        const res = await fetch(`${BASE_URL}/contest.list?gym=false`, {
-            next: { revalidate: 3600 }
-        })
+        const response = await fetch(`https://codeforces.com/api/user.info?handles=${username}`)
 
-        if (!res.ok) throw new Error("Codeforces API Error")
+        if (!response.ok) {
+            console.error(`Codeforces API error: ${response.statusText}`)
+            return null
+        }
 
-        const data = await res.json()
-        if (data.status !== "OK") throw new Error("Codeforces API Error")
+        const data = await response.json()
 
-        // Filter: BEFORE phase (upcoming), sort by startTimeSeconds
-        const upcoming = data.result
-            .filter((c: any) => c.phase === "BEFORE")
-            .sort((a: any, b: any) => a.startTimeSeconds - b.startTimeSeconds)
-            .slice(0, 5) // Limit to 5
-            .map((c: any) => ({
-                id: c.id,
-                name: c.name,
-                startTimeSeconds: c.startTimeSeconds,
-                durationSeconds: c.durationSeconds,
-                platform: "Codeforces",
-                url: `https://codeforces.com/contests/${c.id}` // Construct URL
-            }))
+        if (data.status !== "OK" || !data.result || data.result.length === 0) {
+            return null
+        }
 
-        // 3. Cache (1 hour)
-        await redis.set(CACHE_KEY, upcoming, { ex: 3600 })
+        const user = data.result[0]
 
-        return upcoming
+        return {
+            username: user.handle,
+            rating: user.rating || 0,
+            rank: user.rank || "unrated",
+            maxRating: user.maxRating || 0,
+            maxRank: user.maxRank || "unrated",
+            lastOnlineTimeSeconds: user.lastOnlineTimeSeconds,
+            registrationTimeSeconds: user.registrationTimeSeconds,
+            friendOfCount: user.friendOfCount,
+            titlePhoto: user.titlePhoto
+        }
     } catch (error) {
-        console.error("Failed to fetch Codeforces contests:", error)
-        return []
+        console.error("Codeforces fetch error:", error)
+        return null
     }
 }
+
+export const getCachedCodeforcesStats = unstable_cache(
+    async (username: string) => getCodeforcesStats(username),
+    ['codeforces-stats'],
+    { revalidate: 3600 } // Cache for 1 hour
+)
