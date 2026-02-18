@@ -329,7 +329,7 @@ export default function SettingsPage() {
     }
 
     const updatePassword = async () => {
-        toast.info("Password management is handled via Clerk settings.")
+        toast("Password management is handled via Clerk settings.")
     }
 
     // Education CRUD
