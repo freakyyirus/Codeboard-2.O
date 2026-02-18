@@ -7,7 +7,8 @@ import { useRef } from "react"
 import * as monaco from "monaco-editor"
 
 // Ensure Monaco loads from a reliable CDN to avoid initialization errors in Next.js
-loader.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } })
+// Monaco loader config removed to use default CDN
+
 
 interface CodeEditorProps {
     language: string

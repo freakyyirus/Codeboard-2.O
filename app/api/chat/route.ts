@@ -2,7 +2,7 @@ import { google } from "@ai-sdk/google";
 import { streamText } from "ai";
 
 // IMPORTANT: Set runtime to edge for streaming support on Vercel
-export const runtime = "edge";
+// export const runtime = "edge"; // Switch to Node.js runtime for better compatibility
 
 export async function POST(req: Request) {
     try {
