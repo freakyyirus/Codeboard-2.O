@@ -1,8 +1,7 @@
 "use client"
 
-import { useRef, useEffect } from "react"
-import { useChat } from "ai/react"
-import { Send, Bot, User, Loader2, Sparkles } from "lucide-react"
+import { useRef, useEffect, useState, FormEvent } from "react"
+import { Send, Bot, User, Sparkles } from "lucide-react"
 
 interface AIChatProps {
     problemTitle?: string
@@ -10,20 +9,18 @@ interface AIChatProps {
     userCode?: string
 }
 
+interface ChatMessage {
+    id: string
+    role: "user" | "assistant"
+    content: string
+}
+
 export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
-    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-        api: "/api/chat",
-        initialMessages: [
-            { id: "1", role: "assistant", content: "Hi! I'm CodeBoard AI. Need a hint or help debugging?" }
-        ],
-        body: {
-            context: {
-                problemTitle: problemTitle || "Not specified",
-                difficulty: difficulty || "Not specified",
-                userCode: userCode || ""
-            }
-        }
-    })
+    const [messages, setMessages] = useState<ChatMessage[]>([
+        { id: "1", role: "assistant", content: "Hi! I'm CodeBoard AI. Need a hint or help debugging?" }
+    ])
+    const [input, setInput] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     const scrollToBottom = () => {
@@ -33,6 +30,54 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
     useEffect(() => {
         scrollToBottom()
     }, [messages])
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        if (!input.trim() || isLoading) return
+
+        const userMessage: ChatMessage = {
+            id: Date.now().toString(),
+            role: "user",
+            content: input.trim()
+        }
+
+        setMessages(prev => [...prev, userMessage])
+        setInput("")
+        setIsLoading(true)
+
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
+                    context: {
+                        problemTitle: problemTitle || "Not specified",
+                        difficulty: difficulty || "Not specified",
+                        userCode: userCode || ""
+                    }
+                })
+            })
+
+            if (!response.ok) throw new Error("Failed to get response")
+
+            const data = await response.json()
+            const assistantMessage: ChatMessage = {
+                id: (Date.now() + 1).toString(),
+                role: "assistant",
+                content: data.content || data.message || "Sorry, I couldn't generate a response."
+            }
+            setMessages(prev => [...prev, assistantMessage])
+        } catch {
+            setMessages(prev => [...prev, {
+                id: (Date.now() + 1).toString(),
+                role: "assistant",
+                content: "Sorry, something went wrong. Please try again."
+            }])
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     return (
         <div className="flex flex-col h-full bg-[var(--surface)] border-l border-[var(--border)] w-80">
@@ -51,7 +96,7 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((m: any) => (
+                {messages.map((m) => (
                     <div key={m.id} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 
                             ${m.role === 'user' ? 'bg-[var(--text-secondary)]' : 'bg-purple-500/20'}`}>
@@ -87,7 +132,7 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
                     <input
                         type="text"
                         value={input}
-                        onChange={handleInputChange}
+                        onChange={(e) => setInput(e.target.value)}
                         placeholder="Ask for a hint..."
                         className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all font-medium placeholder:text-[var(--text-tertiary)]"
                     />
