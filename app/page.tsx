@@ -4,6 +4,7 @@ import { Code2 } from "lucide-react"
 import Link from "next/link"
 import HeroAttraction from "@/components/HeroAttraction"
 import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
 export default function LandingPage() {
   return (
@@ -20,10 +21,14 @@ export default function LandingPage() {
             <a href="#testimonials" className="nav-link hover:text-white transition-colors">Testimonials</a>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/sign-in" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Log in</Link>
-            <div className="px-3 py-1 bg-yellow-900/30 text-yellow-400 text-xs font-medium rounded-full border border-yellow-800/30">
-              Work in Progress
-            </div>
+            <SignedOut>
+              <Link href="/sign-in" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Log in</Link>
+              <Link href="/sign-up" className="px-4 py-2 bg-white text-black text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors">Get Started</Link>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/dashboard" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Dashboard</Link>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
           </div>
         </div>
       </nav>
