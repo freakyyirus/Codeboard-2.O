@@ -23,7 +23,7 @@ export const StreakReminderEmail = ({
 }: StreakReminderEmailProps) => (
     <Html>
         <Head />
-        <Preview>Don't lose your {streakCount} day streak!</Preview>
+        <Preview>{`Don't lose your ${streakCount} day streak!`}</Preview>
         <Body style={main}>
             <Container style={container}>
                 <Heading style={h1}>Keep the flame alive, {username}!</Heading>
