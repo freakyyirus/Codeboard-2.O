@@ -8,6 +8,7 @@ import { getCachedCodeforcesStats } from '@/lib/codeforces'
 import { getCachedPlatformRating } from '@/lib/clist'
 import { getCachedWakaTimeStats } from '@/lib/wakatime'
 import { getCachedHackathons } from '@/lib/hackathons'
+import { getCachedSocialStats } from '@/lib/socials'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 
@@ -153,7 +154,11 @@ export async function getDashboardData() {
     const hackathons = await getCachedHackathons();
 
     // 13. Social Stats
-    const socialStats = await getCachedSocialStats();
+    const socialStats = await getCachedSocialStats({
+        devto: connectedPlatforms['devto']?.username,
+        twitter: connectedPlatforms['twitter']?.username,
+        linkedin: connectedPlatforms['linkedin']?.username
+    });
 
     // 14. Merge Stats
     // If we have LeetCode stats, use them for the "Total Solved" card.
