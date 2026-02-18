@@ -15,6 +15,8 @@ import {
     Loader2,
     Menu
 } from "lucide-react"
+import { AIChat } from "@/components/studio/AIChat"
+import { CodeEditor } from "@/components/studio/CodeEditor"
 
 /* ─── Problem Bank ────────────────────────────────── */
 
@@ -160,49 +162,63 @@ export default function StudioPage() {
     const [output, setOutput] = useState<string[]>(["Welcome to CodeBoard Studio v2.0", "Ready to compile..."])
     const [activeTab, setActiveTab] = useState<"console" | "testcases">("console")
 
-    const [messages, setMessages] = useState([
-        { role: "ai", content: "Hi! I'm your AI coding assistant. I can explain the problem, give hints, or help debug your code." }
-    ])
-    const [chatInput, setChatInput] = useState("")
-
     const currentProblem = useMemo(
         () => PROBLEMS.find(p => p.id === selectedProblemId) || PROBLEMS[0],
         [selectedProblemId]
     )
 
     /* ─── Handlers */
-    const handleRun = () => {
+    const handleRun = async () => {
         setIsRunning(true)
-        setOutput(["⏳ Compiling...", "Running tests..."])
-        setTimeout(() => {
+        setOutput(["⏳ Compiling...", "Sending to Judge0 compute engine..."])
+        setTerminalOpen(true)
+
+        try {
+            const response = await fetch("/api/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    code,
+                    language: language.id,
+                    stdin: currentProblem.testInput
+                })
+            })
+
+            const result = await response.json()
+
+            if (result.error) {
+                setOutput([`❌ Error: ${result.error}`])
+            } else {
+                const status = result.status?.description || "Completed"
+                const stdout = result.stdout || ""
+                const stderr = result.stderr || ""
+                const compileOutput = result.compile_output || ""
+
+                const newOutput = [
+                    `> Status: ${status}`,
+                    result.time ? `> Runtime: ${result.time}s` : "",
+                    result.memory ? `> Memory: ${result.memory}KB` : "",
+                    "",
+                    compileOutput ? `Compile Output:\n${compileOutput}` : "",
+                    stdout ? `Standard Output:\n${stdout}` : "",
+                    stderr ? `Standard Error:\n${stderr}` : "",
+                ].filter(Boolean)
+
+                if (status === "Accepted") {
+                    newOutput.push("", "✅ All test cases passed!")
+                } else if (status !== "In Queue" && status !== "Processing") {
+                    newOutput.push("", `❌ Result: ${status}`)
+                }
+
+                setOutput(newOutput)
+            }
+        } catch (error) {
+            setOutput(["❌ Failed to connect to execution engine"])
+        } finally {
             setIsRunning(false)
-            setOutput([
-                "> Compiling solution...",
-                "> Running against test cases...",
-                "",
-                `Test Case 1: ${currentProblem.testInput}`,
-                `Expected: ${currentProblem.expectedOutput}`,
-                `Output:   ${currentProblem.expectedOutput}`,
-                "",
-                "✅ All test cases passed!",
-                "Runtime: 4ms | Memory: 42.1 MB"
-            ])
-            setTerminalOpen(true)
-        }, 1500)
+        }
     }
 
-    const handleSendMessage = () => {
-        if (!chatInput.trim()) return
-        const newMsgs = [...messages, { role: "user", content: chatInput }]
-        setMessages(newMsgs)
-        setChatInput("")
-        setTimeout(() => {
-            setMessages([...newMsgs, {
-                role: "ai",
-                content: `For "${currentProblem.title}", consider using a hash map approach. The key insight is to check if the complement exists as you iterate through the array. This gives you O(n) time complexity.`
-            }])
-        }, 800)
-    }
 
     return (
         <div className="h-full flex flex-col bg-[#000] text-gray-300 overflow-hidden">
@@ -336,21 +352,11 @@ export default function StudioPage() {
                 {/* Editor + Terminal */}
                 <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
                     <div className="flex-1 relative">
-                        <Editor
+                        <CodeEditor
                             height="100%"
                             language={language.id}
-                            theme="vs-dark"
                             value={code}
                             onChange={(value) => setCode(value || "")}
-                            options={{
-                                minimap: { enabled: false },
-                                fontSize: 14,
-                                fontFamily: "'JetBrains Mono', monospace",
-                                lineNumbers: "on",
-                                scrollBeyondLastLine: false,
-                                automaticLayout: true,
-                                padding: { top: 16 }
-                            }}
                         />
                     </div>
 
@@ -414,56 +420,11 @@ export default function StudioPage() {
 
                 {/* AI Assistant Panel */}
                 {showAI && (
-                    <div className="w-full sm:w-[300px] md:w-[320px] border-l border-[#1f1f1f] bg-[#0c0c0c] flex flex-col absolute sm:relative right-0 top-0 bottom-0 z-20 shadow-2xl">
-                        <div className="p-3 md:p-4 border-b border-[#1f1f1f] flex items-center justify-between bg-purple-900/10">
-                            <div className="flex items-center gap-2 text-purple-400 font-semibold text-sm">
-                                <Sparkles className="w-4 h-4" />
-                                AI Assistant
-                            </div>
-                            <button onClick={() => setShowAI(false)} className="text-gray-500 hover:text-white">
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3">
-                            {messages.map((m, i) => (
-                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed
-                                        ${m.role === 'user'
-                                            ? 'bg-blue-600 text-white rounded-br-none'
-                                            : 'bg-[#1e1e1e] border border-[#333] text-gray-300 rounded-bl-none'
-                                        }`}>
-                                        {m.content}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="p-3 md:p-4 border-t border-[#1f1f1f] bg-[#0c0c0c] space-y-2">
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={chatInput}
-                                    onChange={(e) => setChatInput(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    placeholder="Ask for a hint..."
-                                    className="flex-1 bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-purple-500 text-white placeholder-gray-600"
-                                />
-                                <button
-                                    onClick={handleSendMessage}
-                                    className="p-2 bg-purple-600 rounded-lg hover:bg-purple-500 transition-colors text-white"
-                                >
-                                    <Send className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
-                            <div className="flex gap-1.5 flex-wrap">
-                                <button className="text-[10px] bg-[#1a1a1a] border border-[#333] hover:bg-[#222] px-2 py-1 rounded text-purple-400 transition-colors">💡 Explain</button>
-                                <button className="text-[10px] bg-[#1a1a1a] border border-[#333] hover:bg-[#222] px-2 py-1 rounded text-green-400 transition-colors">🐛 Debug</button>
-                                <button className="text-[10px] bg-[#1a1a1a] border border-[#333] hover:bg-[#222] px-2 py-1 rounded text-blue-400 transition-colors">📊 Complexity</button>
-                                <button className="text-[10px] bg-[#1a1a1a] border border-[#333] hover:bg-[#222] px-2 py-1 rounded text-yellow-400 transition-colors">🧪 Edge Cases</button>
-                            </div>
-                        </div>
-                    </div>
+                    <AIChat
+                        problemTitle={currentProblem.title}
+                        difficulty={currentProblem.difficulty}
+                        userCode={code}
+                    />
                 )}
             </div>
         </div>
