@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createBrowserSupabaseClient } from "@/lib/supabase-browser"
+import { useUser } from "@clerk/nextjs"
+import { useSupabase } from "@/hooks/useSupabase"
 import {
     ArrowLeft,
     User,
@@ -128,63 +129,14 @@ const PROFILE_TABS: { id: ProfileTab; label: string; icon: React.ReactNode }[] =
 /* ─── Component ────────────────────────────────── */
 
 export default function SettingsPage() {
+    const { user, isLoaded: userLoaded } = useUser()
+    const supabase = useSupabase()
+
     const [activeSection, setActiveSection] = useState<Section>("basic")
     const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("about")
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [uploading, setUploading] = useState(false)
-
-    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        try {
-            setUploading(true)
-            if (!event.target.files || event.target.files.length === 0) {
-                throw new Error('You must select an image to upload.')
-            }
-
-            const file = event.target.files[0]
-            const fileExt = file.name.split('.').pop()
-            const fileName = `${profile.id}-${Math.random()}.${fileExt}`
-            const filePath = `${fileName}`
-
-            const supabase = createBrowserSupabaseClient()
-
-            // 1. Upload file
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, file)
-
-            if (uploadError) {
-                throw uploadError
-            }
-
-            // 2. Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath)
-
-            // 3. Update profile state
-            setProfile(prev => ({ ...prev, avatar_url: publicUrl }))
-
-            // 4. Update database immediately
-            const { error: updateError } = await (supabase.from("users") as any).upsert({
-                id: profile.id,
-                avatar_url: publicUrl,
-                username: profile.username,
-                full_name: profile.full_name,
-                updated_at: new Date().toISOString(),
-            })
-
-            if (updateError) throw updateError
-
-            toast.success("Avatar updated!")
-
-        } catch (error: any) {
-            toast.error(error.message || "Error uploading avatar")
-            console.error(error)
-        } finally {
-            setUploading(false)
-        }
-    }
 
     // Basic Info
     const [profile, setProfile] = useState<UserProfile>({
@@ -208,13 +160,18 @@ export default function SettingsPage() {
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
 
-    useEffect(() => { loadUserData() }, [])
+    useEffect(() => {
+        if (userLoaded && user) {
+            loadUserData()
+        } else if (userLoaded && !user) {
+            setLoading(false)
+        }
+    }, [user, userLoaded])
 
     const loadUserData = async () => {
-        const supabase = createBrowserSupabaseClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
 
-        if (user) {
+        try {
             const { data: userProfile } = await supabase
                 .from("users")
                 .select("*")
@@ -224,11 +181,11 @@ export default function SettingsPage() {
             if (userProfile) {
                 setProfile({
                     id: user.id,
-                    email: user.email || "",
-                    username: userProfile.username || "",
-                    full_name: userProfile.full_name || user.user_metadata?.full_name || "",
-                    last_name: userProfile.last_name || "",
-                    avatar_url: userProfile.avatar_url || "",
+                    email: user.primaryEmailAddress?.emailAddress || "",
+                    username: userProfile.username || user.username || "",
+                    full_name: userProfile.full_name || user.fullName || "",
+                    last_name: userProfile.last_name || user.lastName || "",
+                    avatar_url: userProfile.avatar_url || user.imageUrl || "",
                     bio: userProfile.bio || "",
                     country: userProfile.country || "India",
                     daily_goal: userProfile.daily_goal || 2,
@@ -242,8 +199,9 @@ export default function SettingsPage() {
                 setProfile(prev => ({
                     ...prev,
                     id: user.id,
-                    email: user.email || "",
-                    full_name: user.user_metadata?.full_name || "",
+                    email: user.primaryEmailAddress?.emailAddress || "",
+                    username: user.username || "",
+                    full_name: user.fullName || "",
                 }))
             }
 
@@ -259,15 +217,68 @@ export default function SettingsPage() {
                     return conn ? { ...p, username: conn.username, connected: true } : p
                 }))
             }
+        } catch (error) {
+            console.error("Error loading user data:", error)
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
+    }
+
+    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            setUploading(true)
+            if (!event.target.files || event.target.files.length === 0) {
+                throw new Error('You must select an image to upload.')
+            }
+
+            const file = event.target.files[0]
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${user?.id || 'unknown'}-${Math.random()}.${fileExt}`
+            const filePath = `${fileName}`
+
+            // 1. Upload file
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file)
+
+            if (uploadError) {
+                throw uploadError
+            }
+
+            // 2. Get public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath)
+
+            // 3. Update profile state
+            setProfile(prev => ({ ...prev, avatar_url: publicUrl }))
+
+            // 4. Update database immediately
+            const { error: updateError } = await (supabase.from("users") as any).upsert({
+                id: user?.id,
+                avatar_url: publicUrl,
+                username: profile.username,
+                full_name: profile.full_name,
+                updated_at: new Date().toISOString(),
+            })
+
+            if (updateError) throw updateError
+
+            toast.success("Avatar updated!")
+
+        } catch (error: any) {
+            toast.error(error.message || "Error uploading avatar")
+            console.error(error)
+        } finally {
+            setUploading(false)
+        }
     }
 
     const saveBasicInfo = async () => {
+        if (!user) return
         setSaving(true)
-        const supabase = createBrowserSupabaseClient()
         const { error } = await (supabase.from("users") as any).upsert({
-            id: profile.id,
+            id: user.id,
             email: profile.email,
             username: profile.username,
             full_name: profile.full_name,
@@ -285,7 +296,6 @@ export default function SettingsPage() {
             console.error("Database connection error:", error)
         }
         else {
-            // Explicit feedback as requested
             toast.success("Database Connected: Profile Saved!", {
                 icon: "✅",
                 style: {
@@ -299,10 +309,9 @@ export default function SettingsPage() {
     }
 
     const savePlatform = async (platform: string, username: string) => {
-        if (!username.trim()) return
-        const supabase = createBrowserSupabaseClient()
+        if (!username.trim() || !user) return
         const { error } = await (supabase.from("platform_connections") as any).upsert({
-            user_id: profile.id, platform, username: username.trim(),
+            user_id: user.id, platform, username: username.trim(),
             last_synced: new Date().toISOString(),
         }, { onConflict: "user_id,platform" })
         if (error) { toast.error(`Failed to connect ${platform}`); console.error(error) }
@@ -313,38 +322,33 @@ export default function SettingsPage() {
     }
 
     const disconnectPlatform = async (platform: string) => {
-        const supabase = createBrowserSupabaseClient()
-        await (supabase.from("platform_connections") as any).delete().eq("user_id", profile.id).eq("platform", platform)
+        if (!user) return
+        await (supabase.from("platform_connections") as any).delete().eq("user_id", user.id).eq("platform", platform)
         setPlatforms(prev => prev.map(p => p.platform === platform ? { ...p, connected: false, username: "" } : p))
         toast.success(`${platform} disconnected`)
     }
 
     const updatePassword = async () => {
-        if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return }
-        if (newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return }
-        const supabase = createBrowserSupabaseClient()
-        const { error } = await supabase.auth.updateUser({ password: newPassword })
-        if (error) toast.error("Failed to update password")
-        else { toast.success("Password updated!"); setNewPassword(""); setConfirmPassword("") }
+        toast.info("Password management is handled via Clerk settings.")
     }
 
     // Education CRUD
-    const addEducation = () => setEducations(prev => [...prev, {
+    const addEducation = () => setEducations((prev: Education[]) => [...prev, {
         id: Date.now().toString(), institution: "", degree: "", branch: "", year: "",
     }])
-    const removeEducation = (id: string) => setEducations(prev => prev.filter(e => e.id !== id))
+    const removeEducation = (id: string) => setEducations((prev: Education[]) => prev.filter(e => e.id !== id))
 
     // Achievement CRUD
-    const addAchievement = () => setAchievements(prev => [...prev, {
+    const addAchievement = () => setAchievements((prev: Achievement[]) => [...prev, {
         id: Date.now().toString(), title: "", issuer: "", date: "", url: "",
     }])
-    const removeAchievement = (id: string) => setAchievements(prev => prev.filter(a => a.id !== id))
+    const removeAchievement = (id: string) => setAchievements((prev: Achievement[]) => prev.filter(a => a.id !== id))
 
     // Work Experience CRUD
-    const addExperience = () => setExperiences(prev => [...prev, {
+    const addExperience = () => setExperiences((prev: WorkExperience[]) => [...prev, {
         id: Date.now().toString(), company: "", role: "", startDate: "", endDate: "", description: "", current: false,
     }])
-    const removeExperience = (id: string) => setExperiences(prev => prev.filter(e => e.id !== id))
+    const removeExperience = (id: string) => setExperiences((prev: WorkExperience[]) => prev.filter(e => e.id !== id))
 
     if (loading) {
         return (
