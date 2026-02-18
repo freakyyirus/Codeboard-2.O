@@ -9,7 +9,7 @@ type Contribution = {
     count: number
 }
 
-export function ContributionGraph({ contributions }: { contributions: Contribution[] }) {
+export function ContributionGraph({ contributions, username }: { contributions: Contribution[], username?: string }) {
     // Generate last 365 days
     const days = useMemo(() => {
         const today = new Date()
