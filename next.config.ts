@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://*.supabase.co https://*.vercel.app;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://national-shark-15.clerk.accounts.dev https://clerk.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: https://img.clerk.com https://*.clerk.accounts.dev; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.vercel.app https://national-shark-15.clerk.accounts.dev;",
           },
         ],
       },
