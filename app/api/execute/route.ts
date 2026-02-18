@@ -3,9 +3,6 @@ import { NextResponse } from "next/server";
 // Judge0 API (RapidAPI)
 const JUDGE0_URL = "https://judge0-ce.p.rapidapi.com";
 
-// Piston API (Free Fallback)
-const PISTON_URL = "https://emkc.org/api/v2/piston";
-
 // Language IDs for Judge0 CE
 const JUDGE0_LANGUAGE_MAPPING: Record<string, number> = {
     javascript: 63,
@@ -18,80 +15,57 @@ export async function POST(req: Request) {
     try {
         const { code, language, stdin } = await req.json();
 
-        // 1. Try Judge0 first (if API key is present)
-        if (process.env.JUDGE0_API_KEY) {
-            try {
-                const languageId = JUDGE0_LANGUAGE_MAPPING[language.toLowerCase()];
-                if (languageId) {
-                    const response = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "x-rapidapi-host": process.env.JUDGE0_API_HOST || "judge0-ce.p.rapidapi.com",
-                            "x-rapidapi-key": process.env.JUDGE0_API_KEY,
-                        },
-                        body: JSON.stringify({
-                            source_code: code,
-                            language_id: languageId,
-                            stdin: stdin || "",
-                        }),
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        return NextResponse.json(data);
-                    }
-                }
-            } catch (judge0Error) {
-                console.warn("Judge0 execution failed, trying Piston...", judge0Error);
-            }
+        if (!process.env.JUDGE0_API_KEY) {
+            return NextResponse.json({
+                error: "Execution Error: JUDGE0_API_KEY is missing in server environment."
+            }, { status: 500 });
         }
 
-        // 2. Fallback to Piston API (Free, no key required)
-        // Map language names for Piston
-        const pistonLangMap: Record<string, string> = {
-            javascript: "javascript",
-            python: "python",
-            cpp: "c++",
-            java: "java"
-        };
-
-        const pistonLang = pistonLangMap[language.toLowerCase()];
-        if (!pistonLang) {
+        const languageId = JUDGE0_LANGUAGE_MAPPING[language.toLowerCase()];
+        if (!languageId) {
             return NextResponse.json({ error: "Unsupported language" }, { status: 400 });
         }
 
-        const pistonResponse = await fetch(`${PISTON_URL}/execute`, {
+        const response = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "x-rapidapi-host": process.env.JUDGE0_API_HOST || "judge0-ce.p.rapidapi.com",
+                "x-rapidapi-key": process.env.JUDGE0_API_KEY,
+            },
             body: JSON.stringify({
-                language: pistonLang,
-                version: "*",
-                files: [{ content: code }],
+                source_code: code,
+                language_id: languageId,
                 stdin: stdin || "",
             }),
         });
 
-        if (!pistonResponse.ok) {
-            throw new Error(`Piston API Error: ${pistonResponse.statusText}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Judge0 API Error (${response.status}):`, errorText);
+
+            let errorMessage = "Execution failed";
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorText;
+            } catch {
+                errorMessage = errorText;
+            }
+
+            if (response.status === 401 || response.status === 403) {
+                errorMessage = "Invalid API Key or Subscription. Please check your RapidAPI Judge0 subscription.";
+            }
+
+            return NextResponse.json({ error: errorMessage }, { status: response.status });
         }
 
-        const pistonData = await pistonResponse.json();
-
-        // Transform Piston response to match Judge0 format for frontend compatibility
-        return NextResponse.json({
-            stdout: pistonData.run.stdout,
-            stderr: pistonData.run.stderr,
-            compile_output: pistonData.compile?.output || "",
-            status: {
-                description: pistonData.run.code === 0 ? "Accepted" : "Runtime Error"
-            },
-            time: (pistonData.run.duration / 1000).toFixed(3), // ms to s
-            memory: 0 // Piston doesn't return memory usage in easy format
-        });
+        const data = await response.json();
+        return NextResponse.json(data);
 
     } catch (error) {
         console.error("Execution Error:", error);
-        return NextResponse.json({ error: "Failed to execute code. Please try again." }, { status: 500 });
+        return NextResponse.json({
+            error: `Failed to execute code: ${error instanceof Error ? error.message : String(error)}`
+        }, { status: 500 });
     }
 }
