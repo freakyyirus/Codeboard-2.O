@@ -59,10 +59,10 @@ async function getLinkedInStats(username?: string) {
     }
 }
 
-export async function getSocialStats(): Promise<SocialStats> {
-    const devtoUser = process.env.DEVTO_USERNAME
-    const twitterUser = process.env.TWITTER_USERNAME
-    const linkedinUser = process.env.LINKEDIN_USERNAME // or URL
+export async function getSocialStats(handles?: { devto?: string, twitter?: string, linkedin?: string }): Promise<SocialStats> {
+    const devtoUser = handles?.devto || process.env.DEVTO_USERNAME
+    const twitterUser = handles?.twitter || process.env.TWITTER_USERNAME
+    const linkedinUser = handles?.linkedin || process.env.LINKEDIN_USERNAME // or URL
 
     const [devto, twitter, linkedin] = await Promise.all([
         getDevToStats(devtoUser),
@@ -78,8 +78,16 @@ export async function getSocialStats(): Promise<SocialStats> {
     }
 }
 
-export const getCachedSocialStats = unstable_cache(
-    async () => getSocialStats(),
-    ['social-stats'],
-    { revalidate: 3600 }
-)
+/**
+ * Cached version of getSocialStats.
+ * We use the handles to create a unique cache key.
+ */
+export async function getCachedSocialStats(handles?: { devto?: string, twitter?: string, linkedin?: string }) {
+    const key = `social-stats-${handles?.devto || 'env'}-${handles?.twitter || 'env'}`
+
+    return unstable_cache(
+        async () => getSocialStats(handles),
+        [key],
+        { revalidate: 3600, tags: ['socials'] }
+    )()
+}
