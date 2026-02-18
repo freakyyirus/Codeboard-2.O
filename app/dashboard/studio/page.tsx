@@ -13,10 +13,14 @@ import {
     ChevronUp,
     ChevronDown,
     Loader2,
-    Menu
+    Menu,
+    AlertTriangle,
+    Maximize2,
+    Minimize2
 } from "lucide-react"
 import { AIChat } from "@/components/studio/AIChat"
 import { CodeEditor } from "@/components/studio/CodeEditor"
+import * as monaco from "monaco-editor"
 
 /* ─── Problem Bank ────────────────────────────────── */
 
@@ -154,6 +158,7 @@ export default function StudioPage() {
     const [showAI, setShowAI] = useState(false)
     const [terminalOpen, setTerminalOpen] = useState(true)
     const [showProblemPanel, setShowProblemPanel] = useState(true)
+    const [isMaximized, setIsMaximized] = useState(false)
 
     const [language, setLanguage] = useState(LANGUAGES[0])
     const [code, setCode] = useState(LANGUAGES[0].defaultCode)
@@ -161,6 +166,7 @@ export default function StudioPage() {
     const [isRunning, setIsRunning] = useState(false)
     const [output, setOutput] = useState<string[]>(["Welcome to CodeBoard Studio v2.0", "Ready to compile..."])
     const [activeTab, setActiveTab] = useState<"console" | "testcases">("console")
+    const [errorCount, setErrorCount] = useState(0)
 
     const currentProblem = useMemo(
         () => PROBLEMS.find(p => p.id === selectedProblemId) || PROBLEMS[0],
@@ -170,8 +176,9 @@ export default function StudioPage() {
     /* ─── Handlers */
     const handleRun = async () => {
         setIsRunning(true)
-        setOutput(["⏳ Compiling...", "Sending to Judge0 compute engine..."])
+        setOutput(["⏳ Compiling...", "Sending to execution engine..."])
         setTerminalOpen(true)
+        setActiveTab("console")
 
         try {
             const response = await fetch("/api/execute", {
@@ -219,6 +226,9 @@ export default function StudioPage() {
         }
     }
 
+    const handleValidation = (markers: monaco.editor.IMarker[]) => {
+        setErrorCount(markers.filter(m => m.severity === monaco.MarkerSeverity.Error).length)
+    }
 
     return (
         <div className="h-full flex flex-col bg-[#000] text-gray-300 overflow-hidden">
@@ -248,6 +258,19 @@ export default function StudioPage() {
                 </div>
 
                 <div className="flex items-center gap-2 md:gap-3 shrink-0">
+                    {/* Error Indicator */}
+                    {errorCount > 0 ? (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs font-medium animate-in fade-in">
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>{errorCount} Error{errorCount > 1 ? 's' : ''}</span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-xs font-medium animate-in fade-in">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">No Errors</span>
+                        </div>
+                    )}
+
                     <button
                         onClick={() => setShowAI(!showAI)}
                         className={`flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg border transition-all text-xs md:text-sm font-medium
@@ -293,7 +316,7 @@ export default function StudioPage() {
             {/* Workspace */}
             <div className="flex-1 flex overflow-hidden relative">
                 {/* Problem Description */}
-                <div className={`${showProblemPanel ? "flex" : "hidden"} md:flex w-full md:w-[380px] lg:w-[420px] border-r border-[#1f1f1f] bg-[#0c0c0c] flex-col shrink-0 absolute md:relative z-10 h-full`}>
+                <div className={`${showProblemPanel ? "flex" : "hidden"} md:flex w-full md:w-[380px] lg:w-[420px] border-r border-[#1f1f1f] bg-[#0c0c0c] flex-col shrink-0 absolute md:relative z-10 h-full transition-all duration-300 ease-in-out`}>
                     <div className="p-3 md:p-4 border-b border-[#1f1f1f] flex items-center justify-between">
                         <div className="font-semibold text-white flex items-center gap-2 text-sm">
                             <Code2 className="w-4 h-4 text-gray-500" />
@@ -315,7 +338,7 @@ export default function StudioPage() {
                             </button>
                         </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-5 md:p-6 text-sm text-gray-300 space-y-5">
+                    <div className="flex-1 overflow-y-auto p-5 md:p-6 text-sm text-gray-300 space-y-5 scrollbar-thin scrollbar-thumb-gray-800">
                         <h2 className="text-lg font-bold text-white">{currentProblem.id}. {currentProblem.title}</h2>
 
                         {/* Description with simple markdown-like parsing */}
@@ -351,12 +374,13 @@ export default function StudioPage() {
 
                 {/* Editor + Terminal */}
                 <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative flex flex-col">
                         <CodeEditor
                             height="100%"
                             language={language.id}
                             value={code}
                             onChange={(value) => setCode(value || "")}
+                            onValidation={handleValidation}
                         />
                     </div>
 
@@ -388,7 +412,7 @@ export default function StudioPage() {
                         </div>
 
                         {terminalOpen && (
-                            <div className="flex-1 p-3 md:p-4 font-mono text-xs overflow-y-auto">
+                            <div className="flex-1 p-3 md:p-4 font-mono text-xs overflow-y-auto scrollbar-thin scrollbar-thumb-gray-800">
                                 {activeTab === "console" ? (
                                     <div className="space-y-0.5">
                                         {output.map((line, i) => (
