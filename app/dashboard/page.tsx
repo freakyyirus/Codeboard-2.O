@@ -57,9 +57,10 @@ export default function DashboardPage() {
   const userName = data?.profile?.display_name || "Coder"
   const firstName = userName.split(" ")[0]
 
-  // Mock numbers if real data is low/empty to satisfy "feed some mock data" request
-  const totalSolved = data?.stats?.total_solved || 482
-  const activeDays = data?.stats?.active_days || 12
+  // Use real data from backend, default to 0 if not connected
+  const totalSolved = data?.stats?.total_solved || 0
+  const activeDays = data?.stats?.streak || 0
+  const githubUser = data?.connectedPlatforms?.github?.username
 
   return (
     <div className="p-6 md:p-10 max-w-7xl fade-in space-y-8">
@@ -119,21 +120,21 @@ export default function DashboardPage() {
                   value={totalSolved}
                   icon={CheckCircle2}
                   color="green"
-                  badgeText="+12"
+                  badgeText={totalSolved > 0 ? "Live" : "No Solves"}
                 />
                 <MetricCard
                   title="Day Streak"
                   value={activeDays}
                   icon={Flame}
                   color="orange"
-                  badgeText="Best: 45"
+                  badgeText={activeDays > 0 ? "Hot!" : "Start Streak"}
                 />
                 <MetricCard
-                  title="This Week"
-                  value="24.5h"
+                  title="Coding Hours"
+                  value={data?.stats?.wakatime?.daily_average ? `${(data.stats.wakatime.daily_average / 3600).toFixed(1)}h/day` : "0h"}
                   icon={Clock}
                   color="blue"
-                  badgeText="+2.5h"
+                  badgeText="WakaTime"
                 />
                 <MetricCard
                   title="Codeforces Rating"
@@ -161,12 +162,18 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Contribution Grid (2/3) */}
                 <div className="col-span-1 lg:col-span-2 h-full">
-                  <ContributionGraph contributions={data?.contributions?.length ? data.contributions : mockContributionData} />
+                  <ContributionGraph
+                    contributions={data?.contributions || []}
+                    username={githubUser || "Account Not Linked"}
+                  />
                 </div>
 
                 {/* Split Chart (1/3) */}
                 <div className="col-span-1 h-full">
-                  <ContributionSplit devCounts={850} dsaCounts={482} />
+                  <ContributionSplit
+                    devCounts={data?.contributions?.reduce((acc: number, curr: any) => acc + curr.count, 0) || 0}
+                    dsaCounts={totalSolved}
+                  />
                 </div>
               </div>
 
