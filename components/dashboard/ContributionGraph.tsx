@@ -37,7 +37,7 @@ export function ContributionGraph({ contributions, username }: { contributions: 
 
     // Helper to format date
     const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString(undefined, {
+        return new Date(dateStr).toLocaleDateString("en-US", {
             weekday: 'long',
             year: 'numeric',
             month: 'short',
