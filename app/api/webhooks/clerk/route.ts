@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     const supabase = createClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
-    ) as any
+    )
 
     if (eventType === 'user.created') {
         const { id, email_addresses, image_url, first_name, last_name, username } = evt.data
@@ -66,30 +66,29 @@ export async function POST(req: Request) {
         await supabase.from('users').insert({
             id: id,
             email: email,
-            username: username || email?.split('@')[0] || null, // Fallback username
+            username: username || email?.split('@')[0] || null,
             full_name: fullName,
             avatar_url: image_url || null,
-            // Default values
-            skill_level: 'beginner',
+            skill_level: 'beginner' as const,
             daily_goal: 1,
             timezone: 'UTC',
             streak_count: 0,
             longest_streak: 0
-        } as any)
+        } as never)
     }
 
     if (eventType === 'user.updated') {
         const { id, email_addresses, image_url, first_name, last_name, username } = evt.data
 
-        const email = email_addresses.find(email => email.id === evt.data.primary_email_address_id)?.email_address
+        const email = email_addresses.find(email => email.id === evt.data.primary_email_address_id)?.email_address ?? null
         const fullName = `${first_name || ''} ${last_name || ''}`.trim() || username
 
         await supabase.from('users').update({
             email: email,
-            username: username || email?.split('@')[0] || null, // Fallback
+            username: username || email?.split('@')[0] || null,
             full_name: fullName,
             avatar_url: image_url || null,
-        } as any).eq('id', id)
+        } as never).eq('id', id)
     }
 
     if (eventType === 'user.deleted') {
@@ -99,6 +98,5 @@ export async function POST(req: Request) {
             await supabase.from('users').delete().eq('id', id)
         }
     }
-
     return new Response('', { status: 200 })
 }
