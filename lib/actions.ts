@@ -9,6 +9,7 @@ import { getCachedPlatformRating } from '@/lib/clist'
 import { getCachedWakaTimeStats } from '@/lib/wakatime'
 import { getCachedHackathons } from '@/lib/hackathons'
 import { getCachedSocialStats } from '@/lib/socials'
+import { getSocialPosts } from '@/lib/services/socials'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 
@@ -27,7 +28,8 @@ export async function getDashboardData() {
             stats: null,
             activity: [],
             ratings: [],
-            platforms: []
+            platforms: [],
+            contributions: []
         }
     }
 
@@ -49,7 +51,8 @@ export async function getDashboardData() {
             stats: null,
             activity: [],
             ratings: [],
-            platforms: []
+            platforms: [],
+            contributions: []
         }
     }
 
@@ -112,30 +115,45 @@ export async function getDashboardData() {
         count
     }))
 
-    // 8. Fetch Real LeetCode Stats (The New "Engine")
-    const dbLeetCodeUser = connectedPlatforms['leetcode']?.username;
-    const envLeetCodeUser = process.env.LEETCODE_USERNAME;
-    const targetLeetCodeUser = dbLeetCodeUser || envLeetCodeUser;
+    // 8. Fetch Real Platform Stats from our new Engine table
+    const { data: dbPlatformStats } = await supabase
+        .from('platform_stats')
+        .select('*')
+        .eq('user_id', userId)
 
-    let leetCodeStats = null;
-    if (targetLeetCodeUser) {
-        leetCodeStats = await getCachedLeetCodeStats(targetLeetCodeUser);
+    let leetCodeStats: any = null
+    let codeforcesStats: any = null
+    let githubStats: any = null
+    const otherStats: Record<string, any> = {}
+
+    if (dbPlatformStats) {
+        dbPlatformStats.forEach((stat: any) => {
+            if (stat.platform === 'leetcode') {
+                leetCodeStats = {
+                    totalSolved: stat.total_solved,
+                    easySolved: stat.easy_solved,
+                    mediumSolved: stat.medium_solved,
+                    hardSolved: stat.hard_solved,
+                    ranking: stat.rating
+                }
+            } else if (stat.platform === 'codeforces') {
+                codeforcesStats = {
+                    rating: stat.rating,
+                    rank: stat.global_rank,
+                    username: connectedPlatforms['codeforces']?.username
+                }
+            } else if (stat.platform === 'github') {
+                githubStats = {
+                    totalRepos: stat.total_solved,
+                    followers: stat.rating
+                }
+            } else {
+                otherStats[stat.platform] = stat
+            }
+        })
     }
 
-    // 9. Fetch Real Codeforces Stats
-    const dbCodeforcesUser = connectedPlatforms['codeforces']?.username;
-    // const envCodeforcesUser = process.env.CODEFORCES_USERNAME; // Optional fallback
-    const targetCodeforcesUser = dbCodeforcesUser; // || envCodeforcesUser
-
-    let codeforcesStats = null;
-    if (targetCodeforcesUser) {
-        codeforcesStats = await getCachedCodeforcesStats(targetCodeforcesUser);
-    }
-
-    // 10. Universal Fetch for Other Platforms (CodeChef, AtCoder, HackerRank, etc.)
-    // We iterate through the connectedPlatforms object to find others
     const otherPlatforms = ['codechef', 'atcoder', 'hackerrank', 'geeksforgeeks', 'codestudio'];
-    const otherStats: Record<string, any> = {};
 
     await Promise.all(otherPlatforms.map(async (plat) => {
         const handle = connectedPlatforms[plat]?.username || process.env[`${plat.toUpperCase()}_USERNAME`];
@@ -160,11 +178,23 @@ export async function getDashboardData() {
         linkedin: connectedPlatforms['linkedin']?.username
     });
 
+    // 14. Social Posts (New)
+    const socialPosts = await getSocialPosts({
+        devto: connectedPlatforms['devto']?.username,
+        medium: connectedPlatforms['medium']?.username, // Check if medium exists in connectedPlatforms, if not use Env or ignore
+        hashnode: connectedPlatforms['hashnode']?.username
+    })
+
     // 14. Merge Stats
     // If we have LeetCode stats, use them for the "Total Solved" card.
-    // Otherwise fallback to internal DB count (which is likely 0 for new users).
+    // If not, use GitHub total repos, else fallback to internal.
 
-    const finalTotalSolved = leetCodeStats ? leetCodeStats.totalSolved : (solvedCount || 0);
+    let finalTotalSolved = solvedCount || 0
+    if (leetCodeStats?.totalSolved) {
+        finalTotalSolved = leetCodeStats.totalSolved
+    } else if (githubStats?.totalRepos) {
+        finalTotalSolved = githubStats.totalRepos
+    }
 
     return {
         profile: userProfile,
@@ -177,6 +207,7 @@ export async function getDashboardData() {
             // Include raw platform objects for frontend
             leetcode: leetCodeStats,
             codeforces: codeforcesStats,
+            github: githubStats,
             wakatime: wakatimeStats,
             hackathons: hackathons,
             ...otherStats
@@ -184,9 +215,10 @@ export async function getDashboardData() {
         social: socialStats,
         activity: activity || [],
         ratings: [],
-        platforms: [],
+        platforms: dbPlatformStats || [],
         connectedPlatforms,
-        contributions
+        contributions,
+        socialPosts
     }
 }
 
