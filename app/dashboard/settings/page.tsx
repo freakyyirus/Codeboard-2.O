@@ -1,8 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useUser } from "@clerk/nextjs"
-import { useSupabase } from "@/hooks/useSupabase"
+import {
+    saveBasicInfoAction,
+    savePlatformAction,
+    disconnectPlatformAction,
+    loadUserDataAction
+} from "@/lib/settings-actions"
 import {
     ArrowLeft,
     User,
@@ -130,7 +135,6 @@ const PROFILE_TABS: { id: ProfileTab; label: string; icon: React.ReactNode }[] =
 
 export default function SettingsPage() {
     const { user, isLoaded: userLoaded } = useUser()
-    const supabase = useSupabase()
 
     const [activeSection, setActiveSection] = useState<Section>("basic")
     const [activeProfileTab, setActiveProfileTab] = useState<ProfileTab>("about")
@@ -160,57 +164,48 @@ export default function SettingsPage() {
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
 
-    useEffect(() => {
-        if (userLoaded && user) {
-            loadUserData()
-        } else if (userLoaded && !user) {
-            setLoading(false)
-        }
-    }, [user, userLoaded])
-
-    const loadUserData = async () => {
+    const loadUserData = useCallback(async () => {
         if (!user) return
 
         try {
-            const { data: userProfile } = await supabase
-                .from("users")
-                .select("*")
-                .eq("id", user.id)
-                .single() as { data: any }
+            const result = await loadUserDataAction()
+            if ('error' in result) {
+                console.error("Error loading user data:", result.error)
+                setLoading(false)
+                return
+            }
 
-            if (userProfile) {
+            const userProfile = result.profile
+
+            if (userProfile && typeof userProfile === 'object') {
+                const profileData = userProfile as Record<string, unknown>
                 setProfile({
                     id: user.id,
                     email: user.primaryEmailAddress?.emailAddress || "",
-                    username: userProfile.username || user.username || "",
-                    full_name: userProfile.full_name || user.fullName || "",
-                    last_name: userProfile.last_name || user.lastName || "",
-                    avatar_url: userProfile.avatar_url || user.imageUrl || "",
-                    bio: userProfile.bio || "",
-                    country: userProfile.country || "India",
-                    daily_goal: userProfile.daily_goal || 2,
-                    timezone: userProfile.timezone || "UTC",
-                    skill_level: userProfile.skill_level || "beginner",
-                    visibility: userProfile.visibility || "public",
+                    username: (profileData.username as string) || user.username || "",
+                    full_name: (profileData.full_name as string) || user.fullName || "",
+                    last_name: (profileData.last_name as string) || user.lastName || "",
+                    avatar_url: (profileData.avatar_url as string) || user.imageUrl || "",
+                    bio: (profileData.bio as string) || "",
+                    country: (profileData.country as string) || "India",
+                    daily_goal: (profileData.daily_goal as number) || 2,
+                    timezone: (profileData.timezone as string) || "UTC",
+                    skill_level: (profileData.skill_level as string) || "beginner",
+                    visibility: (profileData.visibility as "public" | "private") || "public",
                 })
-                if (userProfile.about_text) setAboutText(userProfile.about_text)
-                if (userProfile.socials) setSocials(userProfile.socials)
+                if (profileData.about_text) setAboutText(profileData.about_text as string)
+                if (profileData.socials) setSocials(profileData.socials as unknown as Socials)
             } else {
                 setProfile(prev => ({
                     ...prev,
                     id: user.id,
                     email: user.primaryEmailAddress?.emailAddress || "",
                     username: user.username || "",
-                    full_name: user.fullName || "",
+                    full_name: user?.fullName || "",
                 }))
             }
 
-            // Load platform connections
-            const { data: connections } = await supabase
-                .from("platform_connections")
-                .select("*")
-                .eq("user_id", user.id) as { data: any[] | null }
-
+            const connections = result.connections
             if (connections) {
                 setPlatforms(prev => prev.map(p => {
                     const conn = connections.find((c: any) => c.platform === p.platform)
@@ -222,49 +217,31 @@ export default function SettingsPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [user])
+
+    useEffect(() => {
+        if (userLoaded && user) {
+            loadUserData()
+        } else if (userLoaded && !user) {
+            setLoading(false)
+        }
+    }, [user, userLoaded, loadUserData])
 
     const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
             setUploading(true)
-            if (!event.target.files || event.target.files.length === 0) {
+            const file = event.target.files?.[0]
+            if (!file) {
                 throw new Error('You must select an image to upload.')
             }
 
-            const file = event.target.files[0]
-            const fileExt = file.name.split('.').pop()
-            const fileName = `${user?.id || 'unknown'}-${Math.random()}.${fileExt}`
-            const filePath = `${fileName}`
+            if (!user) throw new Error('Not authenticated')
 
-            // 1. Upload file
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, file)
+            // Upload to Clerk
+            await user.setProfileImage({ file })
+            setProfile(prev => ({ ...prev, avatar_url: user.imageUrl }))
 
-            if (uploadError) {
-                throw uploadError
-            }
-
-            // 2. Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath)
-
-            // 3. Update profile state
-            setProfile(prev => ({ ...prev, avatar_url: publicUrl }))
-
-            // 4. Update database immediately
-            const { error: updateError } = await (supabase.from("users") as any).upsert({
-                id: user?.id,
-                avatar_url: publicUrl,
-                username: profile.username,
-                full_name: profile.full_name,
-                updated_at: new Date().toISOString(),
-            })
-
-            if (updateError) throw updateError
-
-            toast.success("Avatar updated!")
+            toast.success("Profile photo updated successfully!")
 
         } catch (error: any) {
             toast.error(error.message || "Error uploading avatar")
@@ -277,55 +254,64 @@ export default function SettingsPage() {
     const saveBasicInfo = async () => {
         if (!user) return
         setSaving(true)
-        const { error } = await (supabase.from("users") as any).upsert({
-            id: user.id,
-            email: profile.email,
-            username: profile.username,
-            full_name: profile.full_name,
-            last_name: profile.last_name,
-            bio: profile.bio,
-            country: profile.country,
-            daily_goal: profile.daily_goal,
-            timezone: profile.timezone,
-            skill_level: profile.skill_level,
-            visibility: profile.visibility,
-            updated_at: new Date().toISOString(),
-        })
-        if (error) {
-            toast.error("Failed to save to database")
-            console.error("Database connection error:", error)
-        }
-        else {
-            toast.success("Database Connected: Profile Saved!", {
-                icon: "✅",
-                style: {
-                    borderRadius: "10px",
-                    background: "#333",
-                    color: "#fff",
-                },
+
+        try {
+            // 1. Sync critical info to Clerk directly
+            await user.update({
+                username: profile.username,
+                firstName: profile.full_name || undefined,
+                lastName: profile.last_name || undefined,
             })
+
+            // 2. Save everything to Supabase
+            const result = await saveBasicInfoAction({
+                username: profile.username,
+                full_name: profile.full_name,
+                last_name: profile.last_name,
+                email: profile.email,
+                bio: profile.bio,
+                country: profile.country,
+                daily_goal: profile.daily_goal,
+                timezone: profile.timezone,
+                skill_level: profile.skill_level,
+                visibility: profile.visibility,
+            })
+            if (result.error) {
+                toast.error("Failed to save to database: " + result.error)
+                console.error("Database connection error:", result.error)
+            }
+            else {
+                toast.success("Profile Saved!", {
+                    icon: "✅",
+                    style: {
+                        borderRadius: "10px",
+                        background: "#333",
+                        color: "#fff",
+                    },
+                })
+            }
+        } catch (error: any) {
+            toast.error(error.errors?.[0]?.message || "Failed to update profile via Authentication provider")
         }
+
         setSaving(false)
     }
 
     const savePlatform = async (platform: string, username: string) => {
         if (!username.trim() || !user) return
-        const { error } = await (supabase.from("platform_connections") as any).upsert({
-            user_id: user.id, platform, username: username.trim(),
-            last_synced: new Date().toISOString(),
-        }, { onConflict: "user_id,platform" })
-        if (error) { toast.error(`Failed to connect ${platform}`); console.error(error) }
+        const result = await savePlatformAction(platform, username)
+        if (result.error) { toast.error("Failed to connect " + platform); console.error(result.error) }
         else {
             setPlatforms(prev => prev.map(p => p.platform === platform ? { ...p, connected: true } : p))
-            toast.success(`${platform} connected!`)
+            toast.success(platform + " connected!")
         }
     }
 
     const disconnectPlatform = async (platform: string) => {
         if (!user) return
-        await (supabase.from("platform_connections") as any).delete().eq("user_id", user.id).eq("platform", platform)
+        await disconnectPlatformAction(platform)
         setPlatforms(prev => prev.map(p => p.platform === platform ? { ...p, connected: false, username: "" } : p))
-        toast.success(`${platform} disconnected`)
+        toast.success(platform + " disconnected")
     }
 
     const updatePassword = async () => {
