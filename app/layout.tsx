@@ -43,22 +43,22 @@ export default function RootLayout({
         variables: { colorPrimary: '#0070f3' }
       }}
     >
-      <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
         </head>
-        <body className="bg-black text-white overflow-x-hidden antialiased">
+        <body className="overflow-x-hidden antialiased" style={{ background: 'var(--bg-primary)', color: 'var(--fg-primary)' }} suppressHydrationWarning>
           {children}
           <Toaster position="bottom-right" toastOptions={{
             style: {
-              background: '#1a1a1a',
-              color: '#fff',
+              background: 'var(--toast-bg)',
+              color: 'var(--toast-fg)',
               borderRadius: '12px',
               fontSize: '14px',
-              border: '1px solid rgba(255,255,255,0.1)'
+              border: '1px solid var(--toast-border)'
             }
           }} />
         </body>
