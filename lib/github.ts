@@ -1,10 +1,12 @@
 import { redis } from './redis'
 
 const GITHUB_API = "https://api.github.com"
-const headers = {
-  Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-  Accept: "application/vnd.github.v3+json"
-};
+function getHeaders() {
+  return {
+    Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+    Accept: "application/vnd.github.v3+json"
+  }
+}
 
 export async function getRepos(username?: string) {
   const targetUser = username || process.env.GITHUB_USERNAME
@@ -30,7 +32,7 @@ export async function getRepos(username?: string) {
   try {
     const res = await fetch(
       `${GITHUB_API}/users/${targetUser}/repos?sort=updated&per_page=100`,
-      { headers, next: { revalidate: 3600 } }
+      { headers: getHeaders(), next: { revalidate: 3600 } }
     );
 
     if (!res.ok) {
@@ -102,7 +104,7 @@ export async function getEvents(username?: string) {
   try {
     const res = await fetch(
       `${GITHUB_API}/users/${targetUser}/events?per_page=30`,
-      { headers, next: { revalidate: 1800 } } // Cache for 30 minutes
+      { headers: getHeaders(), next: { revalidate: 1800 } } // Cache for 30 minutes
     );
 
     if (!res.ok) {
@@ -163,7 +165,7 @@ export async function getPinnedRepos(username?: string) {
     const res = await fetch("https://api.github.com/graphql", {
       method: "POST",
       headers: {
-        ...headers,
+        ...getHeaders(),
         "Content-Type": "application/json"
       },
       body: JSON.stringify(query),
