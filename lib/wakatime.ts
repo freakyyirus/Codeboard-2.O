@@ -27,7 +27,12 @@ export async function getWakaTimeStats(): Promise<WakaTimeStats | null> {
         })
 
         if (!response.ok) {
-            // console.error(`WakaTime API error: ${response.status}`)
+            const errorText = await response.text();
+            if (response.status === 422) {
+                console.error("WakaTime profile is missing a timezone. Please set your timezone at https://wakatime.com/settings")
+            } else {
+                console.error(`WakaTime API error (${response.status}):`, errorText)
+            }
             return null
         }
 
