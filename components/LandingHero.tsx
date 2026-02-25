@@ -72,7 +72,7 @@ export function LandingHero() {
                                 </div>
                                 <div className="bg-gray-100 p-2 sm:p-3 rounded-lg">
                                     <div className="text-xs text-gray-500 mb-1 font-semibold">STREAK</div>
-                                    <div className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-1 sm:gap-2">
+                                    <div className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-1 sm:gap-2 text-black">
                                         12 <span className="text-lg sm:text-xl">🔥</span>
                                     </div>
                                 </div>
