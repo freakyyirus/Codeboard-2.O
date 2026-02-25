@@ -1,9 +1,36 @@
 import { getRepos, getPinnedRepos, getEvents } from "@/lib/github"
 
+interface GitHubRepo {
+  id: number
+  name: string
+  full_name: string
+  description: string | null
+  html_url: string
+  language: string | null
+  stargazers_count: number
+  fork: boolean
+}
+
+interface GitHubPinnedRepo {
+  name: string
+  description: string | null
+  url: string
+  stargazerCount: number
+  primaryLanguage: { name: string } | null
+}
+
+interface GitHubEvent {
+  type: string
+  repo: { name: string }
+  payload: {
+    commits?: { message: string }[]
+  }
+}
+
 export default async function DevPage() {
-  let repos: any[] = []
-  let pinned: any[] = []
-  let events: any[] = []
+  let repos: GitHubRepo[] = []
+  let pinned: GitHubPinnedRepo[] = []
+  let events: GitHubEvent[] = []
   let hasToken = !!process.env.GITHUB_TOKEN && !!process.env.GITHUB_USERNAME
 
   if (hasToken) {
@@ -21,7 +48,7 @@ export default async function DevPage() {
   // Build language statistics
   const languageMap: Record<string, number> = {}
   let totalStars = 0
-  repos.forEach((r: any) => {
+  repos.forEach((r: GitHubRepo) => {
     if (r.language) languageMap[r.language] = (languageMap[r.language] || 0) + 1
     totalStars += r.stargazers_count || 0
   })
@@ -31,8 +58,8 @@ export default async function DevPage() {
     .sort((a, b) => b.value - a.value)
 
   const commitCount = events
-    .filter((e: any) => e.type === "PushEvent")
-    .reduce((acc: number, ev: any) => acc + (ev.payload?.commits?.length || 0), 0)
+    .filter((e: GitHubEvent) => e.type === "PushEvent")
+    .reduce((acc: number, ev: GitHubEvent) => acc + (ev.payload?.commits?.length || 0), 0)
 
   const recentEvents = events.slice(0, 12)
 
@@ -141,7 +168,7 @@ GITHUB_USERNAME=your_github_username`}
         <div>
           <h2 className="text-lg font-semibold text-white mb-4">📌 Pinned Projects</h2>
           <div className="grid md:grid-cols-3 gap-4">
-            {pinned.map((repo: any) => (
+            {pinned.map((repo: GitHubPinnedRepo) => (
               <a
                 key={repo.name}
                 href={repo.url}
@@ -196,7 +223,7 @@ GITHUB_USERNAME=your_github_username`}
             {recentEvents.length === 0 ? (
               <p className="text-sm text-gray-600 italic">No recent events.</p>
             ) : (
-              recentEvents.map((ev: any, i: number) => (
+              recentEvents.map((ev: GitHubEvent, i: number) => (
                 <div key={i} className="flex items-start gap-3 text-xs">
                   <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] shrink-0">
                     {ev.type === "PushEvent" ? "📤" :
@@ -211,9 +238,9 @@ GITHUB_USERNAME=your_github_username`}
                     </span>
                     <span className="text-gray-600"> on </span>
                     <span className="text-gray-400 truncate">{ev.repo?.name || "unknown"}</span>
-                    {ev.type === "PushEvent" && ev.payload?.commits?.length > 0 && (
+                    {ev.type === "PushEvent" && (ev.payload?.commits?.length || 0) > 0 && (
                       <p className="text-gray-600 mt-0.5 truncate">
-                        {ev.payload.commits[0]?.message}
+                        {ev.payload.commits?.[0]?.message}
                       </p>
                     )}
                   </div>
@@ -228,7 +255,7 @@ GITHUB_USERNAME=your_github_username`}
       <div>
         <h2 className="text-lg font-semibold text-white mb-4">All Repositories ({repos.length})</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {repos.slice(0, 12).map((repo: any) => (
+          {repos.slice(0, 12).map((repo: GitHubRepo) => (
             <a
               key={repo.id}
               href={repo.html_url}
