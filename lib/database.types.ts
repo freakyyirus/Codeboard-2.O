@@ -71,6 +71,7 @@ export interface Database {
                     acceptance_rate: number | null
                     is_premium: boolean
                     has_solution: boolean
+                    starter_code: Json | null
                     cached_at: string
                 }
                 Insert: {
@@ -87,6 +88,7 @@ export interface Database {
                     acceptance_rate?: number | null
                     is_premium?: boolean
                     has_solution?: boolean
+                    starter_code?: Json | null
                     cached_at?: string
                 }
                 Update: {
@@ -103,7 +105,34 @@ export interface Database {
                     acceptance_rate?: number | null
                     is_premium?: boolean
                     has_solution?: boolean
+                    starter_code?: Json | null
                     cached_at?: string
+                }
+            }
+            test_cases: {
+                Row: {
+                    id: string
+                    problem_id: string
+                    input: string
+                    expected_output: string
+                    is_hidden: boolean
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    problem_id: string
+                    input: string
+                    expected_output: string
+                    is_hidden?: boolean
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    problem_id?: string
+                    input?: string
+                    expected_output?: string
+                    is_hidden?: boolean
+                    created_at?: string
                 }
             }
             solves: {
