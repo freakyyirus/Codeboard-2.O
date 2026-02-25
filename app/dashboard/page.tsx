@@ -7,12 +7,30 @@ import { MetricCard } from "@/components/dashboard/MetricCard"
 import { ContestStats } from "@/components/dashboard/ContestStats"
 import { ContributionSplit } from "@/components/dashboard/ContributionSplit"
 import { ActivityChart } from "@/components/dashboard/ActivityChart"
+import { SocialActivityFeed } from "@/components/dashboard/SocialActivityFeed"
 import { getDashboardData } from "@/lib/actions"
 import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BarChart2, Code, Trophy, TrendingUp, CheckCircle2, Flame, Clock, Target } from "lucide-react"
 
 type Section = "overview" | "problems" | "contests" | "stats"
+
+interface ContributionDay {
+  date: string
+  count: number
+}
+
+interface DashboardData {
+  contributions: ContributionDay[]
+  stats?: Record<string, any>
+  profile?: any
+  connectedPlatforms?: any
+  activity?: any[]
+  ratings?: any[]
+  platforms?: any[]
+  social?: any
+  socialPosts?: any[]
+}
 
 const sections: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: BarChart2 },
@@ -21,9 +39,17 @@ const sections: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "stats", label: "Stats", icon: TrendingUp },
 ]
 
+const CodeforcesIcon = (props: any) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <rect x="14" y="3" width="6" height="18" rx="1" />
+    <rect x="8" y="9" width="5" height="12" rx="1" />
+    <rect x="2" y="14" width="5" height="7" rx="1" />
+  </svg>
+)
+
 export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState<Section>("overview")
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState<DashboardData | null>(null)
 
   // Use mock data for immediate visual feedback as requested
   const mockContributionData = useMemo(() => {
@@ -46,7 +72,7 @@ export default function DashboardPage() {
     async function fetchData() {
       try {
         const dashboardData = await getDashboardData()
-        setData(dashboardData)
+        setData(dashboardData as any)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
       }
@@ -138,8 +164,8 @@ export default function DashboardPage() {
                 />
                 <MetricCard
                   title="Codeforces Rating"
-                  value={data?.stats?.codeforces?.rating?.toString() || "Unrated"}
-                  icon={Target}
+                  value={data?.stats?.codeforces?.rating ? data.stats.codeforces.rating.toString() : (data?.stats?.codeforces?.username ? "Unrated" : "Not Linked")}
+                  icon={CodeforcesIcon}
                   color="purple"
                   badgeText={data?.stats?.codeforces?.rank || "No Rank"}
                 />
@@ -152,9 +178,16 @@ export default function DashboardPage() {
                   <ContestStats hackathons={data?.stats?.hackathons} />
                 </div>
 
-                {/* Right: Activity Overview */}
-                <div className="col-span-1 lg:col-span-2 h-full bg-white/[0.03] border border-white/10 rounded-xl p-6">
-                  <ActivityChart wakatime={data?.stats?.wakatime} />
+                {/* Right: Activity Overview -> Social Feed */}
+                <div className="col-span-1 lg:col-span-2 h-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                    {/* WakaTime Chart */}
+                    <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 h-full">
+                      <ActivityChart wakatime={data?.stats?.wakatime} />
+                    </div>
+                    {/* Social Feed */}
+                    <SocialActivityFeed posts={data?.socialPosts || []} />
+                  </div>
                 </div>
               </div>
 
@@ -171,7 +204,7 @@ export default function DashboardPage() {
                 {/* Split Chart (1/3) */}
                 <div className="col-span-1 h-full">
                   <ContributionSplit
-                    devCounts={data?.contributions?.reduce((acc: number, curr: any) => acc + curr.count, 0) || 0}
+                    devCounts={data?.contributions?.reduce((acc: number, curr: ContributionDay) => acc + curr.count, 0) || 0}
                     dsaCounts={totalSolved}
                   />
                 </div>
