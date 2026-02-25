@@ -1,0 +1,87 @@
+
+> codeboard@0.1.0 build
+> next build
+
+??? Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+node.exe : ??? The 
+"middleware" file 
+convention is 
+deprecated. Please 
+use "proxy" instead. 
+Learn more: https://ne
+xtjs.org/docs/messages
+/middleware-to-proxy
+At line:1 char:1
++ & "C:\Program Files\
+nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (??? The "m   
+ iddle...leware-to    
+-proxy:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+  Creating an optimized production build ...
+??? Compiled successfully in 23.0s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+??? Using edge 
+runtime on a page 
+currently disables 
+static generation for 
+that page
+  Generating static pages using 15 workers (0/9) ...
+  Generating static pages using 15 workers (2/9) 
+  Generating static pages using 15 workers (4/9) 
+  Generating static pages using 15 workers (6/9) 
+??? Generating static pages using 15 workers (9/9) in 337.3ms
+  Finalizing page optimization ...
+
+Route (app)
+??? ?? /
+??? ??? /_not-found
+??? ?? /api/chat
+??? ?? /api/cron/reminders
+??? ?? /api/execute
+??? ?? /api/health
+??? ?? /api/webhooks/clerk
+??? ?? /dashboard
+??? ?? /dashboard/analytics
+??? ?? /dashboard/calendar
+??? ?? /dashboard/community
+??? ?? /dashboard/contests
+??? ?? /dashboard/dev
+??? ?? /dashboard/dsa
+??? ?? /dashboard/feedback
+??? ?? /dashboard/hackathons
+??? ?? /dashboard/leaderboard
+??? ?? /dashboard/problem/[id]
+??? ?? /dashboard/problems
+??? ?? /dashboard/roadmap
+??? ?? /dashboard/settings
+??? ?? /dashboard/sheets/explore
+??? ?? /dashboard/sheets/my
+??? ?? /dashboard/social
+??? ?? /dashboard/studio
+??? ??? /settings
+??? ?? /sign-in/[[...sign-in]]
+??? ?? /sign-up/[[...sign-up]]
+
+
+?? Proxy (Middleware)
+
+???  (Static)   prerendered as static content
+??  (Dynamic)  server-rendered on demand
+
