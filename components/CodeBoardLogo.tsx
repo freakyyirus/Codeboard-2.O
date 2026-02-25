@@ -63,7 +63,7 @@ export function CodeBoardLogo({ size = "lg" }: LogoProps) {
 }
 
 // Simple inline version for navbar/footer
-export function CodeBoardLogoSimple({ className = "" }: { className?: string }) {
+export function CodeBoardLogoSimple({ className = "", textClassName = "" }: { className?: string, textClassName?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="relative flex items-center justify-center">
@@ -77,7 +77,7 @@ export function CodeBoardLogoSimple({ className = "" }: { className?: string }) 
 
       {/* Text */}
       <span
-        className="font-bold text-xl tracking-tight ml-1"
+        className={`font-bold text-xl tracking-tight ml-1 ${textClassName}`}
         style={{ fontFamily: '"Cascadia Code", monospace' }}
       >
         <span className="text-green-500">C</span><span className="text-white">ode</span><span className="text-green-500">B</span><span className="text-white">oard</span>
