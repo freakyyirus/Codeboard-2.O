@@ -1,213 +1,167 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {
-    CalendarDays,
-    MapPin,
-    Clock,
-    ExternalLink,
-    Trophy,
-    Globe,
-    Monitor,
-    Users,
-    Filter,
-    Loader2,
-    Rocket,
-} from "lucide-react"
+import { getHackathons, type Hackathon } from "@/lib/services/hackathons"
+import { Calendar, Clock, ExternalLink, MapPin, Loader2, Trophy, Search, Gift } from "lucide-react"
 
-/* ─── Types ────────────────────────────────────── */
-
-interface Hackathon {
-    id: string
-    name: string
-    source: "devfolio" | "unstop" | "mlh" | "other"
-    url: string
-    start_date: string
-    end_date: string
-    mode: "online" | "offline" | "hybrid"
-    prize: string
-    image_url: string
-    description: string
-    status: "upcoming" | "ongoing" | "ended"
-}
-
-/* ─── Mock Data ────────────────────────────────── */
-
-const MOCK_HACKATHONS: Hackathon[] = [
-    {
-        id: "1", name: "ETHIndia 2026", source: "devfolio", url: "https://devfolio.co/hackathons/ethindia2026",
-        start_date: "2026-03-15T00:00:00Z", end_date: "2026-03-17T00:00:00Z",
-        mode: "offline", prize: "$50,000", image_url: "", description: "India's largest Ethereum hackathon",
-        status: "upcoming"
-    },
-    {
-        id: "2", name: "HackTheBox CTF", source: "other", url: "https://hackthebox.com",
-        start_date: "2026-03-01T00:00:00Z", end_date: "2026-03-03T00:00:00Z",
-        mode: "online", prize: "$10,000", image_url: "", description: "Capture the flag competition",
-        status: "upcoming"
-    },
-    {
-        id: "3", name: "Unstop Innovation Challenge", source: "unstop", url: "https://unstop.com",
-        start_date: "2026-02-20T00:00:00Z", end_date: "2026-02-28T00:00:00Z",
-        mode: "online", prize: "₹5,00,000", image_url: "", description: "Build innovative solutions for real-world problems",
-        status: "ongoing"
-    },
-    {
-        id: "4", name: "MLH Global Hack Week", source: "mlh", url: "https://mlh.io",
-        start_date: "2026-03-10T00:00:00Z", end_date: "2026-03-17T00:00:00Z",
-        mode: "online", prize: "Prizes + Swag", image_url: "", description: "A week-long celebration of building",
-        status: "upcoming"
-    },
-    {
-        id: "5", name: "Smart India Hackathon 2026", source: "unstop", url: "https://sih.gov.in",
-        start_date: "2026-04-01T00:00:00Z", end_date: "2026-04-03T00:00:00Z",
-        mode: "hybrid", prize: "₹1,00,000 per team", image_url: "", description: "Government of India's flagship hackathon",
-        status: "upcoming"
-    },
-    {
-        id: "6", name: "Google Summer of Code 2026", source: "other", url: "https://summerofcode.withgoogle.com",
-        start_date: "2026-05-01T00:00:00Z", end_date: "2026-08-31T00:00:00Z",
-        mode: "online", prize: "Stipend", image_url: "", description: "Contribute to open source with Google",
-        status: "upcoming"
-    },
+const PLATFORMS = [
+    { id: "all", name: "All Platforms", color: "bg-white text-black" },
+    { id: "Devfolio", name: "Devfolio", color: "bg-[#3770FF]/20 text-[#3770FF] border-[#3770FF]/30" },
+    { id: "Unstop", name: "Unstop", color: "bg-[#1C4980]/20 text-[#60A5FA] border-[#1C4980]/30" },
+    { id: "Devpost", name: "Devpost", color: "bg-[#003E54]/20 text-[#00E4B2] border-[#003E54]/30" },
+    { id: "HackerEarth", name: "HackerEarth", color: "bg-[#2A3449]/20 text-[#324b6e] border-[#2A3449]/30" },
 ]
 
-const SOURCE_COLORS: Record<string, { bg: string; text: string }> = {
-    devfolio: { bg: "bg-blue-500/10", text: "text-blue-400" },
-    unstop: { bg: "bg-orange-500/10", text: "text-orange-400" },
-    mlh: { bg: "bg-red-500/10", text: "text-red-400" },
-    other: { bg: "bg-purple-500/10", text: "text-purple-400" },
-}
-
-const MODE_ICONS: Record<string, React.ReactNode> = {
-    online: <Globe size={14} />,
-    offline: <MapPin size={14} />,
-    hybrid: <Monitor size={14} />,
-}
-
-/* ─── Component ────────────────────────────────── */
-
 export default function HackathonsPage() {
-    const [filter, setFilter] = useState<"all" | "devfolio" | "unstop" | "mlh" | "other">("all")
-    const [statusFilter, setStatusFilter] = useState<"all" | "upcoming" | "ongoing">("all")
-    const [hackathons] = useState(MOCK_HACKATHONS)
+    const [hackathons, setHackathons] = useState<Hackathon[]>([])
+    const [loading, setLoading] = useState(true)
+    const [filter, setFilter] = useState("all")
+    const [search, setSearch] = useState("")
 
-    const filtered = hackathons.filter(h => {
-        if (filter !== "all" && h.source !== filter) return false
-        if (statusFilter !== "all" && h.status !== statusFilter) return false
-        return true
+    useEffect(() => {
+        async function load() {
+            try {
+                const data = await getHackathons()
+                setHackathons(data)
+            } catch (error) {
+                console.error("Failed to load hackathons", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        load()
+    }, [])
+
+    const filteredHackathons = hackathons.filter(h => {
+        const matchesPlatform = filter === "all" || h.host === filter
+        const matchesSearch = h.title.toLowerCase().includes(search.toLowerCase())
+        return matchesPlatform && matchesSearch
     })
 
-    const formatDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })
-
-    const getDaysUntil = (d: string) => {
-        const diff = Math.ceil((new Date(d).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-        if (diff < 0) return "Started"
-        if (diff === 0) return "Today!"
-        return `${diff} days`
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            month: "short", day: "numeric"
+        })
     }
 
     return (
-        <div className="max-w-6xl p-6 md:p-8 fade-in">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div className="p-6 md:p-10 space-y-8 fade-in min-h-screen">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                        <Rocket className="w-7 h-7 text-orange-400" />
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        <Trophy className="text-purple-500" />
                         Hackathons
                     </h1>
-                    <p className="text-gray-500 text-sm">Upcoming hackathons from Devfolio, Unstop, MLH, and more.</p>
+                    <p className="text-gray-400 mt-1">Participate in global hackathons and win prizes.</p>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-3 mb-6">
-                <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/5">
-                    {["all", "devfolio", "unstop", "mlh", "other"].map(s => (
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto scrollbar-hide">
+                    {PLATFORMS.map(p => (
                         <button
-                            key={s}
-                            onClick={() => setFilter(s as any)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${filter === s ? "bg-white/10 text-white" : "text-gray-500 hover:text-white"
+                            key={p.id}
+                            onClick={() => setFilter(p.id)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border ${filter === p.id
+                                    ? "bg-white text-black border-white"
+                                    : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white"
                                 }`}
                         >
-                            {s === "all" ? "All Sources" : s === "mlh" ? "MLH" : s}
+                            {p.name}
                         </button>
                     ))}
                 </div>
-                <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/5">
-                    {["all", "upcoming", "ongoing"].map(s => (
-                        <button
-                            key={s}
-                            onClick={() => setStatusFilter(s as any)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${statusFilter === s ? "bg-white/10 text-white" : "text-gray-500 hover:text-white"
-                                }`}
-                        >
-                            {s === "all" ? "All" : s}
-                        </button>
-                    ))}
+
+                <div className="relative w-full md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                        type="text"
+                        placeholder="Search hackathons..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-white/30"
+                    />
                 </div>
             </div>
 
-            {/* Hackathon Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filtered.map(h => (
-                    <div key={h.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all group">
-                        {/* Header Band */}
-                        <div className={`h-2 ${h.status === "ongoing" ? "bg-green-500" :
-                            h.status === "upcoming" ? "bg-blue-500" : "bg-gray-500"
-                            }`} />
-
-                        <div className="p-5">
-                            {/* Source + Status */}
-                            <div className="flex items-center justify-between mb-3">
-                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${SOURCE_COLORS[h.source]?.bg} ${SOURCE_COLORS[h.source]?.text} capitalize`}>
-                                    {h.source === "mlh" ? "MLH" : h.source}
-                                </span>
-                                <span className={`text-xs font-medium ${h.status === "ongoing" ? "text-green-400" : "text-gray-500"
-                                    }`}>
-                                    {h.status === "ongoing" ? "🔴 Live" : getDaysUntil(h.start_date)}
-                                </span>
-                            </div>
-
-                            {/* Title */}
-                            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
-                                {h.name}
-                            </h3>
-                            <p className="text-xs text-gray-500 mb-4 line-clamp-2">{h.description}</p>
-
-                            {/* Details */}
-                            <div className="space-y-2 mb-4">
-                                <div className="flex items-center gap-2 text-xs text-gray-400">
-                                    <CalendarDays size={14} />
-                                    <span>{formatDate(h.start_date)} — {formatDate(h.end_date)}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-gray-400">
-                                    {MODE_ICONS[h.mode]}
-                                    <span className="capitalize">{h.mode}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-yellow-400">
-                                    <Trophy size={14} />
-                                    <span>{h.prize}</span>
-                                </div>
-                            </div>
-
-                            {/* CTA */}
-                            <a
-                                href={h.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-medium text-white transition-colors"
-                            >
-                                View Details <ExternalLink size={14} />
-                            </a>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {filtered.length === 0 && (
+            {/* Grid */}
+            {loading ? (
+                <div className="flex justify-center py-20">
+                    <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+                </div>
+            ) : filteredHackathons.length === 0 ? (
                 <div className="text-center py-20 text-gray-500">
-                    <Rocket className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                    <p>No hackathons found for the selected filters.</p>
+                    <p>No hackathons found matching your criteria.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredHackathons.map(hack => (
+                        <div key={hack.id} className="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all group flex flex-col h-full">
+                            {/* Image Header */}
+                            <div className="h-40 bg-gray-800 relative overflow-hidden">
+                                {hack.image ? (
+                                    <img src={hack.image} alt={hack.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
+                                        <Trophy className="w-12 h-12 text-white/20" />
+                                    </div>
+                                )}
+                                <div className="absolute top-3 right-3">
+                                    <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-md border ${hack.status === "Live" ? "bg-red-500/20 text-red-500 border-red-500/30 animate-pulse" :
+                                            "bg-black/60 text-white backdrop-blur-md border-white/10"
+                                        }`}>
+                                        {hack.status}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="p-5 flex-1 flex flex-col">
+                                <div className="flex items-start justify-between mb-2">
+                                    <h3 className="text-lg font-bold text-white line-clamp-2 leading-tight group-hover:text-purple-400 transition-colors">
+                                        {hack.title}
+                                    </h3>
+                                </div>
+
+                                <div className="text-sm text-gray-400 mb-4 flex items-center gap-2">
+                                    <span className={`px-2 py-0.5 rounded text-[10px] border ${PLATFORMS.find(p => p.id === hack.host)?.color || "bg-gray-700 text-gray-300"
+                                        }`}>
+                                        {hack.host}
+                                    </span>
+                                    <span className="text-xs">•</span>
+                                    <span className="flex items-center gap-1">
+                                        <MapPin className="w-3 h-3" /> {hack.mode}
+                                    </span>
+                                </div>
+
+                                <div className="space-y-3 mt-auto">
+                                    <div className="flex items-center justify-between text-sm text-gray-300 bg-white/5 p-2 rounded-lg">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="w-4 h-4 text-gray-500" />
+                                            <span>{formatDate(hack.startDate)} - {formatDate(hack.endDate)}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center gap-1.5 text-yellow-500">
+                                            <Gift className="w-4 h-4" />
+                                            <span className="font-semibold">{hack.prize}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <a
+                                    href={hack.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-5 w-full py-2.5 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-medium transition-all"
+                                >
+                                    Participate <ExternalLink className="w-4 h-4" />
+                                </a>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>
