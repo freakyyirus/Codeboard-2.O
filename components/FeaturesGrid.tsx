@@ -1,20 +1,21 @@
 "use client"
 
-import { LayoutDashboard, Network, Users, Terminal, Calendar, Zap } from "lucide-react"
+import { LayoutDashboard, Network, Users, Terminal, Calendar, Zap, Activity } from "lucide-react"
 
 const features = [
     { icon: LayoutDashboard, num: "01", title: "DEV DASHBOARD", desc: "Your unified command center. Stats, streaks, submissions — everything at a glance.", wide: true, inverted: true },
     { icon: Network, num: "02", title: "DSA TRACKER", desc: "Filter by topic, company tag, and difficulty.", wide: false, inverted: false },
     { icon: Users, num: "03", title: "SOCIAL FEED", desc: "See what friends are solving. Compete on leaderboards.", wide: false, inverted: false },
     { icon: Terminal, num: "04", title: "CODEBOARD STUDIO", desc: "A built-in IDE with AI assistance. Write, run, and submit code without leaving.", wide: true, inverted: true },
-    { icon: Calendar, num: "05", title: "CONTEST CALENDAR", desc: "Never miss a contest. All schedules, one calendar.", wide: false, inverted: false },
-    { icon: Zap, num: "06", title: "AI RECOMMENDATIONS", desc: "Smart recommendations based on your patterns.", wide: false, inverted: false },
+    { icon: Zap, num: "05", title: "AI RECOMMENDATIONS", desc: "Smart recommendations based on your patterns.", wide: false, inverted: true },
+    { icon: Calendar, num: "06", title: "CONTEST CALENDAR", desc: "Never miss a contest. All schedules, one calendar.", wide: false, inverted: false },
+    { icon: Activity, num: "07", title: "HABITUAL ROADMAP", desc: "Never miss a day. Build unshakeable coding habits with guided, daily micro-commitments.", wide: false, inverted: false },
 ]
 
 export function FeaturesGrid() {
     return (
-        <section id="features" className="py-24 px-6 bg-white text-black">
-            <div className="max-w-7xl mx-auto">
+        <section id="features" className="py-24 sm:py-32 px-6 bg-white text-black">
+            <div className="max-w-7xl mx-auto w-full">
                 {/* Header */}
                 <div className="text-center mb-16">
                     <span className="inline-block px-4 py-2 rounded-full border border-black/20 text-xs font-bold uppercase tracking-wider mb-4">
@@ -29,12 +30,12 @@ export function FeaturesGrid() {
                 </div>
 
                 {/* Bento Grid */}
-                <div className="grid md:grid-cols-3 gap-4 overflow-hidden scrollbar-hide">
+                <div className="grid md:grid-cols-3 gap-6 sm:gap-8 h-auto">
                     {features.map((f) => (
                         <div
                             key={f.num}
                             className={`bento-card ${f.wide ? "md:col-span-2" : ""} ${f.inverted ? "bg-black text-white" : "bg-gray-100"
-                                } rounded-3xl p-6 md:p-8 flex flex-col justify-between group cursor-pointer overflow-hidden`}
+                                } rounded-3xl p-6 md:p-8 flex flex-col justify-between group cursor-pointer min-h-[250px] h-full`}
                         >
                             <div>
                                 <div className={`w-12 h-12 ${f.inverted ? "bg-white/10 group-hover:bg-white/20" : "bg-black group-hover:scale-110"
