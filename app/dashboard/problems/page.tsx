@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
+import Link from "next/link"
 import {
     Search,
     ExternalLink,
@@ -10,7 +11,9 @@ import {
     X,
     Building2,
     Hash,
+    Code2
 } from "lucide-react"
+import { PROBLEMS } from "@/lib/problems"
 
 /* ─── Types ────────────────────────────────────────── */
 
@@ -54,6 +57,15 @@ function LeetCodeLogo({ className = "" }: { className?: string }) {
             <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zM9.167 15.817h7.036a1.38 1.38 0 0 1 0 2.758H9.167a1.38 1.38 0 0 1 0-2.758z" />
         </svg>
     )
+}
+
+/* ─── Helpers ──────────────────────────────────────── */
+
+// Mapping of problem titles to their supported ID in PROBLEMS
+// In a real app, this would be a map or a more robust check
+function getProblemId(title: string): string | null {
+    const p = PROBLEMS.find(p => p.title.toLowerCase() === title.toLowerCase())
+    return p ? p.id : null
 }
 
 /* ─── Component ────────────────────────────────────── */
@@ -163,25 +175,31 @@ export default function ProblemsPage() {
         return sorted
     }, [data, difficultyFilter, selectedCompanies, search, sortBy, sortDir])
 
-    // Reset page on filter change
-    useEffect(() => {
+    // Handle filter changes and reset page
+    const handleSearchChange = (value: string) => {
+        setSearch(value)
         setPage(0)
-    }, [search, difficultyFilter, selectedCompanies, sortBy, sortDir])
+    }
+
+    const handleDifficultyChange = (value: string) => {
+        setDifficultyFilter(value)
+        setPage(0)
+    }
+
+    const handleSortChange = (newSortBy: typeof sortBy) => {
+        if (sortBy === newSortBy) {
+            setSortDir((d) => (d === "asc" ? "desc" : "asc"))
+        } else {
+            setSortBy(newSortBy)
+            setSortDir("desc")
+        }
+        setPage(0)
+    }
 
     const pageQuestions = filtered.slice(
         page * ITEMS_PER_PAGE,
         (page + 1) * ITEMS_PER_PAGE
     )
-    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
-
-    const toggleSort = useCallback((col: typeof sortBy) => {
-        if (sortBy === col) {
-            setSortDir((d) => (d === "asc" ? "desc" : "asc"))
-        } else {
-            setSortBy(col)
-            setSortDir("desc")
-        }
-    }, [sortBy])
 
     const toggleCompany = useCallback((name: string) => {
         setSelectedCompanies((prev) => {
@@ -241,7 +259,7 @@ export default function ProblemsPage() {
                             type="text"
                             placeholder="Search problems..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                             className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-white/30 text-sm text-white"
                         />
                     </div>
@@ -257,7 +275,7 @@ export default function ProblemsPage() {
                         {["ALL", "EASY", "MEDIUM", "HARD"].map((d) => (
                             <button
                                 key={d}
-                                onClick={() => setDifficultyFilter(d)}
+                                onClick={() => handleDifficultyChange(d)}
                                 className={`px-3 py-1.5 text-xs font-mono rounded-[4px] transition-all duration-150 ${difficultyFilter === d
                                     ? "bg-white/10 text-white shadow-sm"
                                     : "text-gray-500 hover:text-white"
@@ -341,7 +359,7 @@ export default function ProblemsPage() {
                                 <th className="p-4 font-normal w-12">#</th>
                                 <th
                                     className="p-4 font-normal cursor-pointer hover:text-white transition-colors select-none"
-                                    onClick={() => toggleSort("title")}
+                                    onClick={() => handleSortChange("title")}
                                 >
                                     <span className="flex items-center gap-1">
                                         Problem
@@ -350,7 +368,7 @@ export default function ProblemsPage() {
                                 </th>
                                 <th
                                     className="p-4 font-normal cursor-pointer hover:text-white transition-colors select-none"
-                                    onClick={() => toggleSort("difficulty")}
+                                    onClick={() => handleSortChange("difficulty")}
                                 >
                                     <span className="flex items-center gap-1">
                                         Difficulty
@@ -359,7 +377,7 @@ export default function ProblemsPage() {
                                 </th>
                                 <th
                                     className="p-4 font-normal cursor-pointer hover:text-white transition-colors select-none"
-                                    onClick={() => toggleSort("frequency")}
+                                    onClick={() => handleSortChange("frequency")}
                                 >
                                     <span className="flex items-center gap-1">
                                         Freq
@@ -368,7 +386,7 @@ export default function ProblemsPage() {
                                 </th>
                                 <th
                                     className="p-4 font-normal cursor-pointer hover:text-white transition-colors select-none hidden lg:table-cell"
-                                    onClick={() => toggleSort("acceptance")}
+                                    onClick={() => handleSortChange("acceptance")}
                                 >
                                     <span className="flex items-center gap-1">
                                         Accept
@@ -379,90 +397,106 @@ export default function ProblemsPage() {
                             </tr>
                         </thead>
                         <tbody className="text-sm">
-                            {pageQuestions.map((q, idx) => (
-                                <tr
-                                    key={q.link + idx}
-                                    className="border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors duration-100 group"
-                                >
-                                    {/* Row # */}
-                                    <td className="p-4 text-gray-600 font-mono text-xs">
-                                        {page * ITEMS_PER_PAGE + idx + 1}
-                                    </td>
+                            {pageQuestions.map((q, idx) => {
+                                const supportedId = getProblemId(q.title)
+                                const studioUrl = supportedId
+                                    ? `/dashboard/studio?problemId=${supportedId}`
+                                    : `/dashboard/studio?title=${encodeURIComponent(q.title)}&link=${encodeURIComponent(q.link)}&difficulty=${encodeURIComponent(q.difficulty)}`
 
-                                    {/* Problem title + topics */}
-                                    <td className="p-4">
-                                        <a
-                                            href={q.link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-gray-200 font-medium group-hover:text-blue-400 transition-colors duration-150 inline-flex items-center gap-1.5"
-                                        >
-                                            <LeetCodeLogo className="w-3.5 h-3.5 text-[#FFA116] shrink-0" />
-                                            {q.title}
-                                        </a>
-                                        {q.topics.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 mt-1.5">
-                                                {q.topics.slice(0, 3).map((t) => (
-                                                    <span
-                                                        key={t}
-                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono text-gray-500 bg-white/5 rounded-[3px] border border-white/5"
-                                                    >
-                                                        <Hash className="w-2.5 h-2.5" />
-                                                        {t}
-                                                    </span>
-                                                ))}
+                                // Capitalize difficulty for display
+                                const diffDisplay = q.difficulty.charAt(0) + q.difficulty.slice(1).toLowerCase()
+
+                                return (
+                                    <tr
+                                        key={q.link + idx}
+                                        className="border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors duration-100 group"
+                                    >
+                                        {/* Row # */}
+                                        <td className="p-4 text-gray-600 font-mono text-xs">
+                                            {page * ITEMS_PER_PAGE + idx + 1}
+                                        </td>
+
+                                        {/* Problem title + topics */}
+                                        <td className="p-4">
+                                            <div className="flex flex-col">
+                                                <Link
+                                                    href={studioUrl}
+                                                    className="text-gray-200 font-medium group-hover:text-blue-400 transition-colors duration-150 inline-flex items-center gap-2"
+                                                >
+                                                    {supportedId ? (
+                                                        <Code2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                                                    ) : (
+                                                        <LeetCodeLogo className="w-3.5 h-3.5 text-[#FFA116] shrink-0" />
+                                                    )}
+                                                    {q.title}
+                                                </Link>
+                                                {q.topics.length > 0 && (
+                                                    <div className="flex flex-wrap gap-1 mt-1.5">
+                                                        {q.topics.slice(0, 3).map((t) => (
+                                                            <span
+                                                                key={t}
+                                                                className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono text-gray-500 bg-white/5 rounded-[3px] border border-white/5"
+                                                            >
+                                                                <Hash className="w-2.5 h-2.5" />
+                                                                {t}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </td>
+                                        </td>
 
-                                    {/* Difficulty badge */}
-                                    <td className="p-4">
-                                        <span
-                                            className="inline-block px-2 py-0.5 text-[10px] font-mono font-semibold rounded-[4px] uppercase tracking-wider"
-                                            style={{
-                                                color: DIFFICULTY_COLORS[q.difficulty] || "#999",
-                                                background: `color-mix(in srgb, ${DIFFICULTY_COLORS[q.difficulty] || "#999"} 12%, transparent)`,
-                                            }}
-                                        >
-                                            {q.difficulty}
-                                        </span>
-                                    </td>
-
-                                    {/* Frequency bar */}
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-12 bg-white/10 h-1 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full rounded-full bg-blue-500"
-                                                    style={{ width: `${Math.min(q.frequency * 100, 100)}%` }}
-                                                />
-                                            </div>
-                                            <span className="text-[10px] font-mono text-gray-500">
-                                                {(q.frequency * 100).toFixed(0)}%
+                                        {/* Difficulty badge */}
+                                        <td className="p-4">
+                                            <span
+                                                className="inline-block px-2 py-0.5 text-[10px] font-mono font-semibold rounded-[4px] uppercase tracking-wider"
+                                                style={{
+                                                    color: DIFFICULTY_COLORS[q.difficulty] || "#999",
+                                                    background: `color-mix(in srgb, ${DIFFICULTY_COLORS[q.difficulty] || "#999"} 12%, transparent)`,
+                                                }}
+                                            >
+                                                {diffDisplay}
                                             </span>
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                    {/* Acceptance */}
-                                    <td className="p-4 hidden lg:table-cell">
-                                        <span className="text-xs font-mono text-gray-500">
-                                            {q.acceptance}
-                                        </span>
-                                    </td>
+                                        {/* Frequency bar */}
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-10 md:w-16 bg-white/10 h-1 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full rounded-full bg-blue-500"
+                                                        style={{ width: `${Math.min(q.frequency * 100, 100)}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-[10px] font-mono text-gray-500">
+                                                    {(q.frequency * 100).toFixed(0)}%
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                    {/* External link */}
-                                    <td className="p-4">
-                                        <a
-                                            href={q.link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-gray-600 hover:text-white transition-colors"
-                                        >
-                                            <ExternalLink className="w-3.5 h-3.5" />
-                                        </a>
-                                    </td>
-                                </tr>
-                            ))}
+                                        {/* Acceptance */}
+                                        <td className="p-4 hidden lg:table-cell">
+                                            <span className="text-xs font-mono text-gray-500">
+                                                {q.acceptance}
+                                            </span>
+                                        </td>
+
+                                        {/* External link */}
+                                        <td className="p-4">
+                                            <a
+                                                href={q.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-gray-600 hover:text-white transition-colors"
+                                                title="View on LeetCode"
+                                            >
+                                                <ExternalLink className="w-3.5 h-3.5" />
+                                            </a>
+                                        </td>
+                                    </tr>
+                                )
+                            })
+                            }
                         </tbody>
                     </table>
                 </div>
