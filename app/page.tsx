@@ -1,6 +1,6 @@
 import { LandingHero } from "@/components/LandingHero"
 import { FeaturesGrid } from "@/components/FeaturesGrid"
-import { Code2 } from "lucide-react"
+import { Code2, Activity, Terminal, Github, BookOpen, Coffee, Cpu, Target, Layers } from "lucide-react"
 import Link from "next/link"
 import HeroAttraction from "@/components/HeroAttraction"
 import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
@@ -13,7 +13,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CodeBoardLogoSimple />
+            <CodeBoardLogoSimple textClassName="hidden sm:block" />
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
             <a href="#features" className="nav-link hover:text-white transition-colors">Features</a>
@@ -44,14 +44,41 @@ export default function LandingPage() {
         </div>
 
         {/* ─── Logo Bar ────────────────────────────────────────── */}
-        <section className="border-y border-white/10 bg-white/5 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <p className="text-center text-xs text-gray-500 uppercase tracking-widest mb-6">Integrated with top platforms</p>
-            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-50">
-              <span className="text-lg sm:text-xl font-bold">LeetCode</span>
-              <span className="text-lg sm:text-xl font-bold">Codeforces</span>
-              <span className="text-lg sm:text-xl font-bold">HackerRank</span>
-              <span className="text-lg sm:text-xl font-bold">GitHub</span>
+        <section className="border-y border-white/10 bg-[#0d0d0d] py-10 overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
+            <p className="text-center text-xs text-gray-500 uppercase tracking-widest">Integrated with top platforms</p>
+          </div>
+
+          <div className="relative flex w-full max-w-[100vw] overflow-hidden">
+            {/* Edge fade gradients */}
+            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 sm:w-48 bg-gradient-to-r from-[#0d0d0d] to-transparent"></div>
+            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 sm:w-48 bg-gradient-to-l from-[#0d0d0d] to-transparent"></div>
+
+            {/* Marquee Track */}
+            <div className="animate-marquee items-center text-gray-400 !max-w-none !overflow-visible">
+
+              {/* Original Set + Duplicate Set for seamless looping */}
+              {[...Array(2)].map((_, groupIndex) => (
+                <div key={groupIndex} className="flex gap-14 sm:gap-20 items-center shrink-0 pr-14 sm:pr-20 !max-w-none !overflow-visible">
+                  {[
+                    { name: "LeetCode", icon: <img src="/logos/leetcode.svg" alt="LeetCode" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "Codeforces", icon: <img src="/logos/codeforces.svg" alt="Codeforces" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "HackerRank", icon: <img src="/logos/hackerrank.svg" alt="HackerRank" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "GitHub", icon: <img src="/logos/github.svg" alt="GitHub" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "GeeksforGeeks", icon: <img src="/logos/geeksforgeeks.svg" alt="GeeksforGeeks" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "CodeChef", icon: <img src="/logos/codechef.svg" alt="CodeChef" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "AtCoder", icon: <img src="/logos/atcoder.svg" alt="AtCoder" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "Unstop", icon: <img src="/logos/unstop.svg" alt="Unstop" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                    { name: "Devfolio", icon: <img src="/logos/devfolio.svg" alt="Devfolio" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
+                  ].map((platform) => (
+                    <div key={platform.name} className="flex items-center gap-4 md:gap-5 opacity-80 hover:opacity-100 hover:text-white transition-all cursor-pointer !max-w-none !overflow-visible shrink-0">
+                      {platform.icon}
+                      <span className="text-xl sm:text-2xl font-bold text-gray-400 hover:text-white transition-colors tracking-widest whitespace-nowrap drop-shadow-sm">{platform.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+
             </div>
           </div>
         </section>
@@ -60,8 +87,8 @@ export default function LandingPage() {
         <FeaturesGrid />
 
         {/* ─── How It Works ────────────────────────────────────── */}
-        <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 bg-black">
-          <div className="max-w-7xl mx-auto">
+        <section id="how-it-works" className="py-20 sm:py-32 px-4 sm:px-6 bg-black">
+          <div className="max-w-7xl mx-auto w-full">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-center mb-8 sm:mb-16 tracking-tight">THREE STEPS TO CLARITY.</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {[
@@ -80,20 +107,20 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Testimonials ────────────────────────────────────── */}
-        <section id="testimonials" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-900">
-          <div className="max-w-7xl mx-auto">
+        <section id="testimonials" className="py-20 sm:py-32 px-4 sm:px-6 bg-gray-900">
+          <div className="max-w-7xl mx-auto w-full">
             <p className="text-center text-xs text-gray-500 uppercase tracking-widest mb-4">Testimonials</p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-center mb-8 sm:mb-16 tracking-tight">LOVED BY DEVELOPERS.</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               {[
-                { quote: "CodeBoard replaced 6 tabs in my prep workflow. The DSA tracker alone saved me hours every week.", name: "Alex Chen", role: "SWE @ Google" },
-                { quote: "The event calendar + studio combo is unbeatable. I went from 1400 to 1800 on CF in 3 months.", name: "Sarah Kim", role: "Competitive Programmer" },
-                { quote: "Finally, a dashboard that feels like it was built by someone who actually grinds LeetCode.", name: "Mike Ross", role: "CS Student @ MIT" },
+                { quote: "CodeBoard replaced 6 tabs in my prep workflow. The DSA tracker alone saved me hours every week.", name: "Yuvraj Singh", role: "SWE @ Google", avatar: "/images/yuvraj-avatar-testimonial.png", customStyle: "object-cover object-[50%_15%]" },
+                { quote: "The event calendar + studio combo is unbeatable. I went from 1400 to 1800 on CF in 3 months.", name: "Aashish Choudhary", role: "Competitive Programmer", avatar: "/images/aashish-avatar-new.png", customStyle: "object-cover object-[50%_15%] scale-[1.15]" },
+                { quote: "Finally, a dashboard that feels like it was built by someone who actually grinds LeetCode.", name: "Tarun Karn", role: "SWE @ Meta", avatar: "/images/tarun-avatar-new.png", customStyle: "object-cover object-[50%_15%] scale-[1.15]" },
               ].map((t) => (
                 <div key={t.name} className="bg-white text-black p-6 sm:p-8 rounded-2xl">
                   <p className="text-gray-700 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">"{t.quote}"</p>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                    <img src={t.avatar} alt={`${t.name}'s avatar`} className={`w-10 h-10 rounded-full aspect-square border border-gray-200 ${t.customStyle}`} />
                     <div>
                       <div className="font-semibold text-sm">{t.name}</div>
                       <div className="text-xs text-gray-500">{t.role}</div>
@@ -101,6 +128,53 @@ export default function LandingPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Meet the Founder ──────────────────────────────── */}
+        <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-900/50 border-t border-white/5">
+          <div className="max-w-4xl mx-auto">
+            <p className="text-center text-xs text-gray-500 uppercase tracking-widest mb-4">The Creator</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-center mb-12 tracking-tight">MEET THE FOUNDER.</h2>
+
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 bg-black/40 p-8 sm:p-10 rounded-3xl border border-white/10">
+              <div className="flex-shrink-0 relative">
+                <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
+                <img
+                  src="/images/founder.jpg"
+                  alt="Yuvraj Singh"
+                  className="w-32 h-32 sm:w-40 sm:h-40 aspect-square rounded-full object-cover object-[50%_40%] border-2 border-white/20 relative z-10"
+                />
+              </div>
+
+              <div className="text-center md:text-left space-y-4 w-full">
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-1">Yuvraj Singh</h3>
+                  <p className="text-blue-400 font-medium">Founder & Solo Developer</p>
+                </div>
+                <p className="text-gray-400 leading-relaxed text-sm sm:text-base">
+                  "I built CodeBoard out of my own frustration with tracking competitive programming progress across multiple platforms. What started as a personal dashboard during my SWE prep journey has evolved into the ultimate companion for thousands of developers aiming to level up their coding skills."
+                </p>
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex gap-4">
+                    <span className="text-xs bg-white/5 px-3 py-1.5 rounded-md border border-white/10 text-gray-400">Software Engineer</span>
+                    <span className="text-xs bg-white/5 px-3 py-1.5 rounded-md border border-white/10 text-gray-400">Competitive Programmer</span>
+                  </div>
+                  {/* Social Links Placeholder */}
+                  <div className="flex items-center gap-4 mt-4 sm:mt-0">
+                    <a href="https://www.linkedin.com/in/yuvraj-singh-1055011a9/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#0A66C2] transition-colors" aria-label="LinkedIn">
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                    </a>
+                    <a href="https://github.com/freakyyirus" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="GitHub">
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
+                    </a>
+                    <a href="https://x.com/realfreakyyirus" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="X (formerly Twitter)">
+                      <svg className="w-5 h-5 mx-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -163,6 +237,6 @@ export default function LandingPage() {
           </div>
         </footer>
       </div>
-    </div>
+    </div >
   )
 }
