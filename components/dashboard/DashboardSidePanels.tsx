@@ -6,11 +6,32 @@ export function PlatformStats({ stats }: { stats?: any }) {
     const leetCodeCount = stats?.leetcode?.totalSolved || 0
     const codeforcesRating = stats?.codeforces?.rating || 0
 
+    // Authentic SVGs
+    const LeetCodeIcon = (props: any) => (
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+            <path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.535-.536.553-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 0 0-2.415-1.337l-1.488-1.487c-.466-.467-1.111-.662-1.823-.662s-1.357.195-1.824.662l-4.332 4.363c-.467.467-.702 1.15-.702 1.863s.235 1.357.702 1.824l4.319 4.38c.467.467 1.125.645 1.837.645s1.357-.195 1.823-.662l1.488-1.487a5.055 5.055 0 0 0 2.415-1.337l2.609-2.636c.514-.515.496-1.366-.039-1.901-.535-.535-1.386-.553-1.9-.038z" />
+        </svg>
+    )
+
+    const CodeforcesIcon = (props: any) => (
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+            <rect x="14" y="3" width="6" height="18" rx="1" />
+            <rect x="8" y="9" width="5" height="12" rx="1" />
+            <rect x="2" y="14" width="5" height="7" rx="1" />
+        </svg>
+    )
+
+    const HackerRankIcon = (props: any) => (
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+            <path d="M12 0a12 12 0 1 0 12 12A12.013 12.013 0 0 0 12 0zm5.424 16.5h-2.172v-3.774h-6.5v3.774H6.576V7.5h2.172v3.774h6.5V7.5h2.172v9z" />
+        </svg>
+    )
+
     // Dynamic list of other platforms
     const otherPlatforms = [
         { key: 'codechef', label: 'CodeChef', icon: Trophy, color: 'text-orange-500', bg: 'bg-orange-900/20' },
-        { key: 'atcoder', label: 'AtCoder', icon: Target, color: 'text-white', bg: 'bg-gray-800' }, // AtCoder uses black/white
-        { key: 'hackerrank', label: 'HackerRank', icon: Code, color: 'text-green-500', bg: 'bg-green-900/20' },
+        { key: 'atcoder', label: 'AtCoder', icon: Target, color: 'text-white', bg: 'bg-gray-800' },
+        { key: 'hackerrank', label: 'HackerRank', icon: HackerRankIcon, color: 'text-green-500', bg: 'bg-green-900/20' },
     ]
 
     return (
@@ -26,7 +47,7 @@ export function PlatformStats({ stats }: { stats?: any }) {
                 <div className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 transition-colors rounded-xl border border-white/5 group">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-yellow-900/20 rounded-lg flex items-center justify-center text-yellow-500 group-hover:scale-110 transition-transform">
-                            <Code className="w-4 h-4" />
+                            <LeetCodeIcon className="w-4 h-4" />
                         </div>
                         <span className="text-sm font-medium text-gray-300">LeetCode</span>
                     </div>
@@ -40,7 +61,7 @@ export function PlatformStats({ stats }: { stats?: any }) {
                 <div className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 transition-colors rounded-xl border border-white/5 group">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-blue-900/20 rounded-lg flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
-                            <Target className="w-4 h-4" />
+                            <CodeforcesIcon className="w-4 h-4" />
                         </div>
                         <span className="text-sm font-medium text-gray-300">Codeforces</span>
                     </div>
