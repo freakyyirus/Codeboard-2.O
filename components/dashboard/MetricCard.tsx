@@ -7,7 +7,7 @@ interface MetricCardProps {
     title: string
     value: string | number
     subValue?: string
-    icon: LucideIcon
+    icon: React.ElementType
     badgeText?: string
     color: "green" | "orange" | "blue" | "purple"
 }
