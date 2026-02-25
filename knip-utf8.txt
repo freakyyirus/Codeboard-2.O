@@ -1,0 +1,85 @@
+﻿[93m[4mUnused files[24m[39m (43)
+components/ActivityFeed.tsx                   
+components/ContributionHeatmap.tsx            
+components/DashboardSkeleton.tsx              
+components/DeploymentPanel.tsx                
+components/DevAttractWidget.tsx               
+components/DevHeader.tsx                      
+components/LanguageChart.tsx                  
+components/ProjectCard.tsx                    
+components/RepoGrid.tsx                       
+components/SearchFilter.tsx                   
+components/StatsBar.tsx                       
+hooks/useSupabase.ts                          
+lib/ratelimit.ts                              
+lib/supabase.ts                               
+lib/validations.ts                            
+lib/vercel.ts                                 
+scripts/extract-questions.js                  
+components/analytics/AnalyticsSummaryCards.tsx
+components/analytics/PlatformBreakdown.tsx    
+components/dashboard/ActivityHeatmap.tsx      
+components/dashboard/Awards.tsx               
+components/dashboard/ContestCountdown.tsx     
+components/dashboard/ContestList.tsx          
+components/dashboard/ContestRankings.tsx      
+components/dashboard/DesktopPet.tsx           
+components/dashboard/HeroAttraction.tsx       
+components/dashboard/LiveCodingHero.tsx       
+components/dashboard/PlatformList.tsx         
+components/dashboard/ProblemCard.tsx          
+components/dashboard/ProblemDistribution.tsx  
+components/dashboard/ProblemsSolved.tsx       
+components/dashboard/ProfileCard.tsx          
+components/dashboard/RatingChart.tsx          
+components/dashboard/StatCard.tsx             
+components/dashboard/StatsCard.tsx            
+components/dashboard/StatsGrid.tsx            
+components/dashboard/StreakWidget.tsx         
+components/dashboard/TopicAnalysis.tsx        
+components/dashboard/UmaruInputMirror.tsx     
+components/problems/ProblemTable.tsx          
+components/ui/button.tsx                      
+components/ui/skeleton.tsx                    
+components/ui/tooltip.tsx                     
+[93m[4mUnused dependencies[24m[39m (10)
+@ai-sdk/openai           package.json:13:6
+@google/generative-ai    package.json:17:6
+@radix-ui/react-icons    package.json:19:6
+@radix-ui/react-slot     package.json:20:6
+@radix-ui/react-tooltip  package.json:21:6
+@upstash/ratelimit       package.json:25:6
+date-fns                 package.json:29:6
+re-resizable             package.json:35:6
+react-email              package.json:38:6
+react-github-calendar    package.json:39:6
+[93m[4mUnlisted dependencies[24m[39m (2)
+postcss        postcss.config.mjs                   
+monaco-editor  components/studio/CodeEditor.tsx:7:26
+[93m[4mUnused exports[24m[39m (14)
+CodeBoardLogo      function  components/CodeBoardLogo.tsx:9:17          
+getGitHubData      function  lib/actions.ts:206:23                      
+getTrendingRepos   function  lib/github.ts:56:23                        
+CursorEffect       function  components/ui/PremiumEffects.tsx:7:17      
+scaleOnHover                 components/ui/PremiumEffects.tsx:73:14     
+getSocialStats     function  lib/socials.ts:62:23                       
+default                      components/emails/StreakReminder.tsx:47:16 
+getContests        function  lib/clist.ts:74:23                         
+default                      components/emails/ContestReminder.tsx:57:16
+characters                   components/DesktopPet.tsx:21:14            
+useCharacter       function  components/DesktopPet.tsx:229:17           
+CharacterSelector  function  components/DesktopPet.tsx:236:17           
+DesktopPet         function  components/DesktopPet.tsx:379:17           
+getHackathons      function  lib/hackathons.ts:98:23                    
+[93m[4mUnused exported types[24m[39m (7)
+CodeforcesStats  interface  lib/codeforces.ts:8:18      
+WakaTimeStats    interface  lib/wakatime.ts:5:18        
+Problem          interface  lib/problems.ts:2:18        
+SocialStats      interface  lib/socials.ts:3:18         
+Contest          interface  lib/clist.ts:64:18          
+Hackathon        interface  lib/hackathons.ts:5:18      
+SocialPost       interface  lib/services/socials.ts:1:18
+[93m[4mDuplicate exports[24m[39m (2)
+StreakReminderEmail|default   components/emails/StreakReminder.tsx 
+ContestReminderEmail|default  components/emails/ContestReminder.tsx
+[33m[4mConfiguration hints[24m (1)[39m
