@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import {
     LayoutDashboard,
@@ -20,233 +20,324 @@ import {
     Menu,
     X,
     Trophy,
-    MousePointer2
+    ChevronLeft,
+    ChevronRight,
+    LogOut,
+    Map,
+    PanelLeft
 } from "lucide-react"
 import { CharacterProvider } from "@/components/DesktopPet"
 import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
 import { UserButton } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
+import { motion, AnimatePresence } from "framer-motion"
 
-function SidebarItem({ icon, label, href, active, onClick }: { icon: React.ReactNode, label: string, href: string, active?: boolean, onClick?: () => void }) {
+/* ═══════════════════════════════════════════════════════
+   Sidebar Nav Item
+   ═══════════════════════════════════════════════════════ */
+function SidebarItem({
+    icon,
+    label,
+    href,
+    active,
+    onClick,
+    collapsed,
+}: {
+    icon: React.ReactNode
+    label: string
+    href: string
+    active?: boolean
+    onClick?: () => void
+    collapsed?: boolean
+}) {
     return (
         <Link
             href={href}
             onClick={onClick}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors duration-200 min-h-[44px] ${active
-                ? "bg-white/10 text-white font-semibold"
-                : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
-                }`}
+            title={collapsed ? label : undefined}
+            className={`
+                group relative flex items-center gap-3 
+                ${collapsed ? "justify-center px-2" : ""}
+                py-1.5 rounded-lg cursor-pointer
+                sidebar-item
+                ${active ? "font-semibold sidebar-item-active" : ""}
+            `}
         >
-            <div className={`${active ? "text-white" : "text-gray-500"}`}>
+            {/* icon */}
+            <div
+                className="shrink-0"
+                style={{ color: active ? "var(--accent)" : "var(--fg-muted)" }}
+            >
                 {icon}
             </div>
-            <span className="text-sm">{label}</span>
+
+            {/* label */}
+            {!collapsed && (
+                <span className={`text-[13px] tracking-wide truncate ${active ? "font-semibold" : "font-medium"}`}
+                    style={{ color: active ? "var(--fg-primary)" : "var(--fg-secondary)" }}
+                >
+                    {label}
+                </span>
+            )}
+
+            {/* Active pip — pointer-events-none so it doesn't steal hover */}
+            {active && !collapsed && (
+                <div
+                    className="absolute right-3 w-1.5 h-1.5 rounded-full pointer-events-none"
+                    style={{
+                        background: "var(--accent)",
+                        boxShadow: "0 0 6px var(--accent)",
+                    }}
+                />
+            )}
         </Link>
     )
 }
 
+/* ═══════════════════════════════════════════════════════
+   Section Divider with label
+   ═══════════════════════════════════════════════════════ */
+function SectionHeader({ label, collapsed }: { label: string; collapsed?: boolean }) {
+    if (collapsed) {
+        return (
+            <div className="my-3 mx-auto w-6">
+                <div className="h-px" style={{ background: "var(--accent-muted)" }} />
+            </div>
+        )
+    }
+    return (
+        <div className="mt-4 mb-1 px-3 flex items-center gap-3">
+            <span
+                className="text-xs uppercase font-extrabold tracking-widest whitespace-nowrap"
+                style={{ color: "var(--accent)" }}
+            >
+                {label}
+            </span>
+            <div className="h-[1px] flex-1" style={{ background: "var(--accent-muted)" }} />
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════════════════
+   Dashboard Layout
+   ═══════════════════════════════════════════════════════ */
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
     const pathname = usePathname()
-    const router = useRouter()
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [collapsed, setCollapsed] = useState(false)
+
+    useEffect(() => {
+        const saved = localStorage.getItem("sidebar-collapsed")
+        if (saved) setCollapsed(saved === "true")
+    }, [])
+
+    // Close on ESC
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && sidebarOpen) {
+                setSidebarOpen(false)
+            }
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [sidebarOpen])
+
+    const toggleCollapsed = () => {
+        const next = !collapsed
+        setCollapsed(next)
+        localStorage.setItem("sidebar-collapsed", String(next))
+    }
+
+    const close = () => setSidebarOpen(false)
+    const isDark = true
 
     return (
         <CharacterProvider>
-            <div className="flex h-screen overflow-hidden bg-black text-white selection:bg-blue-500/30">
-                {/* Mobile overlay */}
-                {sidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-black/50 z-40 md:hidden"
-                        onClick={() => setSidebarOpen(false)}
-                    />
-                )}
+            <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg-primary)", color: "var(--fg-primary)" }}>
 
-                {/* ─── Sidebar ─────────────────────────────── */}
-                <aside className={`
-                fixed md:relative z-50 h-screen w-64 bg-[#0B0B0B] text-white flex flex-col p-4 border-r border-[#1f1f1f]
-                transition-transform duration-200 ease-out
-                ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-                shrink-0
-            `}>
-                    {/* Logo */}
-                    <div className="mb-6 px-2">
-                        <CodeBoardLogoSimple />
+                {/* ── Mobile backdrop ──────────────── */}
+                <AnimatePresence>
+                    {sidebarOpen && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 z-40 md:hidden"
+                            style={{ background: isDark ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)" }}
+                            onClick={close}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* ── Sidebar ─────────────────────── */}
+                <aside
+                    className={`
+                        fixed md:relative z-40 h-screen flex flex-col shrink-0
+                        transition-all duration-300 ease-in-out
+                        ${sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0"}
+                        ${collapsed ? "md:w-[68px]" : "md:w-64"}
+                    `}
+                    style={{
+                        background: "var(--glass-bg)",
+                        backdropFilter: "blur(24px)",
+                        WebkitBackdropFilter: "blur(24px)",
+                        borderRight: "1px solid var(--border)",
+                        boxShadow: `2px 0 16px var(--shadow-sidebar)`,
+                    }}
+                >
+                    {/* ─ Header ────────────────────── */}
+                    <div className={`flex flex-col ${collapsed ? "items-center py-4 gap-3" : "px-4 pt-4 pb-2 gap-2"} ${!sidebarOpen ? "" : "pt-20 md:pt-4"}`}>
+                        <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} w-full`}>
+                            {collapsed ? (
+                                <div
+                                    className="w-8 h-8 font-bold flex items-center justify-center rounded-lg text-xs"
+                                    style={{
+                                        background: isDark ? "#fff" : "#1c1917",
+                                        color: isDark ? "#000" : "#faf8f5",
+                                    }}
+                                >
+                                    CB
+                                </div>
+                            ) : (
+                                <CodeBoardLogoSimple />
+                            )}
+                        </div>
+
+                        {/* Desktop collapse toggle */}
+                        <button
+                            onClick={toggleCollapsed}
+                            className={`
+                                hidden md:flex items-center gap-2 p-1.5 rounded-lg
+                                transition-colors duration-200 sidebar-item
+                                ${collapsed ? "justify-center" : ""}
+                            `}
+                            title={collapsed ? "Expand" : "Collapse"}
+                            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        >
+                            <PanelLeft size={15} className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`} />
+                            {!collapsed && <span className="text-[11px] font-medium">Collapse</span>}
+                        </button>
                     </div>
 
-                    {/* Close button - mobile */}
-                    <button
-                        onClick={() => setSidebarOpen(false)}
-                        className="absolute top-4 right-4 p-2 md:hidden"
-                    >
-                        <X size={20} />
-                    </button>
+                    {/* ─ Nav Items ─────────────────── */}
+                    <nav className="flex flex-col gap-[2px] flex-1 overflow-y-auto overflow-x-hidden px-2 scrollbar-hide pb-2">
 
-                    {/* Main */}
-                    <nav className="flex flex-col gap-1 flex-1 overflow-y-auto">
+                        <SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" href="/dashboard" active={pathname === "/dashboard"} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<BookOpen size={18} />} label="DSA Practice" href="/dashboard/dsa" active={pathname === "/dashboard/dsa"} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Code2 size={18} />} label="Dev" href="/dashboard/dev" active={pathname.startsWith("/dashboard/dev")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Users size={18} />} label="Social" href="/dashboard/social" active={pathname.startsWith("/dashboard/social")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Terminal size={18} />} label="CodeBoard IDE" href="/dashboard/studio" active={pathname.startsWith("/dashboard/studio")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Map size={18} />} label="Roadmap" href="/dashboard/roadmap" active={pathname.startsWith("/dashboard/roadmap")} onClick={close} collapsed={collapsed} />
 
-                        <SidebarItem
-                            icon={<LayoutDashboard size={18} />}
-                            label="Dashboard"
-                            href="/dashboard"
-                            active={pathname === "/dashboard"}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<BookOpen size={18} />}
-                            label="DSA Practice"
-                            href="/dashboard/dsa"
-                            active={pathname === "/dashboard/dsa"}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<Code2 size={18} />}
-                            label="Dev"
-                            href="/dashboard/dev"
-                            active={pathname.startsWith("/dashboard/dev")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<Users size={18} />}
-                            label="Social"
-                            href="/dashboard/social"
-                            active={pathname.startsWith("/dashboard/social")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<Terminal size={18} />}
-                            label="CodeBoard IDE"
-                            href="/dashboard/studio"
-                            active={pathname.startsWith("/dashboard/studio")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
+                        <SectionHeader label="Calendar" collapsed={collapsed} />
+                        <SidebarItem icon={<CalendarDays size={18} />} label="Contest" href="/dashboard/contests" active={pathname.startsWith("/dashboard/contests")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Rocket size={18} />} label="Hackathon" href="/dashboard/hackathons" active={pathname.startsWith("/dashboard/hackathons")} onClick={close} collapsed={collapsed} />
 
+                        <SectionHeader label="Sheets" collapsed={collapsed} />
+                        <SidebarItem icon={<Compass size={18} />} label="Explore" href="/dashboard/sheets/explore" active={pathname.startsWith("/dashboard/sheets/explore")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<FileText size={18} />} label="My Sheet" href="/dashboard/sheets/my" active={pathname.startsWith("/dashboard/sheets/my")} onClick={close} collapsed={collapsed} />
 
-                        {/* Event Calendar Section */}
-                        <div className="mt-6 mb-2 text-xs text-gray-400 uppercase font-semibold px-2">Event Calendar</div>
-                        <SidebarItem
-                            icon={<CalendarDays size={18} />}
-                            label="Contest"
-                            href="/dashboard/contests"
-                            active={pathname.startsWith("/dashboard/contests")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<Rocket size={18} />}
-                            label="Hackathon"
-                            href="/dashboard/hackathons"
-                            active={pathname.startsWith("/dashboard/hackathons")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-
-                        {/* Sheets */}
-                        <div className="mt-6 mb-2 text-xs text-gray-400 uppercase font-semibold px-2">Sheets</div>
-                        <SidebarItem
-                            icon={<Compass size={18} />}
-                            label="Explore Sheet"
-                            href="/dashboard/sheets/explore"
-                            active={pathname.startsWith("/dashboard/sheets/explore")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<FileText size={18} />}
-                            label="My Sheet"
-                            href="/dashboard/sheets/my"
-                            active={pathname.startsWith("/dashboard/sheets/my")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-
-                        {/* Community */}
-                        <div className="mt-6 mb-2 text-xs text-gray-400 uppercase font-semibold px-2">Community</div>
-                        <SidebarItem
-                            icon={<Trophy size={18} />}
-                            label="Leaderboard"
-                            href="/dashboard/leaderboard"
-                            active={pathname.startsWith("/dashboard/leaderboard")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<BarChart3 size={18} />}
-                            label="Analytics"
-                            href="/dashboard/analytics"
-                            active={pathname.startsWith("/dashboard/analytics")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<MessageCircle size={18} />}
-                            label="Community"
-                            href="/dashboard/community"
-                            active={pathname.startsWith("/dashboard/community")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-
+                        <SectionHeader label="Community" collapsed={collapsed} />
+                        <SidebarItem icon={<Trophy size={18} />} label="Leaderboard" href="/dashboard/leaderboard" active={pathname.startsWith("/dashboard/leaderboard")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<BarChart3 size={18} />} label="Analytics" href="/dashboard/analytics" active={pathname.startsWith("/dashboard/analytics")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<MessageCircle size={18} />} label="Community" href="/dashboard/community" active={pathname.startsWith("/dashboard/community")} onClick={close} collapsed={collapsed} />
                     </nav>
 
-                    {/* Bottom */}
-                    <div className="mt-4 flex flex-col gap-1 pt-4 border-t border-[#1f1f1f]">
-                        <SidebarItem
-                            icon={<Send size={18} />}
-                            label="Feedback"
-                            href="/dashboard/feedback"
-                            active={pathname.startsWith("/dashboard/feedback")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
-                        <SidebarItem
-                            icon={<Settings size={18} />}
-                            label="Setting"
-                            href="/dashboard/settings"
-                            active={pathname.startsWith("/dashboard/settings")}
-                            onClick={() => setSidebarOpen(false)}
-                        />
+                    {/* ─ Bottom ────────────────────── */}
+                    <div className="p-2 flex flex-col gap-[2px]" style={{ borderTop: "1px solid var(--border)" }}>
 
-                        <div className="flex items-center gap-3 p-2 mt-2 rounded-lg hover:bg-white/5 transition-colors group">
-                            <div className="flex items-center gap-3 w-full">
+                        {/* Theme Toggle Removed */}
+
+                        <SidebarItem icon={<Send size={18} />} label="Feedback" href="/dashboard/feedback" active={pathname.startsWith("/dashboard/feedback")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Settings size={18} />} label="Settings" href="/dashboard/settings" active={pathname.startsWith("/dashboard/settings")} onClick={close} collapsed={collapsed} />
+
+                        {/* User card */}
+                        <div
+                            className={`mt-2 flex items-center ${collapsed ? "justify-center" : "gap-3 px-2"} py-2 rounded-lg transition-colors`}
+                            style={{
+                                background: "var(--bg-hover)",
+                                border: "1px solid var(--border)",
+                            }}
+                        >
+                            {!collapsed ? (
+                                <div className="flex-1 min-w-0">
+                                    <UserButton
+                                        appearance={{
+                                            baseTheme: isDark ? dark : undefined,
+                                            elements: {
+                                                userButtonBox: "flex-row-reverse w-full justify-between hover:bg-white/5 p-1 rounded-lg transition-colors",
+                                                userButtonOuterIdentifier: `${isDark ? "text-white" : "text-gray-900"} text-sm font-medium truncate`,
+                                                userButtonPopoverCard: `${isDark ? "bg-[#0a0a0a] border-white/10" : "bg-white border-gray-200"} border shadow-2xl rounded-xl`,
+                                                userPreviewMainIdentifier: `${isDark ? "text-white" : "text-gray-900"} font-semibold`,
+                                                userPreviewSecondaryIdentifier: `${isDark ? "text-gray-400" : "text-gray-500"} text-xs`,
+                                                userButtonPopoverActionButton: `hover:bg-white/5 transition-colors ${isDark ? "text-gray-300" : "text-gray-700"}`,
+                                                userButtonPopoverActionButtonText: `${isDark ? "text-gray-300" : "text-gray-700"} font-medium`,
+                                                userButtonPopoverActionButtonIcon: `${isDark ? "text-gray-400" : "text-gray-500"}`,
+                                                userButtonPopoverFooter: "hidden",
+                                                scrollBox: isDark ? "bg-[#0a0a0a]" : "bg-white",
+                                            }
+                                        }}
+                                        showName
+                                    />
+                                </div>
+                            ) : (
                                 <UserButton
                                     appearance={{
-                                        baseTheme: dark,
+                                        baseTheme: isDark ? dark : undefined,
                                         elements: {
-                                            userButtonBox: "flex-row-reverse",
-                                            userButtonOuterIdentifier: "text-white font-medium text-sm",
-                                            userButtonPopoverCard: "bg-neutral-900 border border-neutral-800",
-                                        },
+                                            userButtonPopoverCard: `${isDark ? "bg-[#0a0a0a] border-white/10" : "bg-white border-gray-200"} border shadow-2xl rounded-xl`,
+                                            userPreviewMainIdentifier: `${isDark ? "text-white" : "text-gray-900"} font-semibold`,
+                                            userPreviewSecondaryIdentifier: `${isDark ? "text-gray-400" : "text-gray-500"} text-xs`,
+                                            userButtonPopoverActionButton: `hover:bg-white/5 transition-colors ${isDark ? "text-gray-300" : "text-gray-700"}`,
+                                            userButtonPopoverActionButtonText: `${isDark ? "text-gray-300" : "text-gray-700"} font-medium`,
+                                            userButtonPopoverActionButtonIcon: `${isDark ? "text-gray-400" : "text-gray-500"}`,
+                                            userButtonPopoverFooter: "hidden",
+                                            scrollBox: isDark ? "bg-[#0a0a0a]" : "bg-white",
+                                        }
                                     }}
-                                    showName={true}
                                 />
-                                {/* Optional: If we want to hide email/extra info we can just use UserButton. 
-                                    Clerk's UserButton handles the UI well. 
-                                    I added showName=true to display the name.
-                                */}
-                            </div>
+                            )}
                         </div>
                     </div>
-
                 </aside>
 
-                {/* ─── Main Area ───────────────────────────── */}
-                <main className="flex-1 overflow-hidden relative bg-black flex">
-                    {/* Content Area */}
-                    <div className="flex-1 overflow-hidden">
-                        {/* Mobile header with hamburger */}
-                        <div className="md:hidden flex items-center p-4 border-b border-[#1f1f1f]">
+                {/* ── Main Content (always dark) ─── */}
+                <main className="flex-1 overflow-hidden relative flex flex-col min-w-0 bg-black text-white">
+
+                    {/* Background ambience */}
+                    <div className="absolute inset-0 z-0 pointer-events-none">
+                        <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-blue-900/10 blur-[120px] rounded-full" />
+                        <div className="absolute bottom-0 left-0 w-[30%] h-[30%] bg-purple-900/5 blur-[100px] rounded-full" />
+                    </div>
+
+                    {/* Mobile header */}
+                    <header
+                        className="md:hidden flex items-center justify-between px-4 py-3 sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/[0.06]"
+                    >
+                        <div className="flex items-center gap-3">
                             <button
-                                onClick={() => setSidebarOpen(true)}
-                                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                onClick={() => setSidebarOpen(!sidebarOpen)}
+                                className="p-2 -ml-2 rounded-lg transition-colors text-gray-300 hover:text-white hover:bg-white/[0.06]"
+                                aria-label={sidebarOpen ? "Close menu" : "Open menu"}
                             >
-                                <Menu size={24} />
+                                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
+                            <span className="font-bold tracking-tight text-white">CodeBoard</span>
                         </div>
+                        <UserButton appearance={{ baseTheme: dark }} />
+                    </header>
 
-                        {/* Background ambient glow */}
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent pointer-events-none" />
-
-                        <div className="h-full overflow-y-auto">
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto scrollbar-hide p-4 md:p-6 lg:p-8 relative z-10 w-full">
+                        <div className="w-full max-w-[1600px] mx-auto">
                             {children}
                         </div>
                     </div>
-
                 </main>
             </div>
         </CharacterProvider>
