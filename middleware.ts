@@ -4,14 +4,24 @@ const isPublicRoute = createRouteMatcher([
     '/',
     '/sign-in(.*)',
     '/sign-up(.*)',
-    '/api/webhooks(.*)',
-    '/api/chat(.*)',
-    '/api/execute(.*)'
+    '/api/webhooks(.*)'
 ]);
+
+const isApiRoute = createRouteMatcher(['/api(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
     if (!isPublicRoute(request)) {
-        await auth.protect();
+        if (isApiRoute(request)) {
+            const authObj = await auth();
+            if (!authObj.userId) {
+                return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+                    status: 401,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+        } else {
+            await auth.protect();
+        }
     }
 });
 
