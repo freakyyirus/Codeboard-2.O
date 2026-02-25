@@ -1,93 +1,337 @@
 "use client"
 
-import { CheckCircle, Lock } from "lucide-react"
+import { useState, useEffect } from "react"
+import { PREDEFINED_ROADMAPS, type Roadmap } from "@/lib/roadmaps"
+import { Plus, CheckCircle2, ArrowRight, Trash2, Map, ExternalLink, Search } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function RoadmapPage() {
+    const [roadmaps, setRoadmaps] = useState<Roadmap[]>(PREDEFINED_ROADMAPS)
+    const [activeRoadmap, setActiveRoadmap] = useState<Roadmap | null>(null)
+    const [customTask, setCustomTask] = useState("")
+    const [filter, setFilter] = useState("All")
+    const [search, setSearch] = useState("")
+
+    // Load custom roadmaps from local storage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem("custom_roadmaps")
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved)
+                setRoadmaps(prev => [...prev, ...parsed])
+            } catch (e) {
+                console.error("Failed to parse custom roadmaps")
+            }
+        }
+    }, [])
+
+    const categories = ["All", ...Array.from(new Set(PREDEFINED_ROADMAPS.map(r => r.category)))]
+
+    const filteredRoadmaps = roadmaps.filter(r => {
+        if (r.category === "Custom") return false
+        const matchesFilter = filter === "All" || r.category === filter
+        const matchesSearch = !search || r.title.toLowerCase().includes(search.toLowerCase()) || r.description.toLowerCase().includes(search.toLowerCase())
+        return matchesFilter && matchesSearch
+    })
+
+    const handleAddCustomTask = () => {
+        if (!customTask.trim()) return
+
+        let customRoadmap = roadmaps.find(r => r.id === "custom-user")
+        let newRoadmaps = [...roadmaps]
+
+        if (!customRoadmap) {
+            customRoadmap = {
+                id: "custom-user",
+                title: "My Personal Roadmap",
+                description: "Your custom habitual tasks and goals.",
+                icon: "✨",
+                color: "#a855f7",
+                category: "Custom",
+                steps: []
+            }
+            newRoadmaps.push(customRoadmap)
+        }
+
+        const newTask = {
+            id: `custom-${Date.now()}`,
+            title: customTask,
+            description: "Custom task",
+            resources: [],
+            status: "pending" as const
+        }
+
+        const updatedRoadmap = {
+            ...customRoadmap,
+            steps: [...customRoadmap.steps, newTask]
+        }
+
+        newRoadmaps = newRoadmaps.map(r => r.id === "custom-user" ? updatedRoadmap : r)
+
+        setRoadmaps(newRoadmaps)
+        setCustomTask("")
+        localStorage.setItem("custom_roadmaps", JSON.stringify([updatedRoadmap]))
+    }
+
+    const removeCustomTask = (stepId: string) => {
+        const newRoadmaps = roadmaps.map(r => {
+            if (r.id === "custom-user") {
+                return { ...r, steps: r.steps.filter(s => s.id !== stepId) }
+            }
+            return r
+        })
+        setRoadmaps(newRoadmaps)
+        const custom = newRoadmaps.find(r => r.id === "custom-user")
+        if (custom) localStorage.setItem("custom_roadmaps", JSON.stringify([custom]))
+    }
+
+    const toggleStatus = (roadmapId: string, stepId: string) => {
+        const newRoadmaps = roadmaps.map(r => {
+            if (r.id === roadmapId) {
+                return {
+                    ...r,
+                    steps: r.steps.map(s => {
+                        if (s.id === stepId) {
+                            return { ...s, status: s.status === "completed" ? "pending" : "completed" } as any
+                        }
+                        return s
+                    })
+                }
+            }
+            return r
+        })
+        setRoadmaps(newRoadmaps)
+        const custom = newRoadmaps.find(r => r.id === "custom-user")
+        if (custom) localStorage.setItem("custom_roadmaps", JSON.stringify([custom]))
+    }
+
+    const customRoadmap = roadmaps.find(r => r.id === "custom-user")
+
     return (
-        <div className="p-6 md:p-8 max-w-5xl fade-in pb-20">
+        <div className="p-4 md:p-8 space-y-8 fade-in min-h-screen max-w-7xl mx-auto">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2 text-white">Learning Roadmap</h1>
-                <p className="text-gray-400">Structured path to master DSA and Competitive Programming</p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                            <Map className="w-6 h-6 text-blue-400" />
+                        </div>
+                        Learning Roadmaps
+                    </h1>
+                    <p className="text-gray-500 mt-2 text-sm">Structured paths to master new technologies. Click a roadmap to explore its steps.</p>
+                </div>
             </div>
 
-            <div className="space-y-6">
-                {/* Phase 1 */}
-                <div className="glass rounded-2xl p-8 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            {/* Search + Filters */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        placeholder="Search roadmaps..."
+                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20 placeholder:text-gray-600"
+                    />
+                </div>
+                <div className="flex gap-1 bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto">
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setFilter(cat)}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap ${filter === cat
+                                    ? "bg-white/10 text-white"
+                                    : "text-gray-500 hover:text-white"
+                                }`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
-                    <div className="flex items-center gap-6 mb-6">
-                        <div className="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center border border-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
-                            <span className="text-2xl font-bold text-green-500">1</span>
-                        </div>
-                        <div>
-                            <h3 className="text-2xl font-semibold text-white mb-1">Fundamentals</h3>
-                            <p className="text-gray-400">Arrays, Strings, Basic Math, Sorting</p>
-                        </div>
-                        <div className="ml-auto flex flex-col items-end">
-                            <span className="text-2xl font-bold text-green-500">85%</span>
-                            <span className="text-xs text-green-400 uppercase tracking-wider font-semibold">Complete</span>
-                        </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Predefined Roadmaps Grid */}
+                <div className="lg:col-span-2 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <AnimatePresence mode="popLayout">
+                            {filteredRoadmaps.map((roadmap, idx) => {
+                                const completed = roadmap.steps.filter(s => s.status === "completed").length
+                                const total = roadmap.steps.length
+                                const pct = total > 0 ? Math.round((completed / total) * 100) : 0
+
+                                return (
+                                    <motion.div
+                                        key={roadmap.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 12 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.2, delay: idx * 0.03 }}
+                                        onClick={() => setActiveRoadmap(activeRoadmap?.id === roadmap.id ? null : roadmap)}
+                                        className={`group p-5 rounded-2xl border cursor-pointer transition-all hover:translate-y-[-2px] ${activeRoadmap?.id === roadmap.id
+                                                ? "border-white/20 bg-white/[0.06] shadow-lg"
+                                                : "bg-white/[0.02] border-white/5 hover:border-white/15 hover:bg-white/[0.04]"
+                                            }`}
+                                    >
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div
+                                                className="text-2xl w-10 h-10 flex items-center justify-center rounded-xl"
+                                                style={{ backgroundColor: `${roadmap.color}15` }}
+                                            >
+                                                {roadmap.icon}
+                                            </div>
+                                            <span
+                                                className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md"
+                                                style={{ color: roadmap.color, backgroundColor: `${roadmap.color}15` }}
+                                            >
+                                                {roadmap.category}
+                                            </span>
+                                        </div>
+                                        <h3 className="text-base font-bold text-white mb-1 group-hover:text-white/90">{roadmap.title}</h3>
+                                        <p className="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">{roadmap.description}</p>
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full rounded-full transition-all duration-700"
+                                                    style={{ width: `${pct}%`, backgroundColor: roadmap.color }}
+                                                />
+                                            </div>
+                                            <span className="text-xs font-mono text-gray-400 w-8 text-right">{pct}%</span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-600 mt-2">{total} steps • {completed} completed</div>
+                                    </motion.div>
+                                )
+                            })}
+                        </AnimatePresence>
                     </div>
 
-                    <div className="h-3 bg-white/5 rounded-full overflow-hidden mb-8 border border-white/5">
-                        <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full" style={{ width: "85%" }} />
-                    </div>
+                    {/* Active Roadmap Detail */}
+                    <AnimatePresence>
+                        {activeRoadmap && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 md:p-8 overflow-hidden"
+                            >
+                                <div className="flex items-center gap-3 mb-6">
+                                    <span className="text-2xl">{activeRoadmap.icon}</span>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white">{activeRoadmap.title}</h2>
+                                        <p className="text-xs text-gray-500">{activeRoadmap.description}</p>
+                                    </div>
+                                </div>
 
-                    <div className="grid md:grid-cols-3 gap-4">
-                        {["Two Sum", "Valid Anagram", "Contains Duplicate", "Group Anagrams", "Top K Frequent", "Product of Array"].map((topic, i) => (
-                            <div key={topic} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-                                <CheckCircle className="w-5 h-5 text-green-500" />
-                                <span className="text-sm font-medium text-gray-200">{topic}</span>
-                            </div>
-                        ))}
-                    </div>
+                                <div className="relative space-y-4">
+                                    {/* Vertical Line */}
+                                    <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-white/5 -z-10" />
+
+                                    {activeRoadmap.steps.map((step, idx) => (
+                                        <motion.div
+                                            key={step.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.04 }}
+                                            className="flex gap-4 group"
+                                        >
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); toggleStatus(activeRoadmap.id, step.id); }}
+                                                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 shrink-0 transition-all bg-black ${step.status === "completed"
+                                                        ? "text-green-500"
+                                                        : "border-gray-700 text-transparent hover:border-gray-500"
+                                                    }`}
+                                                style={step.status === "completed" ? { borderColor: "#22c55e" } : {}}
+                                            >
+                                                <CheckCircle2 className="w-4 h-4" />
+                                            </button>
+                                            <div className="flex-1 bg-white/[0.03] border border-white/5 rounded-xl p-4 hover:bg-white/[0.05] transition-colors">
+                                                <h4 className={`font-semibold text-sm text-white ${step.status === "completed" ? "line-through text-gray-500" : ""}`}>
+                                                    {step.title}
+                                                </h4>
+                                                <p className="text-xs text-gray-500 mt-1">{step.description}</p>
+                                                {step.resources.length > 0 && (
+                                                    <div className="mt-3 flex flex-wrap gap-2">
+                                                        {step.resources.map(res => (
+                                                            <a
+                                                                key={res.url}
+                                                                href={res.url}
+                                                                target="_blank"
+                                                                rel="noopener"
+                                                                className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 bg-blue-500/5 px-2 py-1 rounded-md border border-blue-500/10 hover:border-blue-500/20 transition-colors"
+                                                            >
+                                                                {res.title} <ExternalLink className="w-3 h-3" />
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                {/* Phase 2 */}
-                <div className="glass rounded-2xl p-8 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                {/* Custom Habits Sidebar */}
+                <div className="space-y-4">
+                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 sticky top-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                ✨ Your Habits
+                            </h3>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-2 py-1 rounded-md">Custom</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-4">Track daily habits and personal goals. Hit the + to add.</p>
 
-                    <div className="flex items-center gap-6 mb-6">
-                        <div className="w-16 h-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center border border-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.1)]">
-                            <span className="text-2xl font-bold text-yellow-500">2</span>
+                        <div className="flex gap-2 mb-6">
+                            <input
+                                type="text"
+                                value={customTask}
+                                onChange={(e) => setCustomTask(e.target.value)}
+                                placeholder="Add new habit..."
+                                className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 placeholder:text-gray-600"
+                                onKeyDown={(e) => e.key === 'Enter' && handleAddCustomTask()}
+                            />
+                            <button
+                                onClick={handleAddCustomTask}
+                                disabled={!customTask.trim()}
+                                className="bg-purple-600 hover:bg-purple-500 text-white rounded-xl px-3 flex items-center justify-center transition-colors disabled:opacity-30"
+                            >
+                                <Plus className="w-5 h-5" />
+                            </button>
                         </div>
-                        <div>
-                            <h3 className="text-2xl font-semibold text-white mb-1">Data Structures</h3>
-                            <p className="text-gray-400">Stacks, Queues, Linked Lists, Trees, Heaps</p>
-                        </div>
-                        <div className="ml-auto flex flex-col items-end">
-                            <span className="text-2xl font-bold text-yellow-500">45%</span>
-                            <span className="text-xs text-yellow-400 uppercase tracking-wider font-semibold">In Progress</span>
-                        </div>
-                    </div>
 
-                    <div className="h-3 bg-white/5 rounded-full overflow-hidden mb-8 border border-white/5">
-                        <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-400 rounded-full" style={{ width: "45%" }} />
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-4 opacity-80">
-                        {["Valid Parentheses", "Min Stack", "Reverse Linked List", "Invert Binary Tree", "Lowest Common Ancestor"].map((topic, i) => (
-                            <div key={topic} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                                {i < 2 ? <CheckCircle className="w-5 h-5 text-green-500" /> : <div className="w-5 h-5 rounded-full border-2 border-yellow-500/50" />}
-                                <span className="text-sm font-medium text-gray-300">{topic}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Phase 3 */}
-                <div className="glass rounded-2xl p-8 relative overflow-hidden opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-                    <div className="flex items-center gap-6 mb-6">
-                        <div className="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center border border-purple-500/20">
-                            <Lock className="w-6 h-6 text-purple-500" />
-                        </div>
-                        <div>
-                            <h3 className="text-2xl font-semibold text-white mb-1">Advanced Algorithms</h3>
-                            <p className="text-gray-400">DP, Graphs, Segment Trees, Tries</p>
-                        </div>
-                        <div className="ml-auto">
-                            <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-white uppercase tracking-wider border border-white/10">Locked</span>
+                        <div className="space-y-2">
+                            {(!customRoadmap || customRoadmap.steps.length === 0) && (
+                                <div className="text-center text-gray-600 text-xs py-8 border border-dashed border-white/5 rounded-xl">
+                                    No habits yet. Start adding!
+                                </div>
+                            )}
+                            {customRoadmap?.steps.map(step => (
+                                <div key={step.id} className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl border border-white/5 group hover:border-white/10 transition-colors">
+                                    <button
+                                        onClick={() => toggleStatus("custom-user", step.id)}
+                                        className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all shrink-0 ${step.status === "completed"
+                                                ? "bg-green-500/20 border-green-500 text-green-500"
+                                                : "border-gray-600 hover:border-gray-400"
+                                            }`}
+                                    >
+                                        {step.status === "completed" && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                    </button>
+                                    <span className={`text-sm text-gray-200 flex-1 ${step.status === "completed" ? "line-through text-gray-500" : ""}`}>
+                                        {step.title}
+                                    </span>
+                                    <button
+                                        onClick={() => removeCustomTask(step.id)}
+                                        className="opacity-0 group-hover:opacity-100 p-1 text-gray-600 hover:text-red-400 transition-all"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
