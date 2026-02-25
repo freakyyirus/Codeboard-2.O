@@ -2,6 +2,26 @@ import { unstable_cache } from 'next/cache';
 
 const LEETCODE_API_ENDPOINT = 'https://leetcode.com/graphql';
 
+// Build headers with optional session-based auth
+function getLeetCodeHeaders(): HeadersInit {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'User-Agent': 'CodeBoard/2.0',
+    'Origin': 'https://leetcode.com',
+    'Referer': 'https://leetcode.com',
+  };
+
+  const session = process.env.LEETCODE_SESSION;
+  const csrf = process.env.LEETCODE_CSRF_TOKEN;
+
+  if (session && csrf) {
+    headers['Cookie'] = `LEETCODE_SESSION=${session}; csrftoken=${csrf}`;
+    headers['x-csrftoken'] = csrf;
+  }
+
+  return headers;
+}
+
 interface LeetCodeStats {
   totalSolved: number;
   easySolved: number;
@@ -40,10 +60,7 @@ export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStat
   try {
     const response = await fetch(LEETCODE_API_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'CodeBoard/2.0',
-      },
+      headers: getLeetCodeHeaders(),
       body: JSON.stringify({
         query: LEETCODE_QUERY,
         variables: { username },
@@ -115,10 +132,7 @@ export async function getDailyProblem() {
   try {
     const response = await fetch(LEETCODE_API_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'CodeBoard/2.0',
-      },
+      headers: getLeetCodeHeaders(),
       body: JSON.stringify({ query: DAILY_PROBLEM_QUERY }),
       next: { revalidate: 3600 }
     });
