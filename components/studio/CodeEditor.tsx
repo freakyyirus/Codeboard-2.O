@@ -15,10 +15,10 @@ interface CodeEditorProps {
     value: string
     onChange: (value: string | undefined) => void
     height?: string
-    onValidation?: (markers: monaco.editor.IMarker[]) => void
+    onErrorCountChange?: (count: number) => void
 }
 
-export function CodeEditor({ language, value, onChange, height = "60vh", onValidation }: CodeEditorProps) {
+export function CodeEditor({ language, value, onChange, height = "60vh", onErrorCountChange }: CodeEditorProps) {
     const { theme } = useTheme()
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
@@ -40,15 +40,16 @@ export function CodeEditor({ language, value, onChange, height = "60vh", onValid
         if (model) {
             monacoInstance.editor.onDidChangeMarkers(() => {
                 const markers = monacoInstance.editor.getModelMarkers({ resource: model.uri })
-                if (onValidation) {
-                    onValidation(markers)
+                const errors = markers.filter((m: monaco.editor.IMarker) => m.severity === monacoInstance.MarkerSeverity.Error).length
+                if (onErrorCountChange) {
+                    onErrorCountChange(errors)
                 }
             })
         }
     }
 
     return (
-        <div className="border border-[#333] rounded-lg overflow-hidden bg-[#1e1e1e] shadow-inner">
+        <div className="h-full border border-[#333] rounded-lg overflow-hidden bg-[#1e1e1e] shadow-inner">
             <Editor
                 height={height}
                 language={language.toLowerCase()}
