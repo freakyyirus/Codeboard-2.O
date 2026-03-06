@@ -10,14 +10,14 @@ import { MultiPlatformHeatmap } from "@/components/analytics/MultiPlatformHeatma
 import { FadeIn } from "@/components/ui/PremiumEffects"
 import { GrowthAnalytics } from "@/components/analytics/GrowthAnalytics"
 import { motion } from "framer-motion"
-import { CheckCircle2, Clock, Flame, TrendingUp, ArrowUpRight, ArrowDownRight, Code2, Terminal, Code, Loader2, WifiOff, ExternalLink } from "lucide-react"
+import { CheckCircle2, Clock, Flame, TrendingUp, ArrowUpRight, ArrowDownRight, Code2, Terminal, Code, Loader2, WifiOff } from "lucide-react"
 
 interface PlatformData {
     name: string
     color: string
     rating: string
     solved: number
-    details: Record<string, any>
+    details: Record<string, unknown>
 }
 
 interface AnalyticsData {
@@ -37,7 +37,7 @@ interface AnalyticsData {
     }
 }
 
-const PLATFORM_ICONS: Record<string, any> = {
+const PLATFORM_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
     LeetCode: Code2,
     Codeforces: Terminal,
     CodeChef: Code,
@@ -226,7 +226,7 @@ export default function AnalyticsContent() {
                                                 </div>
                                                 <div>
                                                     <div className="font-medium text-white">{p.name}</div>
-                                                    <div className="text-xs text-gray-500">{p.solved > 0 ? `${p.solved} Solved` : p.details?.rank || "Connected"}</div>
+                                                    <div className="text-xs text-gray-500">{p.solved > 0 ? `${p.solved} Solved` : String(p.details?.rank || "Connected")}</div>
                                                 </div>
                                             </div>
                                             <div className="text-right">
