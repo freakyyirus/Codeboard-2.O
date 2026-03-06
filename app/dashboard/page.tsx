@@ -11,7 +11,7 @@ import { SocialActivityFeed } from "@/components/dashboard/SocialActivityFeed"
 import { getDashboardData } from "@/lib/actions"
 import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { BarChart2, Code, Trophy, TrendingUp, CheckCircle2, Flame, Clock, Target } from "lucide-react"
+import { BarChart2, Code, Trophy, TrendingUp, CheckCircle2, Flame, Clock } from "lucide-react"
 
 type Section = "overview" | "problems" | "contests" | "stats"
 
@@ -20,17 +20,16 @@ interface ContributionDay {
   count: number
 }
 
+interface PlatformData {
+  name: string
+  rating?: string
+  solved?: number
+  [key: string]: unknown
+}
+
 interface DashboardData {
-  contributions: ContributionDay[]
-  stats?: Record<string, any>
-  profile?: any
-  connectedPlatforms?: any
-  activity?: any[]
-  ratings?: any[]
-  platforms?: any[]
-  social?: any
-  socialPosts?: any[]
-  ratingHistory?: Record<string, any[]>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any
 }
 
 const sections: { id: Section; label: string; icon: React.ElementType }[] = [
@@ -40,7 +39,9 @@ const sections: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "stats", label: "Stats", icon: TrendingUp },
 ]
 
-const CodeforcesIcon = (props: any) => (
+interface CodeforcesIconProps extends React.SVGProps<SVGSVGElement> {}
+
+const CodeforcesIcon = (props: CodeforcesIconProps) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
     <rect x="14" y="3" width="6" height="18" rx="1" />
     <rect x="8" y="9" width="5" height="12" rx="1" />
@@ -52,28 +53,11 @@ export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState<Section>("overview")
   const [data, setData] = useState<DashboardData | null>(null)
 
-  // Use mock data for immediate visual feedback as requested
-  const mockContributionData = useMemo(() => {
-    const dates = []
-    const today = new Date()
-    for (let i = 0; i < 365; i++) {
-      const d = new Date(today)
-      d.setDate(d.getDate() - i)
-      // distinct bias towards recent days for "streak" look
-      // Deterministic pseudo-random generation to avoid hydration mismatch (server vs client)
-      // Math.random() causes mismatch. We use date properties to create a fixed pattern.
-      const seed = d.getDate() * (d.getMonth() + 1) + i
-      const count = seed % 4 === 0 ? Math.floor((seed % 9)) : 0
-      dates.push({ date: d.toISOString().split('T')[0], count })
-    }
-    return dates
-  }, [])
-
   useEffect(() => {
     async function fetchData() {
       try {
         const dashboardData = await getDashboardData()
-        setData(dashboardData as any)
+        setData(dashboardData as unknown as DashboardData)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
       }
@@ -81,13 +65,13 @@ export default function DashboardPage() {
     fetchData()
   }, [])
 
-  const userName = data?.profile?.display_name || "Coder"
+  const userName = (data?.profile?.display_name as string | undefined) || "Coder"
   const firstName = userName.split(" ")[0]
 
   // Use real data from backend, default to 0 if not connected
-  const totalSolved = data?.stats?.total_solved || 0
-  const activeDays = data?.stats?.streak || 0
-  const githubUser = data?.connectedPlatforms?.github?.username
+  const totalSolved = (data?.stats?.total_solved as number | undefined) || 0
+  const activeDays = (data?.stats?.streak as number | undefined) || 0
+  const githubUser = (data?.connectedPlatforms?.github as { username?: string } | undefined)?.username
 
   return (
     <div className="max-w-7xl fade-in space-y-8">
