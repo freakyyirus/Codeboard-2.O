@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { PREDEFINED_ROADMAPS, type Roadmap } from "@/lib/roadmaps"
-import { Plus, CheckCircle2, ArrowRight, Trash2, Map, ExternalLink, Search } from "lucide-react"
+import { Plus, CheckCircle2, Trash2, Map, ExternalLink, Search } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function RoadmapPage() {
