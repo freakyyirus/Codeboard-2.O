@@ -1,6 +1,5 @@
 import { LandingHero } from "@/components/LandingHero"
 import { FeaturesGrid } from "@/components/FeaturesGrid"
-import { Code2, Activity, Terminal, Github, BookOpen, Coffee, Cpu, Target, Layers } from "lucide-react"
 import Link from "next/link"
 import HeroAttraction from "@/components/HeroAttraction"
 import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
@@ -118,7 +117,7 @@ export default function LandingPage() {
                 { quote: "Finally, a dashboard that feels like it was built by someone who actually grinds LeetCode.", name: "Tarun Karn", role: "SWE @ Meta", avatar: "/images/tarun-avatar-new.png", customStyle: "object-cover object-[50%_15%] scale-[1.15]" },
               ].map((t) => (
                 <div key={t.name} className="bg-white text-black p-6 sm:p-8 rounded-2xl">
-                  <p className="text-gray-700 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">"{t.quote}"</p>
+                  <p className="text-gray-700 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">&quot;{t.quote}&quot;</p>
                   <div className="flex items-center gap-3">
                     <img src={t.avatar} alt={`${t.name}'s avatar`} className={`w-10 h-10 rounded-full aspect-square border border-gray-200 ${t.customStyle}`} />
                     <div>
@@ -153,7 +152,7 @@ export default function LandingPage() {
                   <p className="text-[#3b82f6] font-medium text-sm sm:text-base">Founder & Solo Developer</p>
                 </div>
                 <p className="text-gray-400 leading-relaxed text-sm sm:text-base">
-                  "I built CodeBoard out of my own frustration with tracking competitive programming progress across multiple platforms. What started as a personal dashboard during my SWE prep journey has evolved into the ultimate companion for thousands of developers aiming to level up their coding skills."
+                  &quot;I built CodeBoard out of my own frustration with tracking competitive programming progress across multiple platforms. What started as a personal dashboard during my SWE prep journey has evolved into the ultimate companion for thousands of developers aiming to level up their coding skills.&quot;
                 </p>
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
