@@ -20,9 +20,6 @@ import {
     Menu,
     X,
     Trophy,
-    ChevronLeft,
-    ChevronRight,
-    LogOut,
     Map,
     PanelLeft,
     Briefcase
@@ -129,12 +126,13 @@ export default function DashboardLayout({
 }) {
     const pathname = usePathname()
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [collapsed, setCollapsed] = useState(false)
-
-    useEffect(() => {
-        const saved = localStorage.getItem("sidebar-collapsed")
-        if (saved) setCollapsed(saved === "true")
-    }, [])
+    const [collapsed, setCollapsed] = useState(() => {
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem("sidebar-collapsed")
+            return saved === "true"
+        }
+        return false
+    })
 
     // Close on ESC
     useEffect(() => {
