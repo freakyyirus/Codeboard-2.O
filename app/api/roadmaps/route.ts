@@ -9,7 +9,6 @@ export async function GET() {
 
         const supabase = await createClerkSupabaseClient()
 
-        // Fetch custom user roadmaps and their steps
         const { data: roadmaps, error } = await supabase
             .from('user_roadmaps')
             .select(`
@@ -22,9 +21,10 @@ export async function GET() {
         if (error) throw error
 
         return NextResponse.json(roadmaps)
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to fetch roadmaps:', error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        return NextResponse.json({ error: message }, { status: 500 })
     }
 }
 
@@ -42,14 +42,14 @@ export async function POST(req: Request) {
             const { error } = await supabase
                 .from('user_roadmaps')
                 .upsert({
-                    id: payload.id as string,
-                    user_id: userId as string,
-                    title: payload.title as string,
-                    description: payload.description as string,
-                    icon: payload.icon as string,
-                    color: payload.color as string,
-                    category: payload.category as string
-                } as any)
+                    id: payload.id,
+                    user_id: userId,
+                    title: payload.title,
+                    description: payload.description,
+                    icon: payload.icon,
+                    color: payload.color,
+                    category: payload.category
+                } as never)
             if (error) throw error
             return NextResponse.json({ success: true })
         }
@@ -58,12 +58,12 @@ export async function POST(req: Request) {
             const { error } = await supabase
                 .from('roadmap_steps')
                 .upsert({
-                    id: payload.id as string,
-                    roadmap_id: payload.roadmap_id as string,
-                    title: payload.title as string,
-                    description: payload.description as string,
-                    status: payload.status as string
-                } as any)
+                    id: payload.id,
+                    roadmap_id: payload.roadmap_id,
+                    title: payload.title,
+                    description: payload.description,
+                    status: payload.status
+                } as never)
 
             if (error) throw error
             return NextResponse.json({ success: true })
@@ -80,8 +80,9 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-    } catch (error: any) {
+    } catch (error) {
         console.error('Roadmap action failed:', error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        return NextResponse.json({ error: message }, { status: 500 })
     }
 }
