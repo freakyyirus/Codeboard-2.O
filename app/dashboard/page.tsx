@@ -6,7 +6,7 @@ import { ContributionGraph } from "@/components/dashboard/ContributionGraph"
 import { MetricCard } from "@/components/dashboard/MetricCard"
 import { ContestStats } from "@/components/dashboard/ContestStats"
 import { ContributionSplit } from "@/components/dashboard/ContributionSplit"
-import { ActivityChart } from "@/components/dashboard/ActivityChart"
+import { RatingProgressionChart } from "@/components/dashboard/RatingProgressionChart"
 import { SocialActivityFeed } from "@/components/dashboard/SocialActivityFeed"
 import { getDashboardData } from "@/lib/actions"
 import { useState, useEffect, useMemo } from "react"
@@ -30,6 +30,7 @@ interface DashboardData {
   platforms?: any[]
   social?: any
   socialPosts?: any[]
+  ratingHistory?: Record<string, any[]>
 }
 
 const sections: { id: Section; label: string; icon: React.ElementType }[] = [
@@ -89,7 +90,7 @@ export default function DashboardPage() {
   const githubUser = data?.connectedPlatforms?.github?.username
 
   return (
-    <div className="p-6 md:p-10 max-w-7xl fade-in space-y-8">
+    <div className="max-w-7xl fade-in space-y-8">
       {/* Header Section */}
       <div>
         <h1 className="text-3xl font-bold text-white mb-2">
@@ -127,15 +128,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Content Area */}
-      <div className="relative min-h-[500px]">
+      <div className="relative">
         <AnimatePresence mode="wait">
           {activeSection === "overview" && (
             <motion.div
               key="overview"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)", position: "absolute", width: "100%" }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="space-y-6"
             >
 
@@ -181,9 +182,9 @@ export default function DashboardPage() {
                 {/* Right: Activity Overview -> Social Feed */}
                 <div className="col-span-1 lg:col-span-2 h-full">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-                    {/* WakaTime Chart */}
-                    <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 h-full">
-                      <ActivityChart wakatime={data?.stats?.wakatime} />
+                    {/* Rating Progression Chart */}
+                    <div className="bg-[#111113]/50 flex flex-col border border-white/[0.04] rounded-2xl p-0 h-full min-h-[300px] overflow-hidden relative">
+                      <RatingProgressionChart ratingHistory={data?.ratingHistory} />
                     </div>
                     {/* Social Feed */}
                     <SocialActivityFeed posts={data?.socialPosts || []} />
@@ -226,10 +227,10 @@ export default function DashboardPage() {
           {activeSection === "problems" && (
             <motion.div
               key="problems"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)", position: "absolute", width: "100%" }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
               <RecentProblems />
@@ -239,10 +240,10 @@ export default function DashboardPage() {
           {activeSection === "contests" && (
             <motion.div
               key="contests"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)", position: "absolute", width: "100%" }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
               <UpcomingContests />
@@ -252,10 +253,10 @@ export default function DashboardPage() {
           {activeSection === "stats" && (
             <motion.div
               key="stats"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -10, filter: "blur(4px)", position: "absolute", width: "100%" }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
               <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">

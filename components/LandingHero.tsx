@@ -16,8 +16,8 @@ export function LandingHero() {
                         </div>
 
                         {/* Hero Title */}
-                        <h1 className="font-bold leading-tight text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 sm:mb-6">
-                            ONE<br className="hidden sm:block" />
+                        <h1 className="font-bold leading-[1.15] text-3xl sm:text-5xl md:text-6xl lg:text-7xl mb-4 sm:mb-6 tracking-tight">
+                            ONE{" "}<br className="hidden sm:block" />
                             <span className="gradient-text">DASHBOARD</span><br />
                             FOR ALL
                         </h1>

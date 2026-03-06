@@ -12,17 +12,67 @@ export default function RoadmapPage() {
     const [filter, setFilter] = useState("All")
     const [search, setSearch] = useState("")
 
-    // Load custom roadmaps from local storage on mount
+    // Load predefined roadmap progress from localStorage on mount
     useEffect(() => {
-        const saved = localStorage.getItem("custom_roadmaps")
-        if (saved) {
+        try {
+            const saved = localStorage.getItem('cb_roadmap_progress')
+            if (saved) {
+                const progress: Record<string, Record<string, string>> = JSON.parse(saved)
+                setRoadmaps(prev => prev.map(r => {
+                    const roadmapProgress = progress[r.id]
+                    if (!roadmapProgress) return r
+                    return {
+                        ...r,
+                        steps: r.steps.map(s => ({
+                            ...s,
+                            status: (roadmapProgress[s.id] as "pending" | "in-progress" | "completed") || s.status
+                        }))
+                    }
+                }))
+            }
+        } catch (e) {
+            console.error('Failed to load roadmap progress:', e)
+        }
+    }, [])
+
+    // Fetch custom roadmaps from DB on mount
+    useEffect(() => {
+        const fetchCustomRoadmaps = async () => {
             try {
-                const parsed = JSON.parse(saved)
-                setRoadmaps(prev => [...prev, ...parsed])
+                const res = await fetch("/api/roadmaps")
+                if (res.ok) {
+                    const dbRoadmaps = await res.json()
+                    // Format DB roadmaps to match UI interface
+                    const formattedRoadmaps = dbRoadmaps.map((r: any) => ({
+                        id: r.id,
+                        title: r.title,
+                        description: r.description || "Your custom habitual tasks and goals.",
+                        icon: r.icon || "✨",
+                        color: r.color || "#a855f7",
+                        category: r.category || "Custom",
+                        steps: r.steps ? r.steps.map((s: any) => ({
+                            id: s.id,
+                            title: s.title,
+                            description: s.description || "Custom task",
+                            resources: [],
+                            status: s.status || "pending"
+                        })) : []
+                    }))
+
+                    if (formattedRoadmaps.length > 0) {
+                        setRoadmaps(prev => {
+                            // Filter out existing DB roadmaps to avoid duplicates on strict mode remounts
+                            const predefined = prev.filter(p => !formattedRoadmaps.find((f: any) => f.id === p.id))
+                            return [...predefined, ...formattedRoadmaps]
+                        })
+                    }
+                }
             } catch (e) {
-                console.error("Failed to parse custom roadmaps")
+                console.error("Failed to fetch custom roadmaps from DB", e)
             }
         }
+
+        fetchCustomRoadmaps()
     }, [])
 
     const categories = ["All", ...Array.from(new Set(PREDEFINED_ROADMAPS.map(r => r.category)))]
@@ -34,11 +84,13 @@ export default function RoadmapPage() {
         return matchesFilter && matchesSearch
     })
 
-    const handleAddCustomTask = () => {
+    const handleAddCustomTask = async () => {
         if (!customTask.trim()) return
 
         let customRoadmap = roadmaps.find(r => r.id === "custom-user")
         let newRoadmaps = [...roadmaps]
+
+        const isNewRoadmap = !customRoadmap
 
         if (!customRoadmap) {
             customRoadmap = {
@@ -68,31 +120,75 @@ export default function RoadmapPage() {
 
         newRoadmaps = newRoadmaps.map(r => r.id === "custom-user" ? updatedRoadmap : r)
 
+        // Optimistic UI update
         setRoadmaps(newRoadmaps)
         setCustomTask("")
-        localStorage.setItem("custom_roadmaps", JSON.stringify([updatedRoadmap]))
+
+        // DB Persistence
+        try {
+            if (isNewRoadmap) {
+                await fetch("/api/roadmaps", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "UPSERT_ROADMAP", payload: customRoadmap })
+                });
+            }
+
+            await fetch("/api/roadmaps", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action: "UPSERT_STEP",
+                    payload: {
+                        id: newTask.id,
+                        roadmap_id: customRoadmap.id,
+                        title: newTask.title,
+                        description: newTask.description,
+                        status: newTask.status
+                    }
+                })
+            });
+        } catch (e) {
+            console.error("Failed to save habit to DB", e)
+        }
     }
 
-    const removeCustomTask = (stepId: string) => {
+    const removeCustomTask = async (stepId: string) => {
         const newRoadmaps = roadmaps.map(r => {
             if (r.id === "custom-user") {
                 return { ...r, steps: r.steps.filter(s => s.id !== stepId) }
             }
             return r
         })
+
+        // Optimistic update
         setRoadmaps(newRoadmaps)
-        const custom = newRoadmaps.find(r => r.id === "custom-user")
-        if (custom) localStorage.setItem("custom_roadmaps", JSON.stringify([custom]))
+
+        // DB Persistence
+        try {
+            await fetch("/api/roadmaps", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "DELETE_STEP", payload: { id: stepId } })
+            });
+        } catch (e) {
+            console.error("Failed to delete habit from DB", e)
+        }
     }
 
-    const toggleStatus = (roadmapId: string, stepId: string) => {
+    const toggleStatus = async (roadmapId: string, stepId: string) => {
+        let toggledStep: any = null;
+        let pRoadmap: any = null;
+
         const newRoadmaps = roadmaps.map(r => {
             if (r.id === roadmapId) {
+                pRoadmap = r;
                 return {
                     ...r,
                     steps: r.steps.map(s => {
                         if (s.id === stepId) {
-                            return { ...s, status: s.status === "completed" ? "pending" : "completed" } as any
+                            toggledStep = { ...s, status: s.status === "completed" ? "pending" : "completed" };
+                            return toggledStep;
                         }
                         return s
                     })
@@ -100,9 +196,51 @@ export default function RoadmapPage() {
             }
             return r
         })
+
+        // Optimistic update
         setRoadmaps(newRoadmaps)
-        const custom = newRoadmaps.find(r => r.id === "custom-user")
-        if (custom) localStorage.setItem("custom_roadmaps", JSON.stringify([custom]))
+
+        // Update activeRoadmap if this is the currently viewed one
+        if (activeRoadmap?.id === roadmapId) {
+            setActiveRoadmap(newRoadmaps.find(r => r.id === roadmapId) || null)
+        }
+
+        if (pRoadmap?.category === "Custom") {
+            // Custom roadmaps persist to DB
+            if (toggledStep) {
+                try {
+                    await fetch("/api/roadmaps", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            action: "UPSERT_STEP",
+                            payload: {
+                                id: toggledStep.id,
+                                roadmap_id: pRoadmap.id,
+                                title: toggledStep.title,
+                                description: toggledStep.description,
+                                status: toggledStep.status
+                            }
+                        })
+                    });
+                } catch (e) {
+                    console.error("Failed to update habit status in DB", e)
+                }
+            }
+        } else {
+            // Predefined roadmaps persist to localStorage
+            try {
+                const saved = localStorage.getItem('cb_roadmap_progress')
+                const progress: Record<string, Record<string, string>> = saved ? JSON.parse(saved) : {}
+                if (!progress[roadmapId]) progress[roadmapId] = {}
+                if (toggledStep) {
+                    progress[roadmapId][stepId] = toggledStep.status
+                }
+                localStorage.setItem('cb_roadmap_progress', JSON.stringify(progress))
+            } catch (e) {
+                console.error('Failed to save roadmap progress:', e)
+            }
+        }
     }
 
     const customRoadmap = roadmaps.find(r => r.id === "custom-user")
@@ -140,8 +278,8 @@ export default function RoadmapPage() {
                             key={cat}
                             onClick={() => setFilter(cat)}
                             className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap ${filter === cat
-                                    ? "bg-white/10 text-white"
-                                    : "text-gray-500 hover:text-white"
+                                ? "bg-white/10 text-white"
+                                : "text-gray-500 hover:text-white"
                                 }`}
                         >
                             {cat}
@@ -170,8 +308,8 @@ export default function RoadmapPage() {
                                         transition={{ duration: 0.2, delay: idx * 0.03 }}
                                         onClick={() => setActiveRoadmap(activeRoadmap?.id === roadmap.id ? null : roadmap)}
                                         className={`group p-5 rounded-2xl border cursor-pointer transition-all hover:translate-y-[-2px] ${activeRoadmap?.id === roadmap.id
-                                                ? "border-white/20 bg-white/[0.06] shadow-lg"
-                                                : "bg-white/[0.02] border-white/5 hover:border-white/15 hover:bg-white/[0.04]"
+                                            ? "border-white/20 bg-white/[0.06] shadow-lg"
+                                            : "bg-white/[0.02] border-white/5 hover:border-white/15 hover:bg-white/[0.04]"
                                             }`}
                                     >
                                         <div className="flex justify-between items-start mb-4">
@@ -239,8 +377,8 @@ export default function RoadmapPage() {
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); toggleStatus(activeRoadmap.id, step.id); }}
                                                 className={`w-8 h-8 rounded-full flex items-center justify-center border-2 shrink-0 transition-all bg-black ${step.status === "completed"
-                                                        ? "text-green-500"
-                                                        : "border-gray-700 text-transparent hover:border-gray-500"
+                                                    ? "text-green-500"
+                                                    : "border-gray-700 text-transparent hover:border-gray-500"
                                                     }`}
                                                 style={step.status === "completed" ? { borderColor: "#22c55e" } : {}}
                                             >
@@ -315,8 +453,8 @@ export default function RoadmapPage() {
                                     <button
                                         onClick={() => toggleStatus("custom-user", step.id)}
                                         className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all shrink-0 ${step.status === "completed"
-                                                ? "bg-green-500/20 border-green-500 text-green-500"
-                                                : "border-gray-600 hover:border-gray-400"
+                                            ? "bg-green-500/20 border-green-500 text-green-500"
+                                            : "border-gray-600 hover:border-gray-400"
                                             }`}
                                     >
                                         {step.status === "completed" && <CheckCircle2 className="w-3.5 h-3.5" />}

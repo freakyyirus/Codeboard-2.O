@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { fetchLeetCodeStats, PlatformData } from '@/lib/platforms/leetcode'
 import { fetchGitHubStats } from '@/lib/platforms/github'
+import { fetchHackerRankStats } from '@/lib/platforms/hackerrank'
+import { fetchAtCoderStats } from '@/lib/platforms/atcoder'
+import { getCodeforcesUserInfo } from '@/lib/codeforces'
 
 // Initialize a Supabase admin client to bypass RLS for background fetching
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -20,7 +23,7 @@ export async function GET(request: Request) {
 
         const { data: connections, error: connError } = await supabase
             .from('platform_connections')
-            .select('user_id, platform, platform_username')
+            .select('user_id, platform, username')
 
         if (connError || !connections) {
             console.error("Error fetching connections:", connError)
@@ -35,11 +38,28 @@ export async function GET(request: Request) {
             let stats: PlatformData | null = null
 
             if (conn.platform === 'leetcode') {
-                stats = await fetchLeetCodeStats(conn.platform_username)
+                stats = await fetchLeetCodeStats(conn.username)
             } else if (conn.platform === 'github') {
-                stats = await fetchGitHubStats(conn.platform_username)
+                stats = await fetchGitHubStats(conn.username)
+            } else if (conn.platform === 'codeforces') {
+                const cfData = await getCodeforcesUserInfo(conn.username)
+                if (cfData) {
+                    stats = {
+                        platform: 'codeforces',
+                        username: conn.username,
+                        easy_solved: 0,
+                        medium_solved: 0,
+                        hard_solved: 0,
+                        total_solved: 0,
+                        rating: cfData.rating,
+                        global_rank: cfData.rank
+                    }
+                }
+            } else if (conn.platform === 'hackerrank') {
+                stats = await fetchHackerRankStats(conn.username)
+            } else if (conn.platform === 'atcoder') {
+                stats = await fetchAtCoderStats(conn.username)
             }
-            // Add other platforms (Codeforces, HackerRank, etc.) here later
 
             // 3. Upsert the fetched data into the new platform_stats table
             if (stats) {

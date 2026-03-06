@@ -3,8 +3,8 @@
 import { createClerkSupabaseClient } from '@/lib/clerk-supabase'
 import { auth } from '@clerk/nextjs/server'
 import { Database } from '@/lib/database.types'
-import { getCachedLeetCodeStats } from '@/lib/leetcode'
-import { getCachedCodeforcesStats } from '@/lib/codeforces'
+import { getCachedLeetCodeStats, getCachedLeetCodeContestHistory } from '@/lib/leetcode'
+import { getCachedCodeforcesStats, getCodeforcesRatingHistory } from '@/lib/codeforces'
 import { getCachedPlatformRating } from '@/lib/clist'
 import { getCachedWakaTimeStats } from '@/lib/wakatime'
 import { getCachedHackathons } from '@/lib/hackathons'
@@ -153,6 +153,36 @@ export async function getDashboardData() {
         })
     }
 
+    // Live-fetch fallback: if platform_stats is empty but user has connected the platform,
+    // fetch directly from API so data shows immediately (before cron runs)
+    const lcUsername = connectedPlatforms['leetcode']?.username || process.env.LEETCODE_USERNAME
+    if (!leetCodeStats && lcUsername) {
+        const liveLC = await getCachedLeetCodeStats(lcUsername)
+        if (liveLC) {
+            leetCodeStats = {
+                totalSolved: liveLC.totalSolved,
+                easySolved: liveLC.easySolved,
+                mediumSolved: liveLC.mediumSolved,
+                hardSolved: liveLC.hardSolved,
+                ranking: liveLC.ranking
+            }
+        }
+    }
+
+    const cfUsername = connectedPlatforms['codeforces']?.username || process.env.CODEFORCES_USERNAME
+    if (!codeforcesStats && cfUsername) {
+        const liveCF = await getCachedCodeforcesStats(cfUsername)
+        if (liveCF) {
+            codeforcesStats = {
+                rating: liveCF.rating,
+                rank: liveCF.rank,
+                maxRating: liveCF.maxRating,
+                maxRank: liveCF.maxRank,
+                username: cfUsername
+            }
+        }
+    }
+
     const otherPlatforms = ['codechef', 'atcoder', 'hackerrank', 'geeksforgeeks', 'codestudio'];
 
     await Promise.all(otherPlatforms.map(async (plat) => {
@@ -186,14 +216,44 @@ export async function getDashboardData() {
     })
 
     // 14. Merge Stats
-    // If we have LeetCode stats, use them for the "Total Solved" card.
-    // If not, use GitHub total repos, else fallback to internal.
-
     let finalTotalSolved = solvedCount || 0
     if (leetCodeStats?.totalSolved) {
         finalTotalSolved = leetCodeStats.totalSolved
     } else if (githubStats?.totalRepos) {
         finalTotalSolved = githubStats.totalRepos
+    }
+
+    // 15. Fetch Contest Rating History for Rating Progression Chart
+    const ratingHistory: Record<string, any[]> = {}
+
+    // Codeforces contest history
+    if (cfUsername) {
+        try {
+            const cfHistory = await getCodeforcesRatingHistory(cfUsername)
+            if (cfHistory && cfHistory.length > 0) {
+                ratingHistory.codeforces = cfHistory.map((entry: any) => ({
+                    date: new Date(entry.ratingUpdateTimeSeconds * 1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
+                    rating: entry.newRating,
+                    contest: entry.contestName,
+                    rank: entry.rank,
+                    type: 'Rated'
+                }))
+            }
+        } catch (e) {
+            console.error('Failed to fetch CF rating history:', e)
+        }
+    }
+
+    // LeetCode contest history
+    if (lcUsername) {
+        try {
+            const lcHistory = await getCachedLeetCodeContestHistory(lcUsername)
+            if (lcHistory && lcHistory.length > 0) {
+                ratingHistory.leetcode = lcHistory
+            }
+        } catch (e) {
+            console.error('Failed to fetch LC contest history:', e)
+        }
     }
 
     return {
@@ -204,7 +264,6 @@ export async function getDashboardData() {
             medium: leetCodeStats?.mediumSolved || 0,
             hard: leetCodeStats?.hardSolved || 0,
             streak: userProfile?.streak_count || 0,
-            // Include raw platform objects for frontend
             leetcode: leetCodeStats,
             codeforces: codeforcesStats,
             github: githubStats,
@@ -218,7 +277,8 @@ export async function getDashboardData() {
         platforms: dbPlatformStats || [],
         connectedPlatforms,
         contributions,
-        socialPosts
+        socialPosts,
+        ratingHistory
     }
 }
 

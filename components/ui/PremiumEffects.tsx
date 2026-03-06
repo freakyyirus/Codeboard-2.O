@@ -75,3 +75,11 @@ export const scaleOnHover = {
     whileTap: { scale: 0.98 },
     transition: { type: "spring", stiffness: 400, damping: 17 }
 }
+
+export function BaseCard({ children, className }: { children: React.ReactNode, className?: string }) {
+    return (
+        <div className={cn("bg-white/[0.03] border border-white/5 rounded-xl", className)}>
+            {children}
+        </div>
+    )
+}

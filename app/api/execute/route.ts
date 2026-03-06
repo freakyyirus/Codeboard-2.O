@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { auth } from "@clerk/nextjs/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { redis } from "@/lib/redis";
 
 // Judge0 API (RapidAPI)
 const JUDGE0_URL = "https://judge0-ce.p.rapidapi.com";
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Per-user rate limiter: 5 code executions per 60 seconds
+const executeRateLimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, "60 s"),
+    analytics: true,
+    prefix: "ratelimit:execute",
+});
 
 // Language IDs for Judge0 CE
 const JUDGE0_LANGUAGE_MAPPING: Record<string, number> = {
@@ -22,9 +34,38 @@ function getServiceSupabase() {
 
 export async function POST(req: Request) {
     try {
+        // Rate limit per user
+        const { userId } = await auth();
+        const identifier = userId || req.headers.get("x-forwarded-for") || "anonymous";
+        const { success, limit, remaining, reset } = await executeRateLimit.limit(identifier);
+
+        if (!success) {
+            const retryAfter = Math.ceil((reset - Date.now()) / 1000);
+            return NextResponse.json(
+                {
+                    error: `Rate limit exceeded. You can run ${limit} executions per minute. Please wait ${retryAfter}s and try again.`,
+                    retryAfter,
+                },
+                {
+                    status: 429,
+                    headers: {
+                        "Retry-After": String(retryAfter),
+                        "X-RateLimit-Limit": String(limit),
+                        "X-RateLimit-Remaining": String(remaining),
+                    },
+                }
+            );
+        }
+
         const { code, language, stdin, problemId } = await req.json();
 
-        if (!process.env.JUDGE0_API_KEY) {
+        const API_KEYS = [
+            process.env.JUDGE0_API_KEY,
+            process.env.JUDGE0_API_KEY_FALLBACK_1,
+            process.env.JUDGE0_API_KEY_FALLBACK_2
+        ].filter(Boolean) as string[];
+
+        if (API_KEYS.length === 0) {
             return NextResponse.json({
                 error: "Execution Error: JUDGE0_API_KEY is missing in server environment."
             }, { status: 500 });
@@ -54,21 +95,47 @@ export async function POST(req: Request) {
                 // Execute sequentially to avoid rate limits on free tier
                 for (let i = 0; i < testCases.length; i++) {
                     const tc = testCases[i];
-                    const response = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "x-rapidapi-host": process.env.JUDGE0_API_HOST || "judge0-ce.p.rapidapi.com",
-                            "x-rapidapi-key": process.env.JUDGE0_API_KEY,
-                        },
-                        body: JSON.stringify({
-                            source_code: code,
-                            language_id: languageId,
-                            stdin: tc.input,
-                            expected_output: tc.expected_output,
-                            cpu_time_limit: 2.0
-                        }),
-                    });
+                    let response: Response | null = null;
+                    let lastError = null;
+
+                    for (let keyIdx = 0; keyIdx < API_KEYS.length; keyIdx++) {
+                        const apiKey = API_KEYS[keyIdx];
+                        try {
+                            const res = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "x-rapidapi-host": process.env.JUDGE0_API_HOST || "judge0-ce.p.rapidapi.com",
+                                    "x-rapidapi-key": apiKey,
+                                },
+                                body: JSON.stringify({
+                                    source_code: code,
+                                    language_id: languageId,
+                                    stdin: tc.input,
+                                    expected_output: tc.expected_output,
+                                    cpu_time_limit: 2.0
+                                }),
+                            });
+
+                            if (res.status === 429) {
+                                console.warn(`Judge0 rate limit hit for key ${keyIdx + 1}, trying next after backoff...`);
+                                await sleep(500 * Math.pow(2, keyIdx)); // 500ms, 1s, 2s backoff
+                                continue;
+                            }
+
+                            response = res;
+                            break;
+                        } catch (e) {
+                            lastError = e;
+                            console.error("Fetch error or network issue:", e);
+                            await sleep(500);
+                            continue;
+                        }
+                    }
+
+                    if (!response) {
+                        return NextResponse.json({ error: "Judge0 rate limit exceeded across all available API keys. Please try again later." }, { status: 429 });
+                    }
 
                     if (!response.ok) {
                         return NextResponse.json({ error: "Judge0 API Error" }, { status: response.status });
@@ -92,6 +159,11 @@ export async function POST(req: Request) {
                             is_final: true,
                             verdict: result.status?.description || "Wrong Answer"
                         });
+                    }
+
+                    // Small delay between test case executions to avoid rate limiting
+                    if (i < testCases.length - 1) {
+                        await sleep(500);
                     }
                 }
 
@@ -120,37 +192,57 @@ export async function POST(req: Request) {
         }
 
         // Standard Single Execution (Scratchpad or no problemId)
-        const response = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-rapidapi-host": process.env.JUDGE0_API_HOST || "judge0-ce.p.rapidapi.com",
-                "x-rapidapi-key": process.env.JUDGE0_API_KEY,
-            },
-            body: JSON.stringify({
-                source_code: code,
-                language_id: languageId,
-                stdin: stdin || "",
-            }),
-        });
+        let singleResponse: Response | null = null;
+        let lastSingleError = null;
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            let errorMessage = "Execution failed";
+        for (let keyIdx = 0; keyIdx < API_KEYS.length; keyIdx++) {
+            const apiKey = API_KEYS[keyIdx];
             try {
-                const errorJson = JSON.parse(errorText);
-                errorMessage = errorJson.message || errorText;
-            } catch {
-                errorMessage = errorText;
+                const res = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-rapidapi-host": process.env.JUDGE0_API_HOST || "judge0-ce.p.rapidapi.com",
+                        "x-rapidapi-key": apiKey,
+                    },
+                    body: JSON.stringify({
+                        source_code: code,
+                        language_id: languageId,
+                        stdin: stdin || "",
+                    }),
+                });
+
+                if (res.status === 429) {
+                    console.warn(`Judge0 rate limit hit for key ${keyIdx + 1} on scratchpad, trying next after backoff...`);
+                    await sleep(500 * Math.pow(2, keyIdx));
+                    continue;
+                }
+
+                singleResponse = res;
+                break;
+            } catch (e) {
+                lastSingleError = e;
+                console.error("Fetch error or network issue:", e);
+                await sleep(500);
+                continue;
             }
-            if (response.status === 401 || response.status === 403) {
-                errorMessage = "Invalid API Key or Subscription. Please check your RapidAPI Judge0 subscription.";
-            }
-            return NextResponse.json({ error: errorMessage }, { status: response.status });
         }
 
-        const data = await response.json();
-        return NextResponse.json(data);
+        if (!singleResponse) {
+            return NextResponse.json({ error: "Judge0 rate limit exceeded across all available API keys. Please try again later." }, { status: 429 });
+        }
+
+        if (!singleResponse.ok) {
+            let errorMessage = "Judge0 API Error";
+            if (singleResponse.status === 403 || singleResponse.status === 401) {
+                errorMessage = "Invalid API Key or Subscription. Please check your RapidAPI Judge0 subscription.";
+            }
+
+            return NextResponse.json({ error: errorMessage }, { status: singleResponse.status });
+        }
+
+        const result = await singleResponse.json();
+        return NextResponse.json(result);
 
     } catch (error) {
         console.error("Execution Error:", error);

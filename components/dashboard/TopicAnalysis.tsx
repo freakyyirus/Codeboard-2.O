@@ -21,13 +21,13 @@ export function TopicAnalysis() {
             </div>
             <div className="space-y-4">
                 {topics.map((topic) => (
-                    <div key={topic.name} className="flex items-center gap-4">
-                        <span className="text-sm text-gray-400 w-32 text-right shrink-0">{topic.name}</span>
+                    <div key={topic.name} className="flex items-center gap-3 sm:gap-4">
+                        <span className="text-xs sm:text-sm text-gray-400 w-20 sm:w-32 text-right shrink-0 truncate">{topic.name}</span>
                         <div
                             className="h-6 bg-blue-600 rounded flex items-center justify-end px-2 transition-all"
                             style={{ width: `${(topic.count / max) * 100}%`, minWidth: "40px" }}
                         >
-                            <span className="text-white text-sm font-medium">{topic.count}</span>
+                            <span className="text-white text-xs sm:text-sm font-medium">{topic.count}</span>
                         </div>
                     </div>
                 ))}

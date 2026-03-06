@@ -8,6 +8,8 @@ import { WeaknessSpotlight } from "@/components/analytics/WeaknessSpotlight"
 import { ProductivityInsights } from "@/components/analytics/ProductivityInsights"
 import { MultiPlatformHeatmap } from "@/components/analytics/MultiPlatformHeatmap"
 import { FadeIn } from "@/components/ui/PremiumEffects"
+import { GrowthAnalytics } from "@/components/analytics/GrowthAnalytics"
+import { motion } from "framer-motion"
 import { CheckCircle2, Clock, Flame, TrendingUp, ArrowUpRight, ArrowDownRight, Code2, Terminal, Code, Loader2, WifiOff, ExternalLink } from "lucide-react"
 
 interface PlatformData {
@@ -42,6 +44,7 @@ const PLATFORM_ICONS: Record<string, any> = {
 }
 
 export default function AnalyticsContent() {
+    const [activeTab, setActiveTab] = useState<"Overview" | "Growth" | "Topics">("Overview")
     const [timeRange, setTimeRange] = useState("30 Days")
     const [data, setData] = useState<AnalyticsData | null>(null)
     const [loading, setLoading] = useState(true)
@@ -138,108 +141,146 @@ export default function AnalyticsContent() {
                 <AnalyticsHeader timeRange={timeRange} setTimeRange={setTimeRange} />
             </FadeIn>
 
-            {/* Setup Notice */}
-            {connectedCount === 0 && (
-                <FadeIn delay={0.05}>
-                    <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-4 flex items-center gap-3">
-                        <div className="p-2 bg-yellow-500/10 rounded-lg">
-                            <WifiOff className="w-4 h-4 text-yellow-500" />
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-1 bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 md:w-fit mb-8 overflow-x-auto scollbar-hide">
+                {["Overview", "Growth", "Topics"].map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab as any)}
+                        className={`relative px-6 py-2.5 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${activeTab === tab ? "text-white" : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                            }`}
+                    >
+                        {activeTab === tab && (
+                            <motion.div
+                                layoutId="analytics-main-tab"
+                                className="absolute inset-0 bg-white/10 rounded-xl"
+                                transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                            />
+                        )}
+                        <span className="relative z-10">{tab}</span>
+                    </button>
+                ))}
+            </div>
+
+            {/* TAB CONTENT: OVERVIEW */}
+            {activeTab === "Overview" && (
+                <div className="space-y-8 animate-in mt-6">
+                    {/* Setup Notice */}
+                    {connectedCount === 0 && (
+                        <FadeIn delay={0.05}>
+                            <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-4 flex items-center gap-3">
+                                <div className="p-2 bg-yellow-500/10 rounded-lg">
+                                    <WifiOff className="w-4 h-4 text-yellow-500" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm text-yellow-200 font-medium">No platforms connected</p>
+                                    <p className="text-xs text-yellow-200/60">Set your usernames in <code className="bg-white/5 px-1 rounded">.env.local</code> (GITHUB_USERNAME, LEETCODE_USERNAME, CODEFORCES_USERNAME) to see real data.</p>
+                                </div>
+                            </div>
+                        </FadeIn>
+                    )}
+
+                    {/* 2. Summary Cards */}
+                    <FadeIn delay={0.1}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {metrics.map(m => (
+                                <div key={m.label} className="bg-white/[0.03] border border-white/5 p-5 rounded-xl flex flex-col justify-between group hover:border-white/10 transition-colors">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className={`p-2 rounded-lg ${m.bg} ${m.color}`}>
+                                            <m.icon className="w-5 h-5" />
+                                        </div>
+                                        <div className={`flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full border ${m.trend === "up" ? "text-green-400 border-green-500/20 bg-green-500/5" : "text-gray-500 border-white/5 bg-white/[0.02]"
+                                            }`}>
+                                            {m.trend === "up" ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                                            {m.change}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-bold text-white mb-1">{m.value}</div>
+                                        <div className="text-xs text-gray-500">{m.label}</div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <div className="flex-1">
-                            <p className="text-sm text-yellow-200 font-medium">No platforms connected</p>
-                            <p className="text-xs text-yellow-200/60">Set your usernames in <code className="bg-white/5 px-1 rounded">.env.local</code> (GITHUB_USERNAME, LEETCODE_USERNAME, CODEFORCES_USERNAME) to see real data.</p>
-                        </div>
+                    </FadeIn>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* 3. Growth Chart (Old) */}
+                        <FadeIn delay={0.2} className="lg:col-span-3 bg-white/[0.03] border border-white/5 rounded-xl p-6 min-h-[400px]">
+                            <GrowthTrendChart />
+                        </FadeIn>
                     </div>
-                </FadeIn>
+
+                    {/* 5. Platform Breakdown - from real data */}
+                    <FadeIn delay={0.4}>
+                        <h3 className="text-white font-semibold mb-4">Connected Platforms</h3>
+                        {platforms.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {platforms.map(p => {
+                                    const IconComp = PLATFORM_ICONS[p.name] || Code2
+                                    return (
+                                        <div key={p.name} className="bg-white/[0.03] border border-white/5 rounded-xl p-4 flex items-center justify-between hover:border-white/10 transition-all">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 rounded-lg" style={{ backgroundColor: `${p.color}15`, color: p.color }}>
+                                                    <IconComp className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium text-white">{p.name}</div>
+                                                    <div className="text-xs text-gray-500">{p.solved > 0 ? `${p.solved} Solved` : p.details?.rank || "Connected"}</div>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-white font-bold">{p.rating}</div>
+                                                <div className="text-[10px] text-gray-500">Rating</div>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-gray-600 text-sm border border-dashed border-white/5 rounded-xl">
+                                No platforms connected yet. Add your usernames in settings.
+                            </div>
+                        )}
+                    </FadeIn>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* 6. Productivity */}
+                        <FadeIn delay={0.5} className="lg:col-span-3">
+                            <h3 className="text-white font-semibold mb-4">Productivity Patterns</h3>
+                            <ProductivityInsights />
+                        </FadeIn>
+                    </div>
+
+                    {/* 8. Multi-Platform Heatmap */}
+                    <FadeIn delay={0.7} className="space-y-4">
+                        <h3 className="text-white font-semibold">Activity Heatmap</h3>
+                        <MultiPlatformHeatmap contributions={contributions} />
+                    </FadeIn>
+                </div>
             )}
 
-            {/* 2. Summary Cards */}
-            <FadeIn delay={0.1}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {metrics.map(m => (
-                        <div key={m.label} className="bg-white/[0.03] border border-white/5 p-5 rounded-xl flex flex-col justify-between group hover:border-white/10 transition-colors">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className={`p-2 rounded-lg ${m.bg} ${m.color}`}>
-                                    <m.icon className="w-5 h-5" />
-                                </div>
-                                <div className={`flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full border ${m.trend === "up" ? "text-green-400 border-green-500/20 bg-green-500/5" : "text-gray-500 border-white/5 bg-white/[0.02]"
-                                    }`}>
-                                    {m.trend === "up" ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                    {m.change}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-white mb-1">{m.value}</div>
-                                <div className="text-xs text-gray-500">{m.label}</div>
-                            </div>
-                        </div>
-                    ))}
+            {/* TAB CONTENT: GROWTH */}
+            {activeTab === "Growth" && (
+                <GrowthAnalytics />
+            )}
+
+            {/* TAB CONTENT: TOPICS */}
+            {activeTab === "Topics" && (
+                <div className="space-y-8 animate-in mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* 4. Topic Radar */}
+                        <FadeIn delay={0.3} className="lg:col-span-2 bg-white/[0.03] border border-white/5 rounded-xl p-6 min-h-[400px]">
+                            <TopicRadarChart />
+                        </FadeIn>
+
+                        {/* 7. Insights */}
+                        <FadeIn delay={0.6} className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
+                            <WeaknessSpotlight />
+                        </FadeIn>
+                    </div>
                 </div>
-            </FadeIn>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* 3. Growth Chart */}
-                <FadeIn delay={0.2} className="lg:col-span-2 bg-white/[0.03] border border-white/5 rounded-xl p-6 min-h-[400px]">
-                    <GrowthTrendChart />
-                </FadeIn>
-
-                {/* 4. Topic Radar */}
-                <FadeIn delay={0.3} className="bg-white/[0.03] border border-white/5 rounded-xl p-6 min-h-[400px]">
-                    <TopicRadarChart />
-                </FadeIn>
-            </div>
-
-            {/* 5. Platform Breakdown - from real data */}
-            <FadeIn delay={0.4}>
-                <h3 className="text-white font-semibold mb-4">Connected Platforms</h3>
-                {platforms.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {platforms.map(p => {
-                            const IconComp = PLATFORM_ICONS[p.name] || Code2
-                            return (
-                                <div key={p.name} className="bg-white/[0.03] border border-white/5 rounded-xl p-4 flex items-center justify-between hover:border-white/10 transition-all">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2.5 rounded-lg" style={{ backgroundColor: `${p.color}15`, color: p.color }}>
-                                            <IconComp className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <div className="font-medium text-white">{p.name}</div>
-                                            <div className="text-xs text-gray-500">{p.solved > 0 ? `${p.solved} Solved` : p.details?.rank || "Connected"}</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-white font-bold">{p.rating}</div>
-                                        <div className="text-[10px] text-gray-500">Rating</div>
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 text-gray-600 text-sm border border-dashed border-white/5 rounded-xl">
-                        No platforms connected yet. Add your usernames in settings.
-                    </div>
-                )}
-            </FadeIn>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* 6. Productivity */}
-                <FadeIn delay={0.5} className="lg:col-span-2">
-                    <h3 className="text-white font-semibold mb-4">Productivity Patterns</h3>
-                    <ProductivityInsights />
-                </FadeIn>
-
-                {/* 7. Insights */}
-                <FadeIn delay={0.6} className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
-                    <WeaknessSpotlight />
-                </FadeIn>
-            </div>
-
-            {/* 8. Multi-Platform Heatmap */}
-            <FadeIn delay={0.7} className="space-y-4">
-                <h3 className="text-white font-semibold">Activity Heatmap</h3>
-                <MultiPlatformHeatmap contributions={contributions} />
-            </FadeIn>
+            )}
         </div>
     )
 }

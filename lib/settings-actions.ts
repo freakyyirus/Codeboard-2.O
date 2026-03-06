@@ -99,3 +99,82 @@ export async function loadUserDataAction() {
         connections: connectionsResult.data || [],
     }
 }
+
+/**
+ * Immediately sync a single platform after connection.
+ * Fetches live stats from the platform API and upserts into platform_stats.
+ */
+export async function syncPlatformNow(platform: string, username: string) {
+    const { userId } = await auth()
+    if (!userId) return { error: "Not authenticated" }
+    if (!username.trim()) return { error: "Username is empty" }
+
+    const supabase = getAdminSupabase()
+
+    let stats: {
+        easy_solved: number
+        medium_solved: number
+        hard_solved: number
+        total_solved: number
+        rating: number
+        global_rank?: string
+    } | null = null
+
+    try {
+        if (platform === 'leetcode') {
+            const { fetchLeetCodeStats } = await import('@/lib/platforms/leetcode')
+            stats = await fetchLeetCodeStats(username)
+        } else if (platform === 'github') {
+            const { fetchGitHubStats } = await import('@/lib/platforms/github')
+            stats = await fetchGitHubStats(username)
+        } else if (platform === 'codeforces') {
+            const { getCodeforcesUserInfo } = await import('@/lib/codeforces')
+            const cfData = await getCodeforcesUserInfo(username)
+            if (cfData) {
+                stats = {
+                    easy_solved: 0,
+                    medium_solved: 0,
+                    hard_solved: 0,
+                    total_solved: 0,
+                    rating: cfData.rating,
+                    global_rank: cfData.rank,
+                }
+            }
+        } else if (platform === 'hackerrank') {
+            const { fetchHackerRankStats } = await import('@/lib/platforms/hackerrank')
+            stats = await fetchHackerRankStats(username)
+        } else if (platform === 'atcoder') {
+            const { fetchAtCoderStats } = await import('@/lib/platforms/atcoder')
+            stats = await fetchAtCoderStats(username)
+        }
+
+        if (stats) {
+            const { error: upsertError } = await supabase
+                .from('platform_stats')
+                .upsert({
+                    user_id: userId,
+                    platform,
+                    easy_solved: stats.easy_solved,
+                    medium_solved: stats.medium_solved,
+                    hard_solved: stats.hard_solved,
+                    total_solved: stats.total_solved,
+                    rating: stats.rating,
+                    global_rank: stats.global_rank || null,
+                    last_synced: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id,platform'
+                })
+
+            if (upsertError) {
+                console.error(`syncPlatformNow upsert error for ${platform}:`, upsertError)
+                return { error: upsertError.message }
+            }
+            return { success: true, stats }
+        }
+
+        return { success: true, stats: null }
+    } catch (error: any) {
+        console.error(`syncPlatformNow error for ${platform}:`, error)
+        return { error: error.message || "Failed to sync" }
+    }
+}

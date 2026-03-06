@@ -157,3 +157,81 @@ export async function getDailyProblem() {
     return null;
   }
 }
+
+// Fetch LeetCode Contest Rating History
+const CONTEST_HISTORY_QUERY = `
+  query userContestRankingHistory($username: String!) {
+    userContestRankingHistory(username: $username) {
+      attended
+      rating
+      ranking
+      contest {
+        title
+        startTime
+      }
+    }
+  }
+`;
+
+export interface LeetCodeContestEntry {
+  date: string;
+  rating: number;
+  contest: string;
+  rank: number;
+  type: string;
+}
+
+export async function getLeetCodeContestHistory(username: string): Promise<LeetCodeContestEntry[]> {
+  if (!username) return [];
+
+  try {
+    const response = await fetch(LEETCODE_API_ENDPOINT, {
+      method: 'POST',
+      headers: getLeetCodeHeaders(),
+      body: JSON.stringify({
+        query: CONTEST_HISTORY_QUERY,
+        variables: { username },
+      }),
+      next: { revalidate: 3600 }
+    });
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+
+    if (data.errors) {
+      console.error('LeetCode Contest History GraphQL Errors:', data.errors);
+      return [];
+    }
+
+    const history = data.data?.userContestRankingHistory;
+    if (!history || !Array.isArray(history)) return [];
+
+    // Filter only attended contests and map to our format
+    return history
+      .filter((entry: any) => entry.attended)
+      .map((entry: any) => {
+        const startTime = entry.contest?.startTime;
+        const date = startTime
+          ? new Date(startTime * 1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })
+          : 'Unknown';
+
+        return {
+          date,
+          rating: Math.round(entry.rating || 0),
+          contest: entry.contest?.title || 'Unknown Contest',
+          rank: entry.ranking || 0,
+          type: 'Rated',
+        };
+      });
+  } catch (error) {
+    console.error('Failed to fetch LeetCode contest history:', error);
+    return [];
+  }
+}
+
+export const getCachedLeetCodeContestHistory = unstable_cache(
+  async (username: string) => getLeetCodeContestHistory(username),
+  ['leetcode-contest-history'],
+  { revalidate: 3600, tags: ['leetcode'] }
+);

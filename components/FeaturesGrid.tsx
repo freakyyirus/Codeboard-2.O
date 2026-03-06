@@ -21,7 +21,7 @@ export function FeaturesGrid() {
                     <span className="inline-block px-4 py-2 rounded-full border border-black/20 text-xs font-bold uppercase tracking-wider mb-4">
                         Features
                     </span>
-                    <h2 className="text-5xl md:text-7xl font-black mb-4 tracking-tight text-black">
+                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-black mb-4 tracking-tight text-black">
                         EVERYTHING<br />YOU NEED.
                     </h2>
                     <p className="text-gray-600 max-w-xl mx-auto">

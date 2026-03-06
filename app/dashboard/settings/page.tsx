@@ -6,7 +6,8 @@ import {
     saveBasicInfoAction,
     savePlatformAction,
     disconnectPlatformAction,
-    loadUserDataAction
+    loadUserDataAction,
+    syncPlatformNow
 } from "@/lib/settings-actions"
 import {
     ArrowLeft,
@@ -304,6 +305,15 @@ export default function SettingsPage() {
         else {
             setPlatforms(prev => prev.map(p => p.platform === platform ? { ...p, connected: true } : p))
             toast.success(platform + " connected!")
+
+            // Immediately sync stats from the platform API
+            syncPlatformNow(platform, username).then((syncResult) => {
+                if (syncResult.stats) {
+                    toast.success(platform + " stats synced!")
+                }
+            }).catch(() => {
+                // Silent fail — cron will pick it up later
+            })
         }
     }
 

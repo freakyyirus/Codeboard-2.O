@@ -1,14 +1,15 @@
 "use client"
 
-import { Editor, loader, OnMount } from "@monaco-editor/react"
+import { Editor, OnMount } from "@monaco-editor/react"
+import type { Monaco } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
 import { Loader2 } from "lucide-react"
 import { useRef } from "react"
-import * as monaco from "monaco-editor"
 
 // Ensure Monaco loads from a reliable CDN to avoid initialization errors in Next.js
 // Monaco loader config removed to use default CDN
 
+type MonacoEditor = Parameters<OnMount>[0]
 
 interface CodeEditorProps {
     language: string
@@ -20,7 +21,7 @@ interface CodeEditorProps {
 
 export function CodeEditor({ language, value, onChange, height = "60vh", onErrorCountChange }: CodeEditorProps) {
     const { theme } = useTheme()
-    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+    const editorRef = useRef<MonacoEditor | null>(null)
 
     const handleEditorDidMount: OnMount = (editor, monacoInstance) => {
         editorRef.current = editor
@@ -40,7 +41,7 @@ export function CodeEditor({ language, value, onChange, height = "60vh", onError
         if (model) {
             monacoInstance.editor.onDidChangeMarkers(() => {
                 const markers = monacoInstance.editor.getModelMarkers({ resource: model.uri })
-                const errors = markers.filter((m: monaco.editor.IMarker) => m.severity === monacoInstance.MarkerSeverity.Error).length
+                const errors = markers.filter((m: any) => m.severity === monacoInstance.MarkerSeverity.Error).length
                 if (onErrorCountChange) {
                     onErrorCountChange(errors)
                 }

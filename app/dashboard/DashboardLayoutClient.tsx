@@ -24,7 +24,8 @@ import {
     ChevronRight,
     LogOut,
     Map,
-    PanelLeft
+    PanelLeft,
+    Briefcase
 } from "lucide-react"
 import { CharacterProvider } from "@/components/DesktopPet"
 import { CodeBoardLogoSimple } from "@/components/CodeBoardLogo"
@@ -58,7 +59,7 @@ function SidebarItem({
             className={`
                 group relative flex items-center gap-3 
                 ${collapsed ? "justify-center px-2" : ""}
-                py-1.5 rounded-lg cursor-pointer
+                py-1 rounded-lg cursor-pointer
                 sidebar-item
                 ${active ? "font-semibold sidebar-item-active" : ""}
             `}
@@ -73,7 +74,7 @@ function SidebarItem({
 
             {/* label */}
             {!collapsed && (
-                <span className={`text-[13px] tracking-wide truncate ${active ? "font-semibold" : "font-medium"}`}
+                <span className={`text-[14px] tracking-wide truncate ${active ? "font-semibold" : "font-medium"}`}
                     style={{ color: active ? "var(--fg-primary)" : "var(--fg-secondary)" }}
                 >
                     {label}
@@ -100,7 +101,7 @@ function SidebarItem({
 function SectionHeader({ label, collapsed }: { label: string; collapsed?: boolean }) {
     if (collapsed) {
         return (
-            <div className="my-3 mx-auto w-6">
+            <div className="my-2 mx-auto w-6">
                 <div className="h-px" style={{ background: "var(--accent-muted)" }} />
             </div>
         )
@@ -108,12 +109,12 @@ function SectionHeader({ label, collapsed }: { label: string; collapsed?: boolea
     return (
         <div className="mt-4 mb-1 px-3 flex items-center gap-3">
             <span
-                className="text-xs uppercase font-extrabold tracking-widest whitespace-nowrap"
-                style={{ color: "var(--accent)" }}
+                className="text-[11px] uppercase font-bold tracking-wider"
+                style={{ color: "var(--fg-muted)" }}
             >
                 {label}
             </span>
-            <div className="h-[1px] flex-1" style={{ background: "var(--accent-muted)" }} />
+            <div className="h-[1px] flex-1" style={{ background: "var(--border)" }} />
         </div>
     )
 }
@@ -177,10 +178,10 @@ export default function DashboardLayout({
                 {/* ── Sidebar ─────────────────────── */}
                 <aside
                     className={`
-                        fixed md:relative z-40 h-screen flex flex-col shrink-0
+                        fixed md:relative z-40 h-screen flex flex-col shrink-0 overflow-hidden
                         transition-all duration-300 ease-in-out
-                        ${sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0"}
-                        ${collapsed ? "md:w-[68px]" : "md:w-64"}
+                        ${sidebarOpen ? "translate-x-0 w-[256px]" : "-translate-x-full md:translate-x-0"}
+                        ${collapsed ? "md:w-[68px]" : "md:w-[256px]"}
                     `}
                     style={{
                         background: "var(--glass-bg)",
@@ -191,8 +192,8 @@ export default function DashboardLayout({
                     }}
                 >
                     {/* ─ Header ────────────────────── */}
-                    <div className={`flex flex-col ${collapsed ? "items-center py-4 gap-3" : "px-4 pt-4 pb-2 gap-2"} ${!sidebarOpen ? "" : "pt-20 md:pt-4"}`}>
-                        <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} w-full`}>
+                    <div className={`flex flex-col ${collapsed ? "items-center py-3 gap-2" : "px-3 pt-3 pb-1 gap-1"} ${!sidebarOpen ? "" : "pt-16 md:pt-3"}`}>
+                        <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} w-full overflow-hidden`}>
                             {collapsed ? (
                                 <div
                                     className="w-8 h-8 font-bold flex items-center justify-center rounded-lg text-xs"
@@ -225,40 +226,39 @@ export default function DashboardLayout({
                     </div>
 
                     {/* ─ Nav Items ─────────────────── */}
-                    <nav className="flex flex-col gap-[2px] flex-1 overflow-y-auto overflow-x-hidden px-2 scrollbar-hide pb-2">
+                    <nav className="flex flex-col gap-[2px] flex-1 overflow-y-auto overflow-x-hidden px-2 sidebar-scroll pb-2">
 
-                        <SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" href="/dashboard" active={pathname === "/dashboard"} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<BookOpen size={18} />} label="DSA Practice" href="/dashboard/dsa" active={pathname === "/dashboard/dsa"} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<Code2 size={18} />} label="Dev" href="/dashboard/dev" active={pathname.startsWith("/dashboard/dev")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<Users size={18} />} label="Social" href="/dashboard/social" active={pathname.startsWith("/dashboard/social")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<Terminal size={18} />} label="CodeBoard IDE" href="/dashboard/studio" active={pathname.startsWith("/dashboard/studio")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<Map size={18} />} label="Roadmap" href="/dashboard/roadmap" active={pathname.startsWith("/dashboard/roadmap")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" href="/dashboard" active={pathname === "/dashboard"} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<BookOpen size={20} />} label="DSA Practice" href="/dashboard/dsa" active={pathname === "/dashboard/dsa"} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Code2 size={20} />} label="Dev" href="/dashboard/dev" active={pathname.startsWith("/dashboard/dev")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Users size={20} />} label="Social" href="/dashboard/social" active={pathname.startsWith("/dashboard/social")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Terminal size={20} />} label="CodeBoard IDE" href="/dashboard/studio" active={pathname.startsWith("/dashboard/studio")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Map size={20} />} label="Roadmap" href="/dashboard/roadmap" active={pathname.startsWith("/dashboard/roadmap")} onClick={close} collapsed={collapsed} />
 
                         <SectionHeader label="Calendar" collapsed={collapsed} />
-                        <SidebarItem icon={<CalendarDays size={18} />} label="Contest" href="/dashboard/contests" active={pathname.startsWith("/dashboard/contests")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<Rocket size={18} />} label="Hackathon" href="/dashboard/hackathons" active={pathname.startsWith("/dashboard/hackathons")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<CalendarDays size={20} />} label="Contest" href="/dashboard/contests" active={pathname.startsWith("/dashboard/contests")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Rocket size={20} />} label="Hackathon" href="/dashboard/hackathons" active={pathname.startsWith("/dashboard/hackathons")} onClick={close} collapsed={collapsed} />
 
                         <SectionHeader label="Sheets" collapsed={collapsed} />
-                        <SidebarItem icon={<Compass size={18} />} label="Explore" href="/dashboard/sheets/explore" active={pathname.startsWith("/dashboard/sheets/explore")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<FileText size={18} />} label="My Sheet" href="/dashboard/sheets/my" active={pathname.startsWith("/dashboard/sheets/my")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Compass size={20} />} label="Explore" href="/dashboard/sheets/explore" active={pathname.startsWith("/dashboard/sheets/explore")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<FileText size={20} />} label="My Sheet" href="/dashboard/sheets/my" active={pathname.startsWith("/dashboard/sheets/my")} onClick={close} collapsed={collapsed} />
 
                         <SectionHeader label="Community" collapsed={collapsed} />
-                        <SidebarItem icon={<Trophy size={18} />} label="Leaderboard" href="/dashboard/leaderboard" active={pathname.startsWith("/dashboard/leaderboard")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<BarChart3 size={18} />} label="Analytics" href="/dashboard/analytics" active={pathname.startsWith("/dashboard/analytics")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<MessageCircle size={18} />} label="Community" href="/dashboard/community" active={pathname.startsWith("/dashboard/community")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<MessageCircle size={20} />} label="Discussions" href="/dashboard/community" active={pathname.startsWith("/dashboard/community")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Trophy size={20} />} label="Leaderboard" href="/dashboard/leaderboard" active={pathname.startsWith("/dashboard/leaderboard")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<BarChart3 size={20} />} label="Analytics" href="/dashboard/analytics" active={pathname.startsWith("/dashboard/analytics")} onClick={close} collapsed={collapsed} />
                     </nav>
 
                     {/* ─ Bottom ────────────────────── */}
                     <div className="p-2 flex flex-col gap-[2px]" style={{ borderTop: "1px solid var(--border)" }}>
 
-                        {/* Theme Toggle Removed */}
-
-                        <SidebarItem icon={<Send size={18} />} label="Feedback" href="/dashboard/feedback" active={pathname.startsWith("/dashboard/feedback")} onClick={close} collapsed={collapsed} />
-                        <SidebarItem icon={<Settings size={18} />} label="Settings" href="/dashboard/settings" active={pathname.startsWith("/dashboard/settings")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Briefcase size={20} />} label="Portfolio" href="/dashboard/portfolio" active={pathname.startsWith("/dashboard/portfolio")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Send size={20} />} label="Feedback" href="/dashboard/feedback" active={pathname.startsWith("/dashboard/feedback")} onClick={close} collapsed={collapsed} />
+                        <SidebarItem icon={<Settings size={20} />} label="Settings" href="/dashboard/settings" active={pathname.startsWith("/dashboard/settings")} onClick={close} collapsed={collapsed} />
 
                         {/* User card */}
                         <div
-                            className={`mt-2 flex items-center ${collapsed ? "justify-center" : "gap-3 px-2"} py-2 rounded-lg transition-colors`}
+                            className={`mt-1 flex items-center ${collapsed ? "justify-center" : "gap-3 px-2"} py-1.5 rounded-lg transition-colors`}
                             style={{
                                 background: "var(--bg-hover)",
                                 border: "1px solid var(--border)",

@@ -65,10 +65,10 @@ export function CodeBoardLogo({ size = "lg" }: LogoProps) {
 // Simple inline version for navbar/footer
 export function CodeBoardLogoSimple({ className = "", textClassName = "" }: { className?: string, textClassName?: string }) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex items-center justify-center">
+    <div className={`flex items-center gap-1.5 min-w-0 overflow-hidden ${className}`}>
+      <div className="relative flex items-center justify-center shrink-0">
         <span
-          className="text-white text-xl font-bold tracking-tighter"
+          className="text-white text-lg font-bold tracking-tighter"
           style={{ fontFamily: '"Cascadia Code", monospace' }}
         >
           {"[</>]"}
@@ -77,14 +77,14 @@ export function CodeBoardLogoSimple({ className = "", textClassName = "" }: { cl
 
       {/* Text */}
       <span
-        className={`font-bold text-xl tracking-tight ml-1 ${textClassName}`}
+        className={`font-bold text-lg tracking-tight shrink-0 ${textClassName}`}
         style={{ fontFamily: '"Cascadia Code", monospace' }}
       >
         <span className="text-green-500">C</span><span className="text-white">ode</span><span className="text-green-500">B</span><span className="text-white">oard</span>
       </span>
 
       {/* Brick icon */}
-      <div className="flex flex-col gap-[2px] -mt-3 ml-1">
+      <div className="flex flex-col gap-[2px] -mt-2.5 ml-0.5 shrink-0">
         <div className="flex gap-[2px] justify-end">
           <div className="w-1.5 h-0.5 bg-orange-500 rounded-[1px]" />
           <div className="w-2 h-0.5 bg-orange-500 rounded-[1px]" />

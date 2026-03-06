@@ -55,11 +55,11 @@ export default function LandingPage() {
             <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 sm:w-48 bg-gradient-to-l from-[#0d0d0d] to-transparent"></div>
 
             {/* Marquee Track */}
-            <div className="animate-marquee items-center text-gray-400 !max-w-none !overflow-visible">
+            <div className="animate-marquee items-center text-gray-400">
 
               {/* Original Set + Duplicate Set for seamless looping */}
               {[...Array(2)].map((_, groupIndex) => (
-                <div key={groupIndex} className="flex gap-14 sm:gap-20 items-center shrink-0 pr-14 sm:pr-20 !max-w-none !overflow-visible">
+                <div key={groupIndex} className="flex gap-14 sm:gap-20 items-center shrink-0 pr-14 sm:pr-20">
                   {[
                     { name: "LeetCode", icon: <img src="/logos/leetcode.svg" alt="LeetCode" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
                     { name: "Codeforces", icon: <img src="/logos/codeforces.svg" alt="Codeforces" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
@@ -71,7 +71,7 @@ export default function LandingPage() {
                     { name: "Unstop", icon: <img src="/logos/unstop.svg" alt="Unstop" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
                     { name: "Devfolio", icon: <img src="/logos/devfolio.svg" alt="Devfolio" className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 object-contain" /> },
                   ].map((platform) => (
-                    <div key={platform.name} className="flex items-center gap-4 md:gap-5 opacity-80 hover:opacity-100 hover:text-white transition-all cursor-pointer !max-w-none !overflow-visible shrink-0">
+                    <div key={platform.name} className="flex items-center gap-4 md:gap-5 opacity-80 hover:opacity-100 hover:text-white transition-all cursor-pointer shrink-0">
                       {platform.icon}
                       <span className="text-xl sm:text-2xl font-bold text-gray-400 hover:text-white transition-colors tracking-widest whitespace-nowrap drop-shadow-sm">{platform.name}</span>
                     </div>
@@ -138,28 +138,27 @@ export default function LandingPage() {
             <p className="text-center text-xs text-gray-500 uppercase tracking-widest mb-4">The Creator</p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-center mb-12 tracking-tight">MEET THE FOUNDER.</h2>
 
-            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 bg-black/40 p-8 sm:p-10 rounded-3xl border border-white/10">
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 bg-[#0a0a0a] p-8 sm:p-10 rounded-3xl border border-white/5 shadow-xl">
               <div className="flex-shrink-0 relative">
-                <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
                 <img
                   src="/images/founder.jpg"
                   alt="Yuvraj Singh"
-                  className="w-32 h-32 sm:w-40 sm:h-40 aspect-square rounded-full object-cover object-[50%_40%] border-2 border-white/20 relative z-10"
+                  className="w-32 h-32 sm:w-40 sm:h-40 aspect-square rounded-full object-cover object-[50%_40%]"
                 />
               </div>
 
               <div className="text-center md:text-left space-y-4 w-full">
                 <div>
                   <h3 className="text-2xl font-bold text-white mb-1">Yuvraj Singh</h3>
-                  <p className="text-blue-400 font-medium">Founder & Solo Developer</p>
+                  <p className="text-[#3b82f6] font-medium text-sm sm:text-base">Founder & Solo Developer</p>
                 </div>
                 <p className="text-gray-400 leading-relaxed text-sm sm:text-base">
                   "I built CodeBoard out of my own frustration with tracking competitive programming progress across multiple platforms. What started as a personal dashboard during my SWE prep journey has evolved into the ultimate companion for thousands of developers aiming to level up their coding skills."
                 </p>
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex gap-4">
-                    <span className="text-xs bg-white/5 px-3 py-1.5 rounded-md border border-white/10 text-gray-400">Software Engineer</span>
-                    <span className="text-xs bg-white/5 px-3 py-1.5 rounded-md border border-white/10 text-gray-400">Competitive Programmer</span>
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
+                    <span className="text-xs bg-white/[0.03] px-3 py-1.5 rounded-md border border-white/[0.05] text-gray-400">Software Engineer</span>
+                    <span className="text-xs bg-white/[0.03] px-3 py-1.5 rounded-md border border-white/[0.05] text-gray-400">Competitive Programmer</span>
                   </div>
                   {/* Social Links Placeholder */}
                   <div className="flex items-center gap-4 mt-4 sm:mt-0">

@@ -108,6 +108,34 @@ body {
   display: none;
 }
 
+/* Sidebar nav: thin scrollbar on hover, hidden otherwise */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s;
+}
+
+.sidebar-scroll:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 /* Hide all overflow scrollbars globally */
 .overflow-hidden {
   overflow: hidden !important;
@@ -292,10 +320,6 @@ a[role="button"] {
 }
 
 /* ─── Responsive Foundation ─────────────────────────────── */
-/* Base font size */
-html {
-  font-size: 16px;
-}
 
 /* Responsive text using clamp */
 h1 {
@@ -424,11 +448,7 @@ p {
   }
 }
 
-/* Prevent horizontal overflow */
-* {
-  max-width: 100%;
-  overflow-x: hidden;
-}
+/* Prevent horizontal overflow — handled by html/body rule below */
 
 /* Image responsive */
 img {

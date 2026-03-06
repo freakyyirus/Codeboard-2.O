@@ -19,6 +19,7 @@ import {
     ExternalLink
 } from "lucide-react"
 import { AIChat } from "@/components/studio/AIChat"
+import { awardProblemSolvedCoins } from "@/lib/rewards-actions"
 
 // Dynamically import CodeEditor to avoid SSR issues (window is not defined)
 const CodeEditor = dynamic(
@@ -177,6 +178,12 @@ function StudioContent() {
                     // It's a full submission response
                     if (status === "Accepted") {
                         newOutput.push("", `✅ All ${result.total_test_cases} test cases passed!`)
+                        try {
+                            const coins = await awardProblemSolvedCoins(currentProblem.difficulty || 'Medium');
+                            if (coins > 0) newOutput.push(`💎 Earned +${coins} CodeCoins!`);
+                        } catch (err) {
+                            console.error("Failed to award coins:", err)
+                        }
                     } else {
                         newOutput.push("", `❌ Failed on hidden test case ${result.total_passed + 1}/${result.total_test_cases}`)
                         if (result.failed_test_case) {
