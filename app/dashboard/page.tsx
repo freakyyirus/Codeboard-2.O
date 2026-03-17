@@ -157,17 +157,17 @@ export default function DashboardPage() {
               </div>
 
               {/* Second Row: Contest (Left) + Activity Overview (Right) */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[320px]">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Contest Thing */}
-                <div className="col-span-1 h-full">
+                <div className="col-span-1 min-h-[320px]">
                   <ContestStats hackathons={data?.stats?.hackathons} />
                 </div>
 
                 {/* Right: Activity Overview -> Social Feed */}
-                <div className="col-span-1 lg:col-span-2 h-full">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                <div className="col-span-1 lg:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Rating Progression Chart */}
-                    <div className="bg-[#111113]/50 flex flex-col border border-white/[0.04] rounded-2xl p-0 h-full min-h-[300px] overflow-hidden relative">
+                    <div className="min-h-[320px]">
                       <RatingProgressionChart ratingHistory={data?.ratingHistory} />
                     </div>
                     {/* Social Feed */}
@@ -217,7 +217,7 @@ export default function DashboardPage() {
               transition={{ duration: 0.25, ease: "easeInOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
-              <RecentProblems />
+              <RecentProblems problems={data?.recentProblems || []} />
             </motion.div>
           )}
 
@@ -230,7 +230,7 @@ export default function DashboardPage() {
               transition={{ duration: 0.25, ease: "easeInOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
-              <UpcomingContests />
+              <UpcomingContests contests={data?.stats?.hackathons || []} />
             </motion.div>
           )}
 
