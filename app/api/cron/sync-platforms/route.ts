@@ -4,6 +4,8 @@ import { fetchLeetCodeStats, PlatformData } from '@/lib/platforms/leetcode'
 import { fetchGitHubStats } from '@/lib/platforms/github'
 import { fetchHackerRankStats } from '@/lib/platforms/hackerrank'
 import { fetchAtCoderStats } from '@/lib/platforms/atcoder'
+import { fetchCodeChefStats } from '@/lib/platforms/codechef'
+import { fetchGeeksForGeeksStats } from '@/lib/platforms/geeksforgeeks'
 import { getCodeforcesUserInfo } from '@/lib/codeforces'
 
 // Initialize a Supabase admin client to bypass RLS for background fetching
@@ -59,6 +61,10 @@ export async function GET(request: Request) {
                 stats = await fetchHackerRankStats(conn.username)
             } else if (conn.platform === 'atcoder') {
                 stats = await fetchAtCoderStats(conn.username)
+            } else if (conn.platform === 'codechef') {
+                stats = await fetchCodeChefStats(conn.username)
+            } else if (conn.platform === 'geeksforgeeks') {
+                stats = await fetchGeeksForGeeksStats(conn.username)
             }
 
             // 3. Upsert the fetched data into the new platform_stats table
