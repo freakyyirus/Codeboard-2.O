@@ -96,7 +96,16 @@ export function PlatformStats({ stats }: { stats?: any }) {
     )
 }
 
-export function UpcomingContests() {
+interface Contest {
+    id: string | number;
+    title: string;
+    platform: string;
+    start: string;
+    end: string;
+    url: string;
+}
+
+export function UpcomingContests({ contests = [] }: { contests?: Contest[] }) {
     return (
         <div className="h-full flex flex-col">
             <div className="flex items-center gap-2 mb-6">
@@ -106,23 +115,44 @@ export function UpcomingContests() {
                 <h3 className="font-semibold text-lg text-white">Upcoming Contests</h3>
             </div>
             <div className="space-y-3">
-                <div className="p-3 bg-gradient-to-r from-blue-500/10 to-transparent hover:from-blue-500/20 transition-colors rounded-xl border border-blue-500/10 group cursor-pointer relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-1">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                {contests.length === 0 ? (
+                    <div className="text-sm text-gray-500 text-center py-8">
+                        No upcoming contests found.
                     </div>
-                    <div className="flex justify-between items-start mb-2">
-                        <span className="text-[10px] font-bold text-blue-300 bg-blue-500/20 px-2 py-0.5 rounded border border-blue-500/20">Codeforces</span>
-                        <span className="text-xs text-gray-400 font-mono">In 2h 15m</span>
-                    </div>
-                    <div className="font-medium text-sm text-gray-200 group-hover:text-white transition-colors">Round #932 (Div. 2)</div>
-                </div>
-                <div className="p-3 bg-gradient-to-r from-yellow-500/10 to-transparent hover:from-yellow-500/20 transition-colors rounded-xl border border-yellow-500/10 group cursor-pointer">
-                    <div className="flex justify-between items-start mb-2">
-                        <span className="text-[10px] font-bold text-yellow-300 bg-yellow-500/20 px-2 py-0.5 rounded border border-yellow-500/20">LeetCode</span>
-                        <span className="text-xs text-gray-400 font-mono">In 1d 4h</span>
-                    </div>
-                    <div className="font-medium text-sm text-gray-200 group-hover:text-white transition-colors">Weekly Contest 386</div>
-                </div>
+                ) : (
+                    contests.slice(0, 3).map((contest, index) => (
+                        <a 
+                            key={contest.id || index} 
+                            href={contest.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block p-3 bg-gradient-to-r from-blue-500/10 to-transparent hover:from-blue-500/20 transition-colors rounded-xl border border-blue-500/10 group cursor-pointer relative overflow-hidden"
+                        >
+                            {index === 0 && (
+                                <div className="absolute top-0 right-0 p-1">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                                </div>
+                            )}
+                            <div className="flex justify-between items-start mb-2">
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                                    contest.platform.toLowerCase() === 'leetcode' 
+                                        ? 'text-yellow-300 bg-yellow-500/20 border-yellow-500/20'
+                                    : contest.platform.toLowerCase() === 'codeforces'
+                                        ? 'text-blue-300 bg-blue-500/20 border-blue-500/20'
+                                    : 'text-purple-300 bg-purple-500/20 border-purple-500/20'
+                                }`}>
+                                    {contest.platform}
+                                </span>
+                                <span className="text-xs text-gray-400 font-mono">
+                                    {new Date(contest.start).toLocaleDateString()}
+                                </span>
+                            </div>
+                            <div className="font-medium text-sm text-gray-200 group-hover:text-white transition-colors line-clamp-1">
+                                {contest.title}
+                            </div>
+                        </a>
+                    ))
+                )}
             </div>
         </div>
     )
