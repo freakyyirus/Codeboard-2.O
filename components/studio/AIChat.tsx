@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Send, Bot, User, Sparkles, Loader2, RefreshCw } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 
@@ -11,8 +11,24 @@ interface AIChatProps {
 }
 
 export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
+    const [aiSettings, setAiSettings] = useState<any>(undefined)
+
+    // Read settings when chat is opened
+    useEffect(() => {
+        const stored = localStorage.getItem("codeboard_ai_settings");
+        if (stored) {
+            try { setAiSettings(JSON.parse(stored)); } catch (e) {}
+        }
+    }, [])
+
     // @ts-expect-error - AI SDK type mismatch with current React version
     const { messages, input, handleInputChange, handleSubmit, isLoading, error, reload, stop } = useChat({
+        body: {
+            problemTitle,
+            difficulty,
+            userCode,
+            aiSettings
+        },
         onError: (err: unknown) => {
             console.error("Chat error:", err);
         }

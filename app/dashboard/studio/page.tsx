@@ -16,9 +16,16 @@ import {
     Loader2,
     Menu,
     AlertTriangle,
-    ExternalLink
+    ExternalLink,
+    SearchCode,
+    Settings2
 } from "lucide-react"
 import { AIChat } from "@/components/studio/AIChat"
+import { ReviewPanel } from "@/components/studio/ReviewPanel"
+import { Terminal as StudioTerminal, TerminalToggle } from "@/components/studio/Terminal"
+import { DebugPanel, DebugToggle } from "@/components/studio/DebugPanel"
+import { OutputPanel, OutputToggle } from "@/components/studio/OutputPanel"
+import { AISettingsModal } from "@/components/studio/AISettingsModal"
 import { awardProblemSolvedCoins } from "@/lib/rewards-actions"
 
 // Dynamically import CodeEditor to avoid SSR issues (window is not defined)
@@ -50,27 +57,46 @@ function StudioContent() {
     const titleParam = searchParams.get("title")
     const linkParam = searchParams.get("link")
     const diffParam = searchParams.get("difficulty")
-
     const [showAI, setShowAI] = useState(false)
-    const [terminalOpen, setTerminalOpen] = useState(true)
+    const [showReview, setShowReview] = useState(false)
+    const [showSettings, setShowSettings] = useState(false)
+    const [terminalOpen, setTerminalOpen] = useState(false)
+    const [debugOpen, setDebugOpen] = useState(false)
+    const [outputOpen, setOutputOpen] = useState(true)
     const [showProblemPanel, setShowProblemPanel] = useState(true)
 
     const [language, setLanguage] = useState(LANGUAGES[0])
     const [code, setCode] = useState(LANGUAGES[0].defaultCode)
     const [selectedProblemId, setSelectedProblemId] = useState<string | null>(null)
     const [isRunning, setIsRunning] = useState(false)
-    const [output, setOutput] = useState<string[]>(["Welcome to CodeBoard Engine v2.0", "Ready to compile..."])
-    const [activeTab, setActiveTab] = useState<"console" | "testcases">("console")
+    const [output, setOutput] = useState<string[]>(["Welcome to CodeBoard Engine v2.0", "Ready to compile...", "Use Terminal for command-line interaction or click Output for results."])
+    const [activeTab, setActiveTab] = useState<"console" | "testcases" | "results" | "review">("console")
     const [errorCount, setErrorCount] = useState(0)
 
     const [problemsList, setProblemsList] = useState<any[]>([])
     const [currentProblem, setCurrentProblem] = useState<any>(null)
     const [isLoadingProblem, setIsLoadingProblem] = useState(true)
+    const [apiError, setApiError] = useState(false)
+
+    // Default fallback problem when API fails
+    const DEFAULT_PROBLEM = {
+        id: "default",
+        title: titleParam || "Two Sum",
+        difficulty: diffParam || "Easy",
+        description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.",
+        test_cases: [
+            { input: "nums = [2,7,11,15], target = 9", expected_output: "[0,1]" },
+            { input: "nums = [3,2,4], target = 6", expected_output: "[1,2]" }
+        ]
+    }
 
     // 1. Fetch Problem List on mount
     useEffect(() => {
         fetch('/api/problems')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`API returned ${res.status}`)
+                return res.json()
+            })
             .then(data => {
                 if (data.problems && data.problems.length > 0) {
                     setProblemsList(data.problems)
@@ -83,12 +109,23 @@ function StudioContent() {
                 } else if (titleParam) {
                     // Fallback to custom if no problems in DB but URL has title
                     setSelectedProblemId("custom")
+                } else {
+                    // No problems returned, use default
+                    setApiError(true)
+                    setCurrentProblem(DEFAULT_PROBLEM)
+                    setIsLoadingProblem(false)
                 }
             })
             .catch(err => {
                 console.error("Failed to load problems list", err)
-                if (titleParam) setSelectedProblemId("custom")
-                setIsLoadingProblem(false)
+                setApiError(true)
+                if (titleParam) {
+                    setSelectedProblemId("custom")
+                } else {
+                    // Fallback to default problem so the IDE is usable
+                    setCurrentProblem(DEFAULT_PROBLEM)
+                    setIsLoadingProblem(false)
+                }
             })
     }, [urlProblemId, titleParam])
 
@@ -270,6 +307,24 @@ function StudioContent() {
                     )}
 
                     <button
+                        onClick={() => setShowReview(!showReview)}
+                        className={`flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg border transition-all text-xs md:text-sm font-medium
+                            ${showReview
+                                ? "bg-purple-500/20 border-purple-500/50 text-purple-400"
+                                : "bg-[#1a1a1a] border-[#333] text-gray-400 hover:text-white"
+                            }`}
+                    >
+                        <SearchCode className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Review</span>
+                    </button>
+
+                    <TerminalToggle isOpen={terminalOpen} onToggle={() => setTerminalOpen(!terminalOpen)} />
+
+                    <DebugToggle isOpen={debugOpen} onToggle={() => setDebugOpen(!debugOpen)} />
+
+                    <OutputToggle isOpen={outputOpen} onToggle={() => setOutputOpen(!outputOpen)} isRunning={isRunning} errorCount={errorCount} />
+
+                    <button
                         onClick={() => setShowAI(!showAI)}
                         className={`flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg border transition-all text-xs md:text-sm font-medium
                             ${showAI
@@ -279,6 +334,14 @@ function StudioContent() {
                     >
                         <Sparkles className="w-3.5 h-3.5" />
                         <span className="hidden sm:inline">AI</span>
+                    </button>
+
+                    <button
+                        onClick={() => setShowSettings(true)}
+                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-[#333] bg-[#1a1a1a] text-gray-400 hover:text-white transition-all xl:mr-2"
+                        title="AI Settings (Custom Keys)"
+                    >
+                        <Settings2 className="w-4 h-4" />
                     </button>
 
                     <select
@@ -394,7 +457,7 @@ function StudioContent() {
                     </div>
                 </div>
 
-                {/* Editor + Terminal */}
+                {/* Editor + Panels */}
                 <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
                     <div className="flex-1 relative flex flex-col">
                         <CodeEditor
@@ -406,67 +469,44 @@ function StudioContent() {
                         />
                     </div>
 
-                    {/* Terminal */}
-                    <div
-                        className="border-t border-[#1f1f1f] bg-[#0c0c0c] flex flex-col transition-all duration-300 ease-in-out"
-                        style={{ height: terminalOpen ? 240 : 36 }}
-                    >
-                        <div className="flex items-center justify-between px-3 md:px-4 h-9 border-b border-[#1f1f1f] bg-[#1a1a1a] shrink-0">
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setActiveTab("console")}
-                                    className={`text-xs font-medium flex items-center gap-1.5 px-1 transition-colors ${activeTab === "console" ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
-                                >
-                                    <Terminal className="w-3 h-3" />
-                                    Console
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab("testcases")}
-                                    className={`text-xs font-medium flex items-center gap-1.5 px-1 transition-colors ${activeTab === "testcases" ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
-                                >
-                                    <CheckCircle className="w-3 h-3" />
-                                    Test Cases
-                                </button>
-                            </div>
-                            <button onClick={() => setTerminalOpen(!terminalOpen)} className="text-gray-500 hover:text-white">
-                                {terminalOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
-                            </button>
-                        </div>
+                    <StudioTerminal
+                        isOpen={terminalOpen}
+                        onToggle={() => setTerminalOpen(!terminalOpen)}
+                        height={280}
+                    />
 
-                        {terminalOpen && (
-                            <div className="flex-1 p-3 md:p-4 font-mono text-xs overflow-y-auto scrollbar-thin scrollbar-thumb-gray-800">
-                                {activeTab === "console" ? (
-                                    <div className="space-y-0.5">
-                                        {output.map((line, i) => (
-                                            <div key={i} className={
-                                                line.startsWith(">") ? "text-gray-500" :
-                                                    line.startsWith("✅") ? "text-green-400" :
-                                                        line.startsWith("❌") ? "text-red-400" :
-                                                            line.startsWith("⏳") ? "text-yellow-400" :
-                                                                "text-gray-300"
-                                            }>{line || "\u00A0"}</div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div className="p-3 bg-[#1e1e1e] rounded border border-[#333]">
-                                            <div className="text-[10px] text-gray-500 mb-1.5">Input Data</div>
-                                            <div className="font-mono text-gray-300 text-xs whitespace-pre-wrap">
-                                                {currentProblem.test_cases?.[0]?.input || "No public test data initialized"}
-                                            </div>
-                                        </div>
-                                        <div className="p-3 bg-[#1e1e1e] rounded border border-[#333]">
-                                            <div className="text-[10px] text-gray-500 mb-1.5">Expected Data</div>
-                                            <div className="font-mono text-gray-300 text-xs whitespace-pre-wrap">
-                                                {currentProblem.test_cases?.[0]?.expected_output || "N/A"}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                    <OutputPanel
+                        output={output}
+                        isRunning={isRunning}
+                        activeTab={activeTab}
+                        onTabChange={setActiveTab}
+                        isOpen={outputOpen}
+                        onToggle={() => setOutputOpen(!outputOpen)}
+                        height={280}
+                    />
                 </div>
+
+                {/* Review Panel */}
+                {showReview && (
+                    <ReviewPanel
+                        code={code}
+                        language={language.id}
+                        isOpen={showReview}
+                        onClose={() => setShowReview(false)}
+                    />
+                )}
+
+                {/* Debug Panel */}
+                {debugOpen && (
+                    <DebugPanel
+                        code={code}
+                        language={language.id}
+                        isOpen={debugOpen}
+                        onClose={() => setDebugOpen(false)}
+                        onRunWithDebug={handleRun}
+                        onSubmit={handleSubmit}
+                    />
+                )}
 
                 {/* AI Assistant Panel */}
                 {showAI && (
@@ -476,6 +516,12 @@ function StudioContent() {
                         userCode={code}
                     />
                 )}
+
+                {/* AI Settings Modal */}
+                <AISettingsModal 
+                    isOpen={showSettings} 
+                    onClose={() => setShowSettings(false)} 
+                />
             </div>
         </div>
     )
