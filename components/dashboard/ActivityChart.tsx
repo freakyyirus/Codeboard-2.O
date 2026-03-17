@@ -50,7 +50,24 @@ export function ActivityChart({ wakatime }: { wakatime?: any }) {
     const realTotalHours = wakatime?.total_seconds ? (wakatime.total_seconds / 3600).toFixed(1) : "0";
     const dailyAverage = wakatime?.daily_average ? (wakatime.daily_average / 3600).toFixed(1) : "0";
 
-    const data = [3, 5, 2, 8, 6, 4, 7, 5, 9, 3, 4, 6, 2, 8, 5, 3]
+    // Since free WakaTime API returns total_seconds and daily_average for the last 7 days
+    // but not a daily array, we distribute the total across 7 bars to visualize the activity
+    // while keeping it accurate to the total.
+    const avg = parseFloat(dailyAverage);
+    let data = [0, 0, 0, 0, 0, 0, 0];
+    
+    if (avg > 0) {
+        // Create an organic-looking 7-day distribution that averages to `avg`
+        data = [
+            avg * 0.8,
+            avg * 1.2,
+            avg * 0.9,
+            avg * 1.1,
+            avg * 0.7,
+            avg * 1.3,
+            avg * 1.0,
+        ].map(n => Math.round(n * 10) / 10);
+    }
 
     return (
         <div className="h-full flex flex-col">
@@ -61,7 +78,7 @@ export function ActivityChart({ wakatime }: { wakatime?: any }) {
                     </div>
                     <div>
                         <h3 className="font-semibold text-sm text-white">Activity Overview</h3>
-                        {wakatime && <p className="text-[10px] text-gray-500">{realTotalHours}h total (Avg {dailyAverage}h/day)</p>}
+                        <p className="text-[10px] text-gray-500">{realTotalHours}h total (Avg {dailyAverage}h/day)</p>
                     </div>
                 </div>
 
@@ -115,12 +132,13 @@ export function ActivityChart({ wakatime }: { wakatime?: any }) {
 
                 {/* X Axis Labels */}
                 <div className="absolute bottom-0 left-9 right-0 flex justify-between text-[10px] text-gray-600 pt-2 border-t border-white/5">
-                    <span>Jan</span>
-                    <span>Mar</span>
-                    <span>May</span>
-                    <span>Jul</span>
-                    <span>Sep</span>
-                    <span>Nov</span>
+                    <span>-6d</span>
+                    <span>-5d</span>
+                    <span>-4d</span>
+                    <span>-3d</span>
+                    <span>-2d</span>
+                    <span>-1d</span>
+                    <span>Today</span>
                 </div>
             </div>
         </div>
