@@ -256,6 +256,33 @@ export async function getDashboardData() {
         }
     }
 
+    // 16. Fetch Recent Problems with Details
+    const { data: recentSolves } = await supabase
+        .from('solves')
+        .select(`
+            id,
+            solved_at,
+            time_taken,
+            problems!inner (
+                title,
+                difficulty,
+                tags
+            )
+        `)
+        .eq('user_id', userId)
+        .order('solved_at', { ascending: false })
+        .limit(10)
+
+    const formattedRecentProblems = recentSolves?.map((solve: any) => ({
+        id: solve.id,
+        title: solve.problems?.title || "Unknown Problem",
+        difficulty: solve.problems?.difficulty || "Medium",
+        platform: "CodeBoard",
+        status: "solved",
+        time: new Date(solve.solved_at).toLocaleDateString(),
+        solved_at: solve.solved_at
+    })) || []
+
     return {
         profile: userProfile,
         stats: {
@@ -273,6 +300,7 @@ export async function getDashboardData() {
         },
         social: socialStats,
         activity: activity || [],
+        recentProblems: formattedRecentProblems,
         ratings: [],
         platforms: dbPlatformStats || [],
         connectedPlatforms,
