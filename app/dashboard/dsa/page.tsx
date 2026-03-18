@@ -4,10 +4,17 @@ import Link from "next/link"
 
 export const dynamic = 'force-dynamic'
 
+type DailyProblem = {
+  title: string
+  difficulty: string
+  link?: string
+  topicTags?: Array<{ name?: string }>
+}
+
 /* ─── Server Component ─────────────────────────── */
 
 export default async function DSAPage() {
-  let dailyProblem: any = null
+  let dailyProblem: DailyProblem | null = null
 
   try {
     dailyProblem = await getDailyProblem()
@@ -55,11 +62,14 @@ export default async function DSAPage() {
             </div>
             {dailyProblem.topicTags && (
               <div className="flex flex-wrap gap-1.5 mb-4">
-                {dailyProblem.topicTags.slice(0, 5).map((tag: any) => (
-                  <span key={tag.name || tag} className="text-[10px] px-2 py-0.5 bg-white/5 border border-white/5 rounded-full text-gray-400">
-                    {tag.name || tag}
+                {dailyProblem.topicTags.slice(0, 5).map((tag, idx) => {
+                  const tagName = typeof tag === 'string' ? tag : (tag.name || '')
+                  return (
+                  <span key={`${tagName}-${idx}`} className="text-[10px] px-2 py-0.5 bg-white/5 border border-white/5 rounded-full text-gray-400">
+                    {tagName}
                   </span>
-                ))}
+                  )
+                })}
               </div>
             )}
             <a
