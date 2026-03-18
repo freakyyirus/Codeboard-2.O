@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { getContests, type Contest } from "@/lib/services/contests"
-import { Calendar, Clock, ExternalLink, Filter, Loader2, Trophy, Search } from "lucide-react"
+import { Calendar, Clock, ExternalLink, Loader2, Trophy, Search } from "lucide-react"
 
 const PLATFORMS = [
     { id: "all", name: "All Platforms", color: "bg-white text-black" },
@@ -66,7 +66,7 @@ export default function ContestsPage() {
                         <Trophy className="text-yellow-500" />
                         Contests Calendar
                     </h1>
-                    <p className="text-gray-400 mt-1">Don't miss upcoming coding challenges from top platforms.</p>
+                    <p className="text-gray-400 mt-1">Do not miss upcoming coding challenges from top platforms.</p>
                 </div>
             </div>
 
