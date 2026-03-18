@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { getHackathons, type Hackathon } from "@/lib/services/hackathons"
-import { Calendar, Clock, ExternalLink, MapPin, Loader2, Trophy, Search, Gift } from "lucide-react"
+import { Calendar, ExternalLink, MapPin, Loader2, Trophy, Search, Gift } from "lucide-react"
 
 const PLATFORMS = [
     { id: "all", name: "All Platforms", color: "bg-white text-black" },
