@@ -1,4 +1,4 @@
-import { Briefcase, Building, GraduationCap, Github, Linkedin, ExternalLink, Mail, Award, MapPin, Edit3 } from "lucide-react"
+import { Briefcase, Building, MapPin, Edit3, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { getPortfolioData } from "@/lib/portfolio-actions"
 import { auth } from "@clerk/nextjs/server"
