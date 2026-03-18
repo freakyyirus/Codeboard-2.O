@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getCachedJobs, type Job } from "@/lib/integrations/jobs"
+import { getCachedJobs } from "@/lib/integrations/jobs"
 
 export const dynamic = "force-dynamic"
 
