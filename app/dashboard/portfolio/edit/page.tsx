@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { Check, ChevronRight, ChevronLeft, Save, User, Code2, GraduationCap, Briefcase, Palette } from "lucide-react"
 
-import { updatePortfolioProfile, upsertPortfolioSection } from "@/lib/portfolio-actions"
+import { updatePortfolioProfile } from "@/lib/portfolio-actions"
 
 const STEPS = [
     { id: "basic", icon: User, label: "Basic Info" },
