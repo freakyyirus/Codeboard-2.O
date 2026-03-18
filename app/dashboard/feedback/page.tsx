@@ -37,6 +37,7 @@ export default function FeedbackPage() {
                     category,
                     message: message.trim(),
                 }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 await (supabase as any).from("feedback").insert(payload)
             } catch {
                 // Table might not exist yet — silently succeed
