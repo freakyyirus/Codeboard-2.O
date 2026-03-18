@@ -31,12 +31,17 @@ export default function LeaderboardPage() {
     }
 
     const rankedUsers = useMemo(() => {
-        const config = metricConfig[metric]
+        const metricConfigLocal = {
+            total: { label: "Total Questions", getValue: (score: number) => score },
+            cscore: { label: "C Score", getValue: (score: number) => Math.round(score * 0.85) },
+            leetcode: { label: "LeetCode Rating", getValue: (score: number) => Math.round(score / 5) },
+        }
+        const config = metricConfigLocal[metric]
         return [...MOCK_USERS]
             .map((u) => ({ ...u, metricValue: config.getValue(u.score) }))
             .sort((a, b) => b.metricValue - a.metricValue)
             .map((u, index) => ({ ...u, rank: index + 1 }))
-    }, [metric, metricConfig])
+    }, [metric])
 
     const top3 = rankedUsers.slice(0, 3)
     const rest = rankedUsers.slice(3)
