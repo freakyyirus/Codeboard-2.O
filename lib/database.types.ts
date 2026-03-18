@@ -231,6 +231,41 @@ export interface Database {
                     created_at?: string
                 }
             }
+            platform_stats: {
+                Row: {
+                    user_id: string
+                    platform: string
+                    easy_solved: number | null
+                    medium_solved: number | null
+                    hard_solved: number | null
+                    total_solved: number | null
+                    rating: number | null
+                    global_rank: string | null
+                    last_synced: string | null
+                }
+                Insert: {
+                    user_id: string
+                    platform: string
+                    easy_solved?: number | null
+                    medium_solved?: number | null
+                    hard_solved?: number | null
+                    total_solved?: number | null
+                    rating?: number | null
+                    global_rank?: string | null
+                    last_synced?: string | null
+                }
+                Update: {
+                    user_id?: string
+                    platform?: string
+                    easy_solved?: number | null
+                    medium_solved?: number | null
+                    hard_solved?: number | null
+                    total_solved?: number | null
+                    rating?: number | null
+                    global_rank?: string | null
+                    last_synced?: string | null
+                }
+            }
             feedback: {
                 Row: {
                     id: string
