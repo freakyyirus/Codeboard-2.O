@@ -7,8 +7,6 @@ import {
     ExternalLink,
     ChevronDown,
     ChevronUp,
-    Filter,
-    X,
     Building2,
     Hash,
     Code2
@@ -73,7 +71,6 @@ function getProblemId(title: string): string | null {
 export default function ProblemsPage() {
     const [data, setData] = useState<DataSet | null>(null)
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
 
     // Filters
     const [search, setSearch] = useState("")
@@ -230,7 +227,7 @@ export default function ProblemsPage() {
         )
     }
 
-    if (error || !data) {
+    if (!data) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px]">
                 <p className="text-red-400 font-mono">Failed to load data</p>
