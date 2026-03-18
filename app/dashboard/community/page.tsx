@@ -9,7 +9,6 @@ import {
     Image as ImageIcon,
     Loader2,
     TrendingUp,
-    Flame,
     Award,
     Users,
 } from "lucide-react"
