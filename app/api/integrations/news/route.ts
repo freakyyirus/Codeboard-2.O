@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getCachedDevNews, type NewsArticle } from "@/lib/integrations/news"
+import { getCachedDevNews } from "@/lib/integrations/news"
 
 export const dynamic = "force-dynamic"
 
