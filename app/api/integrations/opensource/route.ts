@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getCachedOpenSourceIssues, type OpenSourceIssue } from "@/lib/integrations/opensource"
+import { getCachedOpenSourceIssues } from "@/lib/integrations/opensource"
 
 export const dynamic = "force-dynamic"
 
