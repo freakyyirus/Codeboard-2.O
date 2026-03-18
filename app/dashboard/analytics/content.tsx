@@ -84,7 +84,7 @@ export default function AnalyticsContent() {
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="flex flex-col items-center gap-3 text-center max-w-md">
                     <WifiOff className="w-8 h-8 text-gray-600" />
-                    <p className="text-gray-400 font-medium">Couldn't load analytics</p>
+                    <p className="text-gray-400 font-medium">Could not load analytics</p>
                     <p className="text-xs text-gray-600">Make sure your platform usernames are configured in <code className="text-white bg-white/10 px-1.5 py-0.5 rounded">.env.local</code></p>
                 </div>
             </div>
@@ -146,7 +146,7 @@ export default function AnalyticsContent() {
                 {["Overview", "Growth", "Topics"].map((tab) => (
                     <button
                         key={tab}
-                        onClick={() => setActiveTab(tab as any)}
+                        onClick={() => setActiveTab(tab as "Overview" | "Growth" | "Topics")}
                         className={`relative px-6 py-2.5 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${activeTab === tab ? "text-white" : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
                             }`}
                     >
