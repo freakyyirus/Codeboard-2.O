@@ -4,6 +4,18 @@ import { useEffect, useRef, useState } from "react"
 import { Send, Bot, User, Sparkles, Loader2, RefreshCw } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 
+type AISettings = {
+    provider?: string
+    model?: string
+    apiKey?: string
+}
+
+interface Message {
+    id: string
+    role: "user" | "assistant"
+    content: string
+}
+
 interface AIChatProps {
     problemTitle?: string
     difficulty?: string
@@ -11,42 +23,50 @@ interface AIChatProps {
 }
 
 export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
-    const [aiSettings, setAiSettings] = useState<any>(undefined)
+    const [aiSettings, setAiSettings] = useState<AISettings | undefined>(undefined)
+    const [mounted, setMounted] = useState(false)
 
-    // Read settings when chat is opened
     useEffect(() => {
+        setMounted(true)
         const stored = localStorage.getItem("codeboard_ai_settings");
         if (stored) {
-            try { setAiSettings(JSON.parse(stored)); } catch (e) {}
+            try { setAiSettings(JSON.parse(stored)); } catch { /* ignore */ }
         }
     }, [])
 
-    // @ts-expect-error - AI SDK type mismatch with current React version
     const { messages, input, handleInputChange, handleSubmit, isLoading, error, reload, stop } = useChat({
+        api: "/api/chat",
         body: {
             problemTitle,
             difficulty,
             userCode,
             aiSettings
         },
-        onError: (err: unknown) => {
+        onError: (err: Error) => {
             console.error("Chat error:", err);
-        }
+        },
+        enabled: mounted
     })
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
-
     useEffect(() => {
-        scrollToBottom()
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [messages])
+
+    if (!mounted) {
+        return (
+            <div className="flex flex-col h-full bg-[#0c0c0c] border-l border-[#1f1f1f] w-80">
+                <div className="p-4 border-b border-[#1f1f1f] bg-[#111] flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm text-gray-400">Loading AI...</span>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col h-full bg-[#0c0c0c] border-l border-[#1f1f1f] w-80">
-            {/* Header */}
             <div className="p-4 border-b border-[#1f1f1f] flex items-center justify-between bg-[#111]">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
@@ -68,13 +88,12 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
                 )}
             </div>
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-800">
                 {messages.length === 0 && !error && (
                     <div className="flex flex-col items-center justify-center h-full text-center space-y-3 opacity-60">
                         <Bot className="w-10 h-10 text-gray-600 mb-2" />
                         <p className="text-sm text-gray-400">
-                            Hi! I'm here to help you solve
+                            Hi! I am here to help you solve
                             <span className="block font-medium text-purple-400 mt-1">{problemTitle || "this problem"}</span>
                         </p>
                         <p className="text-xs text-gray-600 max-w-[200px]">
@@ -83,7 +102,7 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
                     </div>
                 )}
 
-                {messages.map((m: any) => (
+                {messages.map((m: Message) => (
                     <div key={m.id} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0
                             ${m.role === 'user' ? 'bg-blue-600' : 'bg-purple-500/20'}`}>
@@ -113,7 +132,7 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
 
                 {error && (
                     <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex flex-col gap-2">
-                        <p className="font-semibold">⚠️ Failed to generate response</p>
+                        <p className="font-semibold">Failed to generate response</p>
                         <p className="opacity-80">{error.message}</p>
                         <button
                             onClick={() => reload()}
@@ -127,7 +146,6 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
             <form onSubmit={handleSubmit} className="p-4 border-t border-[#1f1f1f] bg-[#0c0c0c]">
                 <div className="relative">
                     <input
@@ -147,7 +165,7 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
                     </button>
                 </div>
                 <p className="text-[10px] text-center mt-2 text-gray-600">
-                    Powered by Gemini • AI can make mistakes
+                    Powered by Gemini &bull; AI can make mistakes
                 </p>
             </form>
         </div>
