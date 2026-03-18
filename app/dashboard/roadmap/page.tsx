@@ -6,19 +6,12 @@ import { Plus, CheckCircle2, Trash2, Map, ExternalLink, Search } from "lucide-re
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function RoadmapPage() {
-    const [roadmaps, setRoadmaps] = useState<Roadmap[]>(PREDEFINED_ROADMAPS)
-    const [activeRoadmap, setActiveRoadmap] = useState<Roadmap | null>(null)
-    const [customTask, setCustomTask] = useState("")
-    const [filter, setFilter] = useState("All")
-    const [search, setSearch] = useState("")
-
-    // Load predefined roadmap progress from localStorage on mount
-    useEffect(() => {
+    const [roadmaps, setRoadmaps] = useState<Roadmap[]>(() => {
         try {
             const saved = localStorage.getItem('cb_roadmap_progress')
             if (saved) {
                 const progress: Record<string, Record<string, string>> = JSON.parse(saved)
-                setRoadmaps(prev => prev.map(r => {
+                return PREDEFINED_ROADMAPS.map(r => {
                     const roadmapProgress = progress[r.id]
                     if (!roadmapProgress) return r
                     return {
@@ -28,12 +21,17 @@ export default function RoadmapPage() {
                             status: (roadmapProgress[s.id] as "pending" | "in-progress" | "completed") || s.status
                         }))
                     }
-                }))
+                })
             }
         } catch (e) {
             console.error('Failed to load roadmap progress:', e)
         }
-    }, [])
+        return PREDEFINED_ROADMAPS
+    })
+    const [activeRoadmap, setActiveRoadmap] = useState<Roadmap | null>(null)
+    const [customTask, setCustomTask] = useState("")
+    const [filter, setFilter] = useState("All")
+    const [search, setSearch] = useState("")
 
     // Fetch custom roadmaps from DB on mount
     useEffect(() => {
@@ -43,26 +41,26 @@ export default function RoadmapPage() {
                 if (res.ok) {
                     const dbRoadmaps = await res.json()
                     // Format DB roadmaps to match UI interface
-                    const formattedRoadmaps = dbRoadmaps.map((r: any) => ({
-                        id: r.id,
-                        title: r.title,
-                        description: r.description || "Your custom habitual tasks and goals.",
-                        icon: r.icon || "✨",
-                        color: r.color || "#a855f7",
-                        category: r.category || "Custom",
-                        steps: r.steps ? r.steps.map((s: any) => ({
-                            id: s.id,
-                            title: s.title,
-                            description: s.description || "Custom task",
+                    const formattedRoadmaps = dbRoadmaps.map((r: Record<string, unknown>) => ({
+                        id: r.id as string,
+                        title: r.title as string,
+                        description: (r.description as string) || "Your custom habitual tasks and goals.",
+                        icon: (r.icon as string) || "✨",
+                        color: (r.color as string) || "#a855f7",
+                        category: (r.category as string) || "Custom",
+                        steps: (r.steps as Array<Record<string, unknown>>)?.map((s: Record<string, unknown>) => ({
+                            id: s.id as string,
+                            title: s.title as string,
+                            description: (s.description as string) || "Custom task",
                             resources: [],
-                            status: s.status || "pending"
-                        })) : []
+                            status: (s.status as "pending" | "in-progress" | "completed") || "pending"
+                        })) || []
                     }))
 
                     if (formattedRoadmaps.length > 0) {
                         setRoadmaps(prev => {
                             // Filter out existing DB roadmaps to avoid duplicates on strict mode remounts
-                            const predefined = prev.filter(p => !formattedRoadmaps.find((f: any) => f.id === p.id))
+                            const predefined = prev.filter(p => !formattedRoadmaps.find((f: Record<string, unknown>) => f.id === p.id))
                             return [...predefined, ...formattedRoadmaps]
                         })
                     }
@@ -177,8 +175,8 @@ export default function RoadmapPage() {
     }
 
     const toggleStatus = async (roadmapId: string, stepId: string) => {
-        let toggledStep: any = null;
-        let pRoadmap: any = null;
+        let toggledStep: { id: string; title: string; description: string; status: "pending" | "in-progress" | "completed" } | null = null;
+        let pRoadmap: Roadmap | null = null;
 
         const newRoadmaps = roadmaps.map(r => {
             if (r.id === roadmapId) {
