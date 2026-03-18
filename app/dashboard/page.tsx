@@ -9,27 +9,34 @@ import { ContributionSplit } from "@/components/dashboard/ContributionSplit"
 import { RatingProgressionChart } from "@/components/dashboard/RatingProgressionChart"
 import { SocialActivityFeed } from "@/components/dashboard/SocialActivityFeed"
 import { getDashboardData } from "@/lib/actions"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BarChart2, Code, Trophy, TrendingUp, CheckCircle2, Flame, Clock } from "lucide-react"
 
 type Section = "overview" | "problems" | "contests" | "stats"
 
-interface ContributionDay {
+type ContributionDay = {
   date: string
   count: number
 }
 
-interface PlatformData {
-  name: string
-  rating?: string
-  solved?: number
+type DashboardData = {
+  profile?: { display_name?: string }
+  stats?: {
+    total_solved?: number
+    streak?: number
+    wakatime?: { daily_average?: number }
+    codeforces?: { rating?: number; username?: string; rank?: string }
+    hackathons?: unknown[]
+  }
+  connectedPlatforms?: {
+    github?: { username?: string }
+  }
+  ratingHistory?: unknown[]
+  socialPosts?: unknown[]
+  contributions?: ContributionDay[]
+  recentProblems?: unknown[]
   [key: string]: unknown
-}
-
-interface DashboardData {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
 }
 
 const sections: { id: Section; label: string; icon: React.ElementType }[] = [
@@ -39,9 +46,7 @@ const sections: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "stats", label: "Stats", icon: TrendingUp },
 ]
 
-interface CodeforcesIconProps extends React.SVGProps<SVGSVGElement> {}
-
-const CodeforcesIcon = (props: CodeforcesIconProps) => (
+const CodeforcesIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
     <rect x="14" y="3" width="6" height="18" rx="1" />
     <rect x="8" y="9" width="5" height="12" rx="1" />
@@ -160,7 +165,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Contest Thing */}
                 <div className="col-span-1 min-h-[320px]">
-                  <ContestStats hackathons={data?.stats?.hackathons} />
+                  <ContestStats hackathons={data?.stats?.hackathons as unknown[] || []} />
                 </div>
 
                 {/* Right: Activity Overview -> Social Feed */}
