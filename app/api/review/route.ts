@@ -20,33 +20,44 @@ export async function POST(request: NextRequest) {
         let modelBinding;
         
         const provider = aiSettings?.provider || 'system';
-        // Fallback sequentially if models aren't provided
         const modelName = aiSettings?.model && aiSettings.model !== 'system-default' 
             ? aiSettings.model 
-            : 'gemini-2.5-flash'; // core default
+            : 'google/gemini-2.5-flash'; // core default
             
         const customKey = aiSettings?.apiKey?.trim() || null;
 
-        if (provider === 'google' || (provider === 'system' && process.env.GOOGLE_GENERATIVE_AI_API_KEY)) {
+        if (provider === 'google') {
+            if (!customKey && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) throw new Error("Google AI API Key is missing.");
             const google = createGoogleGenerativeAI({
                 apiKey: customKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
             });
-            modelBinding = google(modelName);
-        } else if (provider === 'anthropic' || (provider === 'system' && process.env.ANTHROPIC_API_KEY)) {
+            const cleanModel = modelName.replace('google/', '').replace('anthropic/', '');
+            modelBinding = google(cleanModel || 'gemini-2.5-flash');
+        } else if (provider === 'anthropic') {
+            if (!customKey && !process.env.ANTHROPIC_API_KEY) throw new Error("Anthropic API Key is missing.");
             const anthropic = createAnthropic({
                 apiKey: customKey || process.env.ANTHROPIC_API_KEY,
             });
-            modelBinding = anthropic(modelName === 'gemini-2.5-flash' ? 'claude-3-5-sonnet-20241022' : modelName);
-        } else if (provider === 'openrouter') {
-            const openrouter = createOpenRouter({
-                apiKey: customKey || process.env.OPENROUTER_API_KEY,
-            });
-            modelBinding = openrouter(modelName === 'gemini-2.5-flash' ? 'anthropic/claude-3.5-sonnet' : modelName);
+            const cleanModel = modelName.replace('google/', '').replace('anthropic/', '');
+            modelBinding = anthropic(cleanModel === 'gemini-2.5-flash' ? 'claude-3-5-sonnet-20241022' : cleanModel);
         } else {
-             const google = createGoogleGenerativeAI({
-                apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-            });
-            modelBinding = google('gemini-2.5-flash');
+            // Default to OpenRouter or use it explicitly
+            const openRouterKey = customKey || process.env.OPENROUTER_API_KEY;
+            
+            // If they don't have OpenRouter key but DO have Google (from old setup), fallback to Google to save them from a crash!
+            if (!openRouterKey && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+                const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
+                modelBinding = google('gemini-2.5-flash');
+            } else if (!openRouterKey) {
+                throw new Error("OpenRouter API Key is missing! Please enter your OpenRouter key in the AI Settings (⚙️ icon).");
+            } else {
+                const openrouter = createOpenRouter({ apiKey: openRouterKey });
+                let finalModel = modelName;
+                if (modelName === 'gemini-1.5-flash' || modelName === 'gemini-2.5-flash') finalModel = 'google/gemini-2.5-flash';
+                if (modelName === 'claude-3-haiku-20240307') finalModel = 'anthropic/claude-3-haiku';
+                if (modelName === 'claude-3-5-sonnet-20241022') finalModel = 'anthropic/claude-3.5-sonnet';
+                modelBinding = openrouter(finalModel);
+            }
         }
 
         const { object } = await generateObject({
@@ -71,10 +82,11 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json(object)
-    } catch (error: any) {
+    } catch (error) {
         console.error("AI Review Error:", error);
+        const message = error instanceof Error ? error.message : "Unknown error"
         return NextResponse.json(
-            { error: "Failed to analyze code", details: error.message || error.toString() },
+            { error: "Failed to analyze code", details: message },
             { status: 500 }
         )
     }
