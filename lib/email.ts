@@ -20,8 +20,9 @@ export async function sendEmail({
     text?: string;
 }) {
     try {
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'CodeBoard <notifications@codeboard.dev>';
         const data = await getResend().emails.send({
-            from: 'CodeBoard <notifications@codeboard.dev>',
+            from: fromEmail,
             to,
             subject,
             react,
