@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getCachedTrendingRepos, type TrendingRepo } from "@/lib/integrations/trending"
+import { getCachedTrendingRepos } from "@/lib/integrations/trending"
 
 export const dynamic = "force-dynamic"
 
