@@ -17,10 +17,19 @@ export function StudioClient({ problem }: { problem: any }) {
                         onChange={(e) => setLanguage(e.target.value)}
                         className="bg-transparent text-sm font-medium focus:outline-none text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors"
                     >
-                        <option value="javascript">JavaScript</option>
-                        <option value="python">Python</option>
                         <option value="cpp">C++</option>
                         <option value="java">Java</option>
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="csharp">C#</option>
+                        <option value="rust">Rust</option>
+                        <option value="go">Go</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="swift">Swift</option>
+                        <option value="kotlin">Kotlin</option>
+                        <option value="php">PHP</option>
+                        <option value="dart">Dart</option>
                     </select>
                 </div>
 
