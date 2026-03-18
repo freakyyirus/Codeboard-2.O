@@ -3,6 +3,8 @@ import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '@/lib/database.types'
+import { sendEmail } from '@/lib/email'
+import { WelcomeEmail } from '@/components/emails/WelcomeEmail'
 
 export async function POST(req: Request) {
     // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
@@ -75,6 +77,20 @@ export async function POST(req: Request) {
             streak_count: 0,
             longest_streak: 0
         } as never)
+
+        // Send Welcome Email natively through Resend
+        if (email) {
+            const { success, error } = await sendEmail({
+                to: email,
+                subject: "Welcome to CodeBoard 2.0! 🚀",
+                react: WelcomeEmail({ name: first_name || username || 'Coder' })
+            });
+            if (!success) {
+                console.error("Failed to send welcome email:", error);
+            } else {
+                console.log("Welcome email sent to:", email);
+            }
+        }
     }
 
     if (eventType === 'user.updated') {
