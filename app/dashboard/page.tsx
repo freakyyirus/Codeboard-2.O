@@ -165,7 +165,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Contest Thing */}
                 <div className="col-span-1 min-h-[320px]">
-                  <ContestStats hackathons={data?.stats?.hackathons as unknown[] || []} />
+                  <ContestStats hackathons={(data?.stats?.hackathons || []) as any} />
                 </div>
 
                 {/* Right: Activity Overview -> Social Feed */}
@@ -173,10 +173,10 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Rating Progression Chart */}
                     <div className="min-h-[320px]">
-                      <RatingProgressionChart ratingHistory={data?.ratingHistory} />
+                      <RatingProgressionChart ratingHistory={(data?.ratingHistory || undefined) as any} />
                     </div>
                     {/* Social Feed */}
-                    <SocialActivityFeed posts={data?.socialPosts || []} />
+                    <SocialActivityFeed posts={(data?.socialPosts || []) as any} />
                   </div>
                 </div>
               </div>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
               transition={{ duration: 0.25, ease: "easeInOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
-              <RecentProblems problems={data?.recentProblems || []} />
+              <RecentProblems problems={(data?.recentProblems || []) as any} />
             </motion.div>
           )}
 
@@ -235,7 +235,7 @@ export default function DashboardPage() {
               transition={{ duration: 0.25, ease: "easeInOut" }}
               className="bg-white/[0.03] border border-white/10 rounded-xl p-6"
             >
-              <UpcomingContests contests={data?.stats?.hackathons || []} />
+              <UpcomingContests contests={(data?.stats?.hackathons || []) as any} />
             </motion.div>
           )}
 
