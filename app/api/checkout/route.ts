@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
-import { stripe, PRICE_IDS } from "@/lib/stripe"
+import { PRICE_IDS } from "@/lib/stripe"
 import { auth } from "@clerk/nextjs/server"
+import Stripe from "stripe"
 
 export async function POST(req: Request) {
   const { userId } = await auth()
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
   const body = await req.json()
   const { plan, billing } = body
 
-  const priceIds: Record<string, string> = {
+  const priceIds: Record<string, string | undefined> = {
     pro_monthly: PRICE_IDS.pro_monthly,
     pro_yearly: PRICE_IDS.pro_yearly,
     team_monthly: PRICE_IDS.team_monthly,
@@ -24,6 +25,10 @@ export async function POST(req: Request) {
   if (!priceId) {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 })
   }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    typescript: true,
+  })
 
   try {
     const session = await stripe.checkout.sessions.create({
