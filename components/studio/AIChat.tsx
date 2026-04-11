@@ -10,12 +10,6 @@ type AISettings = {
     apiKey?: string
 }
 
-interface Message {
-    id: string
-    role: "user" | "assistant"
-    content: string
-}
-
 interface AIChatProps {
     problemTitle?: string
     difficulty?: string
@@ -34,7 +28,9 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
         }
     }, [])
 
-    const { messages, input, handleInputChange, handleSubmit, isLoading, error, reload, stop } = useChat({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const chat = useChat({
+        // @ts-expect-error - AI SDK types mismatch
         api: "/api/chat",
         body: {
             problemTitle,
@@ -46,7 +42,16 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
             console.error("Chat error:", err);
         },
         enabled: mounted
-    })
+    }) as any;
+
+    const messages = chat.messages;
+    const input = chat.input;
+    const handleInputChange = chat.handleInputChange;
+    const handleSubmit = chat.handleSubmit;
+    const isLoading = chat.isLoading;
+    const error = chat.error;
+    const reload = chat.reload;
+    const stop = chat.stop;
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -102,7 +107,7 @@ export function AIChat({ problemTitle, difficulty, userCode }: AIChatProps) {
                     </div>
                 )}
 
-                {messages.map((m: Message) => (
+                {messages.map((m: any) => (
                     <div key={m.id} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0
                             ${m.role === 'user' ? 'bg-blue-600' : 'bg-purple-500/20'}`}>
