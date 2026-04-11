@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server"
-import { stripe } from "@/lib/stripe"
+import Stripe from "stripe"
 import { createClerkSupabaseClient } from "@/lib/clerk-supabase"
 
 export async function POST(req: Request) {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 500 })
   }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    typescript: true,
+  })
 
   const body = await req.text()
   const signature = req.headers.get("stripe-signature")
