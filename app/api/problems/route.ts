@@ -10,18 +10,11 @@ export async function GET(req: Request) {
         const id = searchParams.get('id');
 
         if (id) {
-            // Fetch specific problem with its public test cases
+            // Fetch specific problem 
             const { data: problem, error: problemError } = await supabase
                 .from('problems')
-                .select(`
-          *,
-          test_cases (
-            input,
-            expected_output
-          )
-        `)
+                .select('*')
                 .eq('id', id)
-                .eq('test_cases.is_hidden', false)
                 .single();
 
             if (problemError) throw problemError;
@@ -30,7 +23,25 @@ export async function GET(req: Request) {
                 return NextResponse.json({ error: 'Problem not found' }, { status: 404 });
             }
 
-            return NextResponse.json({ problem });
+            const problemWithCases = problem as any;
+
+            // Attempt to fetch public test cases separately to avoid failing if the table is missing
+            try {
+                const { data: testCases } = await supabase
+                    .from('test_cases')
+                    .select('input, expected_output')
+                    .eq('problem_id', id)
+                    .eq('is_hidden', false);
+
+                if (testCases) {
+                    problemWithCases.test_cases = testCases;
+                }
+            } catch (tcError) {
+                console.warn('Test cases fetch failed (likely table missing):', tcError);
+                problemWithCases.test_cases = [];
+            }
+
+            return NextResponse.json({ problem: problemWithCases });
         } else {
             // Fetch all available problems (summary)
             const { data: problems, error } = await supabase
