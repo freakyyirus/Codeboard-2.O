@@ -101,7 +101,7 @@ export default function CommunityPage() {
     const handlePost = async () => {
         if (!newPost.trim()) return
         setPosting(true)
-        const tags = newPost.match(/#\w+/g)?.map(t => t.slice(1)) || []
+        const tags = newPost.match(/#\w+/g)?.map((t: string) => t.slice(1)) || []
         const post: Post = {
             id: Date.now().toString(),
             user: {
