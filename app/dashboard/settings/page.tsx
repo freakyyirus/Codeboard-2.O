@@ -292,7 +292,7 @@ export default function SettingsPage() {
                 })
             }
         } catch (error: any) {
-            toast.error(error.errors?.[0]?.message || "Failed to update profile via Authentication provider")
+            toast.error(error.errors?.[0]?.message || 'Failed to update profile via Authentication provider')
         }
 
         setSaving(false)
@@ -301,15 +301,15 @@ export default function SettingsPage() {
     const savePlatform = async (platform: string, username: string) => {
         if (!username.trim() || !user) return
         const result = await savePlatformAction(platform, username)
-        if (result.error) { toast.error("Failed to connect " + platform); console.error(result.error) }
+        if (result.error) { toast.error('Failed to connect ' + platform); console.error(result.error) }
         else {
             setPlatforms(prev => prev.map(p => p.platform === platform ? { ...p, connected: true } : p))
-            toast.success(platform + " connected!")
+            toast.success(`${platform} connected!`)
 
             // Immediately sync stats from the platform API
             syncPlatformNow(platform, username).then((syncResult) => {
                 if (syncResult.stats) {
-                    toast.success(platform + " stats synced!")
+                    toast.success(`${platform} stats synced!`)
                 }
             }).catch(() => {
                 // Silent fail — cron will pick it up later
@@ -321,7 +321,7 @@ export default function SettingsPage() {
         if (!user) return
         await disconnectPlatformAction(platform)
         setPlatforms(prev => prev.map(p => p.platform === platform ? { ...p, connected: false, username: "" } : p))
-        toast.success(platform + " disconnected")
+        toast.success(`${platform} disconnected`)
     }
 
     const updatePassword = async () => {
