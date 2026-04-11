@@ -1,15 +1,31 @@
 import Stripe from "stripe"
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  typescript: true,
-})
+let stripeInstance: Stripe | null = null
+
+function getStripe(): Stripe | null {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return null
+  }
+  if (!stripeInstance) {
+    stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      typescript: true,
+    })
+  }
+  return stripeInstance
+}
+
+export const stripe = {
+  get instance() {
+    return getStripe()
+  }
+}
 
 export const PRICE_IDS = {
-  pro_monthly: process.env.STRIPE_PRO_PRICE_ID!,
-  pro_yearly: process.env.STRIPE_PRO_YEARLY_PRICE_ID!,
-  team_monthly: process.env.STRIPE_TEAM_PRICE_ID!,
-  team_yearly: process.env.STRIPE_TEAM_YEARLY_PRICE_ID!,
-} as const
+  pro_monthly: process.env.STRIPE_PRO_PRICE_ID,
+  pro_yearly: process.env.STRIPE_PRO_YEARLY_PRICE_ID,
+  team_monthly: process.env.STRIPE_TEAM_PRICE_ID,
+  team_yearly: process.env.STRIPE_TEAM_YEARLY_PRICE_ID,
+}
 
 export const PLAN_FEATURES = {
   free: {
