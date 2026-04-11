@@ -99,7 +99,7 @@ export async function getDashboardData() {
     })
 
     // GitHub Contributions
-    const githubUser = connectedPlatforms['github']?.username || process.env.GITHUB_USERNAME;
+    const githubUser = connectedPlatforms['github']?.username;
     if (githubUser) {
         const ghContributions = await getGithubContributions(githubUser);
         if (Array.isArray(ghContributions)) {
@@ -153,10 +153,9 @@ export async function getDashboardData() {
         })
     }
 
-    // Live-fetch fallback: if platform_stats is empty but user has connected the platform,
-    // fetch directly from API so data shows immediately (before cron runs)
-    const lcUsername = connectedPlatforms['leetcode']?.username || process.env.LEETCODE_USERNAME
-    if (!leetCodeStats && lcUsername) {
+    // Live-fetch: fetch directly from API for connected user's platform
+    const lcUsername = connectedPlatforms['leetcode']?.username
+    if (lcUsername && !leetCodeStats) {
         const liveLC = await getCachedLeetCodeStats(lcUsername)
         if (liveLC) {
             leetCodeStats = {
@@ -169,7 +168,7 @@ export async function getDashboardData() {
         }
     }
 
-    const cfUsername = connectedPlatforms['codeforces']?.username || process.env.CODEFORCES_USERNAME
+    const cfUsername = connectedPlatforms['codeforces']?.username
     if (!codeforcesStats && cfUsername) {
         const liveCF = await getCachedCodeforcesStats(cfUsername)
         if (liveCF) {
