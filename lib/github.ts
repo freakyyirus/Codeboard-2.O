@@ -8,8 +8,8 @@ function getHeaders() {
   }
 }
 
-export async function getRepos(username?: string) {
-  const targetUser = username || process.env.GITHUB_USERNAME
+export async function getRepos(username: string) {
+  const targetUser = username
   const CACHE_KEY = `github:repos:${targetUser}`
 
   // Return empty array if no user
@@ -87,7 +87,7 @@ export async function getTrendingRepos() {
 }
 
 export async function getEvents(username?: string) {
-  const targetUser = username || process.env.GITHUB_USERNAME
+  const targetUser = username
   const CACHE_KEY = `github:events:${targetUser}`
 
   if (!targetUser) return []
@@ -125,7 +125,7 @@ export async function getEvents(username?: string) {
 }
 
 export async function getPinnedRepos(username?: string) {
-  const targetUser = username || process.env.GITHUB_USERNAME
+  const targetUser = username
   const CACHE_KEY = `github:pinned:${targetUser}`
 
   if (!targetUser) return []
@@ -196,7 +196,7 @@ export async function getPinnedRepos(username?: string) {
 }
 
 export async function getGithubContributions(username?: string) {
-  const targetUser = username || process.env.GITHUB_USERNAME
+  const targetUser = username
   const CACHE_KEY = `github:contributions:${targetUser}`
 
   if (!targetUser || !process.env.GITHUB_TOKEN) return []
