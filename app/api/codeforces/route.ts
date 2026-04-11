@@ -1,50 +1,54 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import {
     getCodeforcesUserInfo,
     getCodeforcesRatingHistory,
     getCodeforcesSubmissions
 } from '@/lib/codeforces';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
     try {
+        const { userId } = await auth();
+        
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const { searchParams } = new URL(req.url);
-        // Default to the user's configured env var, or accept an explicit handle
-        const username = searchParams.get('username') || process.env.CODEFORCES_USERNAME;
+        const username = searchParams.get('username');
 
         if (!username) {
-            return NextResponse.json(
-                { error: 'Codeforces username is required or not configured in .env' },
-                { status: 400 }
+            // Get user's connected Codeforces username
+            const supabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.SUPABASE_SERVICE_ROLE_KEY!
             );
+            
+            const { data: conn } = await supabase
+                .from('platform_connections')
+                .select('username')
+                .eq('user_id', userId)
+                .eq('platform', 'codeforces')
+                .single();
+
+            if (!conn?.username) {
+                return NextResponse.json(
+                    { error: 'No Codeforces account connected. Add username in Settings.' },
+                    { status: 400 }
+                );
+            }
+
+            const userInfo = await getCodeforcesUserInfo(conn.username);
+            return NextResponse.json(userInfo);
         }
 
-        // Fetch all data in parallel
-        const [userInfo, ratingHistory, recentSubmissions] = await Promise.all([
-            getCodeforcesUserInfo(username),
-            getCodeforcesRatingHistory(username),
-            getCodeforcesSubmissions(username, 10) // fetch last 10 submissions
-        ]);
-
-        if (!userInfo) {
-            return NextResponse.json(
-                { error: `Could not fetch Codeforces profile for ${username}` },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({
-            profile: userInfo,
-            history: ratingHistory,
-            submissions: recentSubmissions
-        });
-
+        const userInfo = await getCodeforcesUserInfo(username);
+        return NextResponse.json(userInfo);
     } catch (error) {
-        console.error('Error in /api/codeforces:', error);
-        return NextResponse.json(
-            { error: 'Internal Server Error' },
-            { status: 500 }
-        );
+        console.error('Codeforces API error:', error);
+        return NextResponse.json({ error: 'Failed to fetch Codeforces data' }, { status: 500 });
     }
 }
