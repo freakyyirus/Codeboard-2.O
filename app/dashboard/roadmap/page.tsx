@@ -196,14 +196,14 @@ export default function RoadmapPage() {
         })
 
         // Optimistic update
-        setRoadmaps(newRoadmaps)
+        setRoadmaps(newRoadmaps as any)
 
         // Update activeRoadmap if this is the currently viewed one
         if (activeRoadmap?.id === roadmapId) {
-            setActiveRoadmap(newRoadmaps.find(r => r.id === roadmapId) || null)
+            setActiveRoadmap((newRoadmaps.find(r => r.id === roadmapId) || null) as any)
         }
 
-        if (pRoadmap?.category === "Custom") {
+        if ((pRoadmap as any)?.category === "Custom") {
             // Custom roadmaps persist to DB
             if (toggledStep) {
                 try {
@@ -213,11 +213,11 @@ export default function RoadmapPage() {
                         body: JSON.stringify({
                             action: "UPSERT_STEP",
                             payload: {
-                                id: toggledStep.id,
-                                roadmap_id: pRoadmap.id,
-                                title: toggledStep.title,
-                                description: toggledStep.description,
-                                status: toggledStep.status
+                                id: (toggledStep as any).id,
+                                roadmap_id: (pRoadmap as any).id,
+                                title: (toggledStep as any).title,
+                                description: (toggledStep as any).description,
+                                status: (toggledStep as any).status
                             }
                         })
                     });
@@ -232,7 +232,7 @@ export default function RoadmapPage() {
                 const progress: Record<string, Record<string, string>> = saved ? JSON.parse(saved) : {}
                 if (!progress[roadmapId]) progress[roadmapId] = {}
                 if (toggledStep) {
-                    progress[roadmapId][stepId] = toggledStep.status
+                    progress[roadmapId][stepId] = (toggledStep as any).status
                 }
                 localStorage.setItem('cb_roadmap_progress', JSON.stringify(progress))
             } catch (e) {
