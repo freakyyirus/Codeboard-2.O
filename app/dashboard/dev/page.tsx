@@ -1,4 +1,6 @@
+import { auth } from "@clerk/nextjs/server"
 import { getRepos, getPinnedRepos, getEvents } from "@/lib/github"
+import { createClient } from "@supabase/supabase-js"
 
 interface GitHubRepo {
   id: number
@@ -28,17 +30,38 @@ interface GitHubEvent {
 }
 
 export default async function DevPage() {
+  const { userId } = await auth()
+  
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  let githubUsername = ""
+  
+  if (userId) {
+    const { data: conn } = await supabase
+      .from('platform_connections')
+      .select('username')
+      .eq('user_id', userId)
+      .eq('platform', 'github')
+      .single()
+    
+    githubUsername = conn?.username || ""
+  }
+
+  let hasToken = !!process.env.GITHUB_TOKEN && !!githubUsername
+
   let repos: GitHubRepo[] = []
   let pinned: GitHubPinnedRepo[] = []
   let events: GitHubEvent[] = []
-  let hasToken = !!process.env.GITHUB_TOKEN && !!process.env.GITHUB_USERNAME
 
-  if (hasToken) {
+  if (hasToken && githubUsername) {
     try {
       ;[repos, pinned, events] = await Promise.all([
-        getRepos(),
-        getPinnedRepos(),
-        getEvents(),
+        getRepos(githubUsername),
+        getPinnedRepos(githubUsername),
+        getEvents(githubUsername),
       ])
     } catch {
       hasToken = false
