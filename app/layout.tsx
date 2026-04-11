@@ -29,6 +29,7 @@ export const metadata: Metadata = {
     description: "One dashboard for all your competitive programming platforms.",
   },
   icons: { icon: "/favicon.ico" },
+  manifest: "/manifest.json",
   other: { "theme-color": "#000000" },
 };
 
@@ -46,7 +47,7 @@ export default function RootLayout({
     >
       <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
