@@ -42,6 +42,20 @@ const serverSchema = z.object({
 
     // App
     NEXT_PUBLIC_APP_URL: z.string().optional(),
+
+    // Stripe
+    STRIPE_SECRET_KEY: z.string().optional(),
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    STRIPE_PRO_PRICE_ID: z.string().optional(),
+    STRIPE_PRO_YEARLY_PRICE_ID: z.string().optional(),
+    STRIPE_TEAM_PRICE_ID: z.string().optional(),
+    STRIPE_TEAM_YEARLY_PRICE_ID: z.string().optional(),
+
+    // PostHog
+    NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
+    POSTHOG_API_KEY: z.string().optional(),
 })
 
 const clientSchema = z.object({
