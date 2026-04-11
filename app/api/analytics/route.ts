@@ -1,16 +1,42 @@
 import { NextResponse } from "next/server"
+import { auth } from "@clerk/nextjs/server"
 import { fetchLeetCodeStats } from "@/lib/leetcode"
 import { getCodeforcesUserInfo } from "@/lib/codeforces"
 import { getGithubContributions } from "@/lib/github"
 import { getWakaTimeStats } from "@/lib/wakatime"
+import { createClient } from "@supabase/supabase-js"
 
 export const dynamic = "force-dynamic"
 
 export async function GET() {
     try {
-        const githubUser = process.env.GITHUB_USERNAME
-        const leetcodeUser = process.env.LEETCODE_USERNAME
-        const codeforcesUser = process.env.CODEFORCES_USERNAME
+        const { userId } = await auth()
+        
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
+
+        // Fetch user's connected platforms
+        const { data: connections } = await supabase
+            .from('platform_connections')
+            .select('platform, username')
+            .eq('user_id', userId)
+
+        const connected = connections?.reduce((acc: Record<string, string>, conn) => {
+            if (conn.username) {
+                acc[conn.platform] = conn.username
+            }
+            return acc
+        }, {} as Record<string, string>) || {}
+
+        const githubUser = connected['github']
+        const leetcodeUser = connected['leetcode']
+        const codeforcesUser = connected['codeforces']
 
         // Fetch all platform data in parallel
         const [leetcode, codeforces, githubContribs, wakatime] = await Promise.allSettled([
@@ -25,69 +51,12 @@ export async function GET() {
         const githubData = githubContribs.status === "fulfilled" ? githubContribs.value : null
         const wakatimeData = wakatime.status === "fulfilled" ? wakatime.value : null
 
-        // Build platform summary
-        const platforms = []
-
-        if (leetcodeData) {
-            platforms.push({
-                name: "LeetCode",
-                color: "#ef4444",
-                rating: leetcodeData.ranking?.toString() || "—",
-                solved: leetcodeData.totalSolved,
-                details: {
-                    easy: leetcodeData.easySolved,
-                    medium: leetcodeData.mediumSolved,
-                    hard: leetcodeData.hardSolved,
-                },
-            })
-        }
-
-        if (codeforcesData) {
-            platforms.push({
-                name: "Codeforces",
-                color: "#22c55e",
-                rating: codeforcesData.rating?.toString() || "—",
-                solved: 0, // CF doesn't expose total solved easily
-                details: {
-                    rank: codeforcesData.rank,
-                    maxRating: codeforcesData.maxRating,
-                    maxRank: codeforcesData.maxRank,
-                },
-            })
-        }
-
-        // Build contribution heatmap data (platform-tagged)
-        const contributions: { date: string; count: number; platform: string; color: string }[] = []
-
-        if (Array.isArray(githubData)) {
-            githubData.forEach((c: { date: string; count: number }) => {
-                contributions.push({ date: c.date, count: c.count, platform: "GitHub", color: "#3b82f6" })
-            })
-        }
-
-        // Summary metrics
-        const totalSolved = platforms.reduce((a, p) => a + (p.solved || 0), 0)
-        const totalContributions = contributions.reduce((a, c) => a + c.count, 0)
-
-        // Coding time from WakaTime
-        const codingTimeHours = wakatimeData ? Math.round(wakatimeData.total_seconds / 3600) : 0
-        const codingTimeMinutes = wakatimeData ? Math.round((wakatimeData.total_seconds % 3600) / 60) : 0
-
         return NextResponse.json({
-            platforms,
-            contributions,
-            summary: {
-                totalSolved,
-                totalContributions,
-                codingTime: wakatimeData ? `${codingTimeHours}h ${codingTimeMinutes}m` : null,
-                languages: wakatimeData?.languages || [],
-            },
-            connected: {
-                github: !!githubUser,
-                leetcode: !!leetcodeUser,
-                codeforces: !!codeforcesUser,
-                wakatime: !!wakatimeData,
-            },
+            leetcode: leetcodeData,
+            codeforces: codeforcesData,
+            github: githubData,
+            wakatime: wakatimeData,
+            connected: connected,
         })
     } catch (error) {
         console.error("Analytics API error:", error)
